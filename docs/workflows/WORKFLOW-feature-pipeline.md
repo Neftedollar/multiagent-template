@@ -16,6 +16,8 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 |-------|------|-------|
 | Orchestrator | Manages flow, spawns sub-agents | opus |
 | Product Manager | Scope, AC | opus |
+| UX Researcher | User flows, interaction patterns (conditional: UI) | opus |
+| UI Designer | Layout, components, visual spec (conditional: UI) | sonnet |
 | Software Architect | Design, ADR, trade-offs | opus |
 | Senior Developer | Implementation + unit tests | sonnet |
 | Frontend Developer | UI implementation (conditional) | sonnet |
@@ -29,19 +31,39 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 ## Workflow Tree
 
 ### STEP 1: PLAN
-**Actor**: Product Manager + Software Architect (sequential)
+**Actor**: Product Manager → UX Researcher + UI Designer (conditional: UI) → Software Architect (sequential)
 **Gate**: `PLAN_APPROVED`
 **Timeout**: 15 min per sub-role
 
-**Action**:
-1. PM defines scope, acceptance criteria
-2. Architect designs solution, ADR if needed
+**Action (Product Manager)**:
+1. Define scope, acceptance criteria, user stories
 
-**Output on SUCCESS**: `{ scope, acceptance_criteria, design, files_to_change, status: "PLAN_APPROVED" }` → GO TO STEP 2
+**Action (UX Researcher — when task involves UI)**:
+
+Triggered by keywords: `dashboard`, `ui`, `page`, `component`, `form`, `layout`, `landing`, `website`, `onboarding`, `flow` or file patterns: `*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.vue`, `*.blade.php`.
+
+1. Analyze user flows and interaction patterns for the feature
+2. Identify key screens, states (empty, loading, error, filled)
+3. Define navigation paths and user journey
+4. Output: user flow description, screen list, interaction notes
+
+**Action (UI Designer — when UX Researcher participated)**:
+
+1. Define layout structure, component hierarchy
+2. Specify visual elements: spacing, typography scale, color usage
+3. Describe responsive behavior (desktop → tablet → mobile)
+4. Output: component spec with states, layout description, responsive notes
+
+**Action (Software Architect)**:
+1. Design technical solution, ADR if needed
+2. When UX/UI participated — map UI spec to components/files, validate feasibility
+
+**Output on SUCCESS**: `{ scope, acceptance_criteria, design, ux_flows?, ui_spec?, files_to_change, status: "PLAN_APPROVED" }` → GO TO STEP 2
 
 **Output on FAILURE**:
 - `NEEDS_WORK(scope_unclear)` → retry with clarification
 - `NEEDS_WORK(design_conflict)` → retry with specific conflict
+- `NEEDS_WORK(ux_ui_infeasible)` → Architect + Designer re-negotiate
 - `NEEDS_WORK(infeasible)` → ESCALATE to CEO
 
 **Retry policy**: 3 attempts → helper (Secondary role from capability index) → 2 attempts with helper recommendation → CEO escalation (5 total). See process.md "Helper mechanism on blockers".
@@ -57,7 +79,7 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 
 **Action**:
 1. Developer implements backend + unit tests
-2. Frontend Developer implements UI (if UI feature) — parallel if no data dependency
+2. Frontend Developer implements UI from UI spec (if UI feature) — parallel if no data dependency
 3. DevOps makes infra changes (if needed) — sequential after backend
 
 **Output on SUCCESS**: `{ files_changed, tests_added, build_result: "OK", status: "BUILD_DONE" }` → GO TO STEP 3

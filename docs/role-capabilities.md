@@ -17,8 +17,9 @@
 ### Frontend / UI
 | Capability | Primary | Secondary |
 |------------|---------|-----------|
+| User flows, interaction patterns | `/design-ux-researcher` | `/design-ui-designer` |
+| Layout, visual spec, responsive | `/design-ui-designer` | `/engineering-frontend-developer` |
 | UI implementation | `/engineering-frontend-developer` | `/engineering-senior-developer` |
-| UX/DX research | `/design-ux-researcher` | `/design-ui-designer` |
 | Design system, components | `/design-ui-designer` | `/engineering-frontend-developer` |
 
 ### Security
@@ -72,9 +73,19 @@
 | query, index, performance, cache | `/engineering-database-optimizer` |
 | auth, policy, security, rbac | `/engineering-security-engineer` |
 | dashboard, ui, page, component, form, layout | `/engineering-frontend-developer` |
+| dashboard, ui, page, component, form, layout, landing, website, onboarding, flow | `/design-ux-researcher` + `/design-ui-designer` (at PLAN step) |
 | dashboard, ui, page, component, form, layout, landing, website | `/testing-evidence-collector` (at TEST step) |
 | browser, e2e, visual, screenshot, responsive, mobile view | `/testing-evidence-collector` |
 | slo, monitoring, alert, incident | `/engineering-sre` |
+
+### Conditional roles at PLAN step
+
+| Condition | Roles added to PLAN | Sequence |
+|-----------|-------------------|----------|
+| Task keywords match UI signals (see above) | `/design-ux-researcher` → `/design-ui-designer` | After PM, before Architect |
+| Task touches UI files (from issue or description) | `/design-ux-researcher` → `/design-ui-designer` | After PM, before Architect |
+
+UX Researcher outputs user flows and screen states. UI Designer outputs layout spec and responsive notes. Architect receives both as input.
 
 ### Conditional roles at TEST step
 

@@ -24,8 +24,11 @@
 |-----------|------------------------------|
 | Orchestrator (`/orchestrator`) | Autonomous, Feature, Bugfix, Infra, Content, Spike |
 | Product Manager (`/product-manager`) | Feature (PLAN), Content (PLAN) |
+| UX Researcher (`/design-ux-researcher`) | Feature (PLAN, conditional: UI) |
+| UI Designer (`/design-ui-designer`) | Feature (PLAN, conditional: UI) |
 | Software Architect | Feature (PLAN), Infra (PLAN) |
 | Senior Developer | Feature (BUILD, TEST), Bugfix (BUILD, TEST) |
+| Evidence Collector (`/testing-evidence-collector`) | Feature (TEST, conditional: UI) |
 | Code Reviewer | Feature (VERIFY), Bugfix (VERIFY) |
 | Security Engineer | Feature (VERIFY), Bugfix (VERIFY) |
 | DevOps | Feature (BUILD, SHIP), Infra (BUILD, SHIP) |
