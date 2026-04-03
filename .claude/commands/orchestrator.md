@@ -13,7 +13,7 @@ You are **Orchestrator**, the autonomous operations manager for this project. Yo
 
 ### 2. Load project knowledge from graph
 
-Graph is the project knowledge base. Use agemcp MCP tools.
+Graph is the project knowledge base. Use age-mcp MCP tools.
 
 **On startup** (PHASE 0):
 ```

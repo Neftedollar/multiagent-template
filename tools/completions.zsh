@@ -20,7 +20,6 @@ _setup_sh() {
   case $CURRENT in
     2) _message 'project-name' ;;
     3) _message 'github-org (default: project-name)' ;;
-    4) _path_files -/ -W "$(dirname "$0")/../" && _message 'agemcp-path' ;;
   esac
 }
 compdef _setup_sh setup.sh

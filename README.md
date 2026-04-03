@@ -56,9 +56,9 @@ MyProject/
 
 Шаблон использует два ключевых инструмента для хранения знаний и координации между агентами.
 
-### AGE Graph (Apache AGE + agemcp)
+### AGE Graph (Apache AGE + age-mcp)
 
-Графовая база данных на PostgreSQL с расширением [Apache AGE](https://age.apache.org/), которая служит **базой знаний проекта**. Подключается к Claude Code как MCP-сервер (`agemcp`).
+Графовая база данных на PostgreSQL с расширением [Apache AGE](https://age.apache.org/), которая служит **базой знаний проекта**. Подключается к Claude Code как MCP-сервер ([age-mcp](https://github.com/Neftedollar/age-mcp) — F#/.NET, 21 tool).
 
 Что хранится в графе: модули и их зависимости (`Module → DEPENDS_ON → Module`), пайплайны и шаги (`Pipeline → HAS_STEP → Step`), привязка ролей к шагам (`Step → PERFORMED_BY → Role`), связи между ролями (`Role → HELPS → Role`), а также `SecurityFinding` и `CodeInsight` — находки по безопасности и паттерны кода, которые агенты накапливают по мере работы.
 
@@ -66,7 +66,7 @@ MyProject/
 
 После завершения задачи агенты **обновляют граф** — добавляют новые модули, security findings, code insights. Таким образом, база знаний растёт и обогащается с каждой итерацией.
 
-Установка: `./tools/install-mcps.sh` — клонирует agemcp, поднимает PostgreSQL+AGE в Docker (порт 5435) и прописывает MCP-конфигурацию в Claude Code.
+Установка: `./tools/install-mcps.sh` — клонирует age-mcp, ставит dotnet global tool, поднимает PostgreSQL+AGE в Docker (порт 5435) и прописывает MCP-конфигурацию в Claude Code.
 
 ### OpenBrain
 

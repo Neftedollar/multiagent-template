@@ -166,11 +166,9 @@ gh pr list --repo {{GITHUB_ORG}}/{{GITHUB_REPO}}
 
 ### AGE MCP connection pool
 
-Connection leak in agemcp. Connections not released despite pool config.
+Sequential query recommended. Parallel `cypher_query` calls may hit PostgreSQL connection limits.
 
 **Workaround**: Orchestrator makes AGE queries **sequentially**, one `cypher_query` at a time.
-
-**Fix**: fix connection lifecycle in agemcp. Fallback — increase `max_connections` in PostgreSQL docker-compose.
 
 ### Limitations
 

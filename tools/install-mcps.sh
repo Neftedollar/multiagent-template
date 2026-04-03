@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install my-mcps (agemcp + AGE graph database)
+# Install my-mcps (age-mcp + AGE graph database)
 # Standalone installer — run from any project or via curl:
 #
 #   curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/tools/install-mcps.sh | bash
@@ -7,17 +7,18 @@
 #   curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/tools/install-mcps.sh | bash -s -- ~/my-mcps
 #
 # What it does:
-#   1. Checks/installs deps (docker, uv)
-#   2. Clones agemcp into <target>/agemcp
+#   1. Checks/installs deps (docker, dotnet)
+#   2. Clones age-mcp into <target>/age-mcp
 #   3. Starts AGE database (PostgreSQL + Apache AGE)
-#   4. Adds agemcp to Claude Code MCP config (project-level if in a project, else global)
+#   4. Installs age-mcp dotnet global tool
+#   5. Adds age-mcp to Claude Code MCP config (project-level if in a project, else global)
 
 set -euo pipefail
 
 TARGET_DIR="${1:-$(pwd)/my-mcps}"
-AGEMCP_DIR="${TARGET_DIR}/agemcp"
-AGEMCP_REPO="https://github.com/neftedollar/agemcp.git"
-AGE_DSN="postgresql+asyncpg://agemcp:agemcp@localhost:5435/agemcp"
+AGEMCP_DIR="${TARGET_DIR}/age-mcp"
+AGEMCP_REPO="https://github.com/Neftedollar/age-mcp.git"
+AGE_CONN="Host=localhost;Port=5435;Database=agemcp;Username=agemcp;Password=agemcp"
 AGE_PORT=5435
 
 OS="$(uname -s)"
@@ -72,20 +73,27 @@ else
   echo "  OK: docker"
 fi
 
-# ─── uv ──────────────────────────────────────────────────────
+# ─── .NET SDK ────────────────────────────────────────────────
 
-if ! has uv; then
-  echo "  ..  uv not found, installing..."
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-  if has uv; then
-    echo "  OK: uv installed"
+if ! has dotnet; then
+  echo "  ..  dotnet not found, installing..."
+  if [ "$OS" = "Darwin" ] && has brew; then
+    brew install dotnet
+  elif [ -f /etc/debian_version ]; then
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS
+    export PATH="$HOME/.dotnet:$PATH"
   else
-    echo "FAIL: uv installation failed"
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS
+    export PATH="$HOME/.dotnet:$PATH"
+  fi
+  if has dotnet; then
+    echo "  OK: dotnet installed"
+  else
+    echo "FAIL: dotnet installation failed — https://dotnet.microsoft.com/download"
     ERRORS=$((ERRORS+1))
   fi
 else
-  echo "  OK: uv"
+  echo "  OK: dotnet $(dotnet --version 2>/dev/null)"
 fi
 
 # ─── Bail on errors ──────────────────────────────────────────
@@ -96,31 +104,31 @@ if [ $ERRORS -gt 0 ]; then
   exit 1
 fi
 
-# ─── Clone agemcp ────────────────────────────────────────────
+# ─── Clone age-mcp ───────────────────────────────────────────
 
 echo ""
 
 if [ -d "$AGEMCP_DIR" ]; then
-  if [ -f "$AGEMCP_DIR/pyproject.toml" ]; then
-    echo "  OK: agemcp already at $AGEMCP_DIR"
+  if [ -f "$AGEMCP_DIR/age-mcp.fsproj" ]; then
+    echo "  OK: age-mcp already at $AGEMCP_DIR"
     echo "  ..  pulling latest..."
     (cd "$AGEMCP_DIR" && git pull --ff-only 2>/dev/null) || echo "  WARN: git pull failed, using existing"
   else
-    echo "FAIL: $AGEMCP_DIR exists but doesn't look like agemcp (missing pyproject.toml)"
+    echo "FAIL: $AGEMCP_DIR exists but doesn't look like age-mcp (missing age-mcp.fsproj)"
     exit 1
   fi
 else
-  echo "  ..  Cloning agemcp..."
+  echo "  ..  Cloning age-mcp..."
   mkdir -p "$(dirname "$AGEMCP_DIR")"
   git clone "$AGEMCP_REPO" "$AGEMCP_DIR"
-  echo "  OK: agemcp cloned"
+  echo "  OK: age-mcp cloned"
 fi
 
 # ─── Start AGE database ─────────────────────────────────────
 
 echo ""
 
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q 'agemcp.*db'; then
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -q 'age.*db\|agemcp.*db'; then
   echo "  OK: AGE database already running"
 else
   if [ -f "$AGEMCP_DIR/docker-compose.yml" ] || [ -f "$AGEMCP_DIR/compose.yml" ]; then
@@ -139,8 +147,23 @@ else
       echo "  WARN: PostgreSQL not reachable on :${AGE_PORT} yet (may need more time)"
     fi
   else
-    echo "  WARN: no docker-compose.yml found in agemcp, skipping DB start"
+    echo "  WARN: no docker-compose.yml found in age-mcp, skipping DB start"
   fi
+fi
+
+# ─── Install age-mcp dotnet tool ─────────────────────────────
+
+echo ""
+
+if has age-mcp; then
+  echo "  OK: age-mcp tool already installed"
+else
+  echo "  ..  Installing age-mcp dotnet global tool..."
+  dotnet tool install --global AgeMcp 2>/dev/null \
+    && echo "  OK: age-mcp installed" \
+    || dotnet tool update --global AgeMcp 2>/dev/null \
+    && echo "  OK: age-mcp updated" \
+    || echo "  WARN: could not install age-mcp globally, will use from source"
 fi
 
 # ─── Configure Claude Code MCP ───────────────────────────────
@@ -158,58 +181,72 @@ else
   mkdir -p "$HOME/.claude"
 fi
 
-# Build the agemcp server entry
-AGEMCP_ENTRY=$(cat <<JSONEOF
+# Build the age-mcp server entry
+# Use global tool if available, otherwise run from source
+if has age-mcp; then
+  AGEMCP_ENTRY=$(cat <<JSONEOF
 {
-  "command": "uv",
-  "args": ["run", "agemcp", "run"],
-  "cwd": "${AGEMCP_ABS}",
+  "type": "stdio",
+  "command": "age-mcp",
   "env": {
-    "DB__DSN": "${AGE_DSN}"
+    "AGE_CONNECTION_STRING": "${AGE_CONN}",
+    "TENANT_ID": "default"
   }
 }
 JSONEOF
-)
+  )
+else
+  AGEMCP_ENTRY=$(cat <<JSONEOF
+{
+  "type": "stdio",
+  "command": "dotnet",
+  "args": ["run", "--project", "${AGEMCP_ABS}"],
+  "env": {
+    "AGE_CONNECTION_STRING": "${AGE_CONN}",
+    "TENANT_ID": "default"
+  }
+}
+JSONEOF
+  )
+fi
 
 # Merge into existing mcp.json or create new one
 if [ -f "$MCP_FILE" ]; then
-  # Check if agemcp already configured
-  if grep -q '"agemcp"' "$MCP_FILE" 2>/dev/null; then
-    echo "  OK: agemcp already in ${MCP_SCOPE} MCP config ($MCP_FILE)"
+  if grep -q '"age-mcp"' "$MCP_FILE" 2>/dev/null; then
+    echo "  OK: age-mcp already in ${MCP_SCOPE} MCP config ($MCP_FILE)"
   else
-    # Add agemcp to existing mcpServers
     if has python3; then
       python3 -c "
 import json, sys
 with open('$MCP_FILE') as f:
     cfg = json.load(f)
-cfg.setdefault('mcpServers', {})['agemcp'] = json.loads('''$AGEMCP_ENTRY''')
+cfg.setdefault('mcpServers', {})['age-mcp'] = json.loads('''$AGEMCP_ENTRY''')
 with open('$MCP_FILE', 'w') as f:
     json.dump(cfg, f, indent=2)
     f.write('\n')
 "
-      echo "  OK: agemcp added to ${MCP_SCOPE} MCP config ($MCP_FILE)"
+      echo "  OK: age-mcp added to ${MCP_SCOPE} MCP config ($MCP_FILE)"
     else
       echo "  WARN: python3 not found, writing fresh MCP config"
       cat > "$MCP_FILE" <<MCPEOF
 {
   "mcpServers": {
-    "agemcp": ${AGEMCP_ENTRY}
+    "age-mcp": ${AGEMCP_ENTRY}
   }
 }
 MCPEOF
-      echo "  OK: agemcp written to ${MCP_SCOPE} MCP config ($MCP_FILE)"
+      echo "  OK: age-mcp written to ${MCP_SCOPE} MCP config ($MCP_FILE)"
     fi
   fi
 else
   cat > "$MCP_FILE" <<MCPEOF
 {
   "mcpServers": {
-    "agemcp": ${AGEMCP_ENTRY}
+    "age-mcp": ${AGEMCP_ENTRY}
   }
 }
 MCPEOF
-  echo "  OK: agemcp written to ${MCP_SCOPE} MCP config ($MCP_FILE)"
+  echo "  OK: age-mcp written to ${MCP_SCOPE} MCP config ($MCP_FILE)"
 fi
 
 # ─── Done ────────────────────────────────────────────────────
@@ -219,11 +256,11 @@ echo "================================"
 echo "  my-mcps installed!"
 echo "================================"
 echo ""
-echo "  agemcp:   ${AGEMCP_ABS}"
+echo "  age-mcp:  ${AGEMCP_ABS}"
 echo "  AGE DB:   localhost:${AGE_PORT}"
 echo "  MCP config: ${MCP_FILE} (${MCP_SCOPE})"
 echo ""
-echo "  Start a Claude Code session — agemcp is ready."
+echo "  Start a Claude Code session — age-mcp is ready."
 echo "  To stop the database:  cd ${AGEMCP_ABS} && docker compose down"
 echo "  To restart:            cd ${AGEMCP_ABS} && docker compose up -d"
 echo ""
