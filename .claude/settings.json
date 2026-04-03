@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "WebSearch|WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'RESEARCH PROTOCOL: save findings to OpenBrain (openbrain.store) with tag research before completing task'"
+          }
+        ]
+      }
+    ]
+  }
+}
