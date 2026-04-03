@@ -155,7 +155,7 @@ When no existing role fits the task, create one on the fly:
 2. **Find closest existing roles**: Read 2-3 similar role files from `.claude/commands/`
 3. **Compose a new role** following the same structure
 4. **Save to project `.claude/commands/`** (project-level, not global)
-5. **Log creation**: OpenBrain store with tags `["role-created", "<role-name>", "<reason>"]`
+5. **Log creation**: O'Brien store with tags `["role-created", "<role-name>", "<reason>"]`
 
 ### Template
 ```markdown

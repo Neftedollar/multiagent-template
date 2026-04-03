@@ -32,7 +32,7 @@
 
 **If you need history/context:**
 - `docs/archive/` — old processes and docs
-- OpenBrain: `openbrain.recall(include_recent: 20)`
+- O'Brien: use o-brien MCP recall tool (recent: 20)
 
 ### 3. Act
 

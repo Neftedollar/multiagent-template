@@ -162,7 +162,7 @@ Triggered when BUILD changed backend code (routes, queries, services) or fronten
 2. Push to origin
 3. Deploy
 4. Update GitHub Project: issue → Done
-5. Tag OpenBrain: `completed-work`
+5. Tag O'Brien: `completed-work`
 
 ---
 
@@ -186,4 +186,4 @@ Triggered when BUILD changed backend code (routes, queries, services) or fronten
 1. Preserve feature branch (don't delete)
 2. Update GitHub Issue with abort reason
 3. Issue status → Todo (re-queue)
-4. OpenBrain: `active-work` → `stale-work`
+4. O'Brien: `active-work` → `stale-work`

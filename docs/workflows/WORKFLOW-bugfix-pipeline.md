@@ -107,7 +107,7 @@ All run **in parallel** (read code, don't write).
 2. Push to origin
 3. Deploy (if hotfix)
 4. Update GitHub Issue: closed with fix reference
-5. Tag OpenBrain: `completed-work`
+5. Tag O'Brien: `completed-work`
 
 ---
 
@@ -130,4 +130,4 @@ All run **in parallel** (read code, don't write).
 1. Preserve bugfix branch (don't delete)
 2. Update GitHub Issue with abort reason
 3. Issue status → Todo (re-queue)
-4. OpenBrain: `active-work` → `stale-work`
+4. O'Brien: `active-work` → `stale-work`

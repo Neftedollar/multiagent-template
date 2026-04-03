@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stop hook: remind to run tests and tag OpenBrain
+# Stop hook: remind to run tests and tag O'Brien
 # Uses exit 0 with stdout to inject a reminder into context
 # Does NOT block — just nudges Claude to verify before finishing
 
@@ -26,7 +26,7 @@ if [ "$CODE_CHANGED" = "true" ]; then
   cat <<'REMINDER'
 STOP GUARD: Code files were changed in this session. Before finishing, verify:
 1. Were tests run? If not, run them now.
-2. If this was a pipeline task, was OpenBrain tagged with the appropriate status?
+2. If this was a pipeline task, was O'Brien tagged with the appropriate status?
 If both are done, you may finish.
 REMINDER
 fi

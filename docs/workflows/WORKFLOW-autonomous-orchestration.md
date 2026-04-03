@@ -25,7 +25,7 @@ Meta-workflow for autonomous mode. Orchestrator picks tasks from the backlog and
 
 1. Read `CLAUDE.md`, `docs/process.md`
 2. Load graph context (pipelines, modules, security findings)
-3. Load OpenBrain recent context: `openbrain.recall(include_recent: 20)`
+3. Load O'Brien recent context: use o-brien MCP recall tool (recent: 20)
 4. Check for `active-work` locks — skip locked tasks
 
 ### PHASE 1: SELECT TASK
@@ -38,7 +38,7 @@ Meta-workflow for autonomous mode. Orchestrator picks tasks from the backlog and
    ```
 2. Filter: exclude `needs-ceo`, `blocked`, already-locked tasks
 3. Prioritize: P0 → P1 → P2. Within same priority: oldest first
-4. Acquire lock via OpenBrain (see process.md "Task-level locking")
+4. Acquire lock via O'Brien (see process.md "Task-level locking")
 5. Classify pipeline type by labels: `feature` → feature, `bug` → bugfix, `infra` → infra, `content` → content, `research`/`spike` → spike
 
 **Output**: `{ issue_number, pipeline_type, priority }`
@@ -58,7 +58,7 @@ Follow all gates, retries, escalation rules from the specific workflow.
 ### PHASE 3: POST-TASK
 **Timeout**: 5 min
 
-1. Update OpenBrain: `active-work` → `completed-work`
+1. Update O'Brien: `active-work` → `completed-work`
 2. Update graph with new knowledge (modules, insights, findings)
 3. Update GitHub Issue status
 4. Evaluate remaining turn budget

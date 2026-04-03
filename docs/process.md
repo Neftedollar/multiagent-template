@@ -12,7 +12,7 @@
 | Role capabilities (extended) | `docs/role-capabilities.md` |
 | Workflow specs | `docs/workflows/REGISTRY.md` → individual WORKFLOW-*.md |
 | Issues, dependencies | GitHub Project + graph (issue→DEPENDS_ON) |
-| Coordination | OpenBrain (active-work, bugs, suggestions) |
+| Coordination | O'Brien (active-work, bugs, suggestions) |
 
 **Pipeline**: PLAN → BUILD → TEST → VERIFY → SHIP (5 steps, 5 pipelines: feature, bugfix, infra, content, spike).
 
@@ -114,7 +114,7 @@ git worktree add ../<project>-wt-<issue> -b <branch-name> main
 
 CI RED on PR → fix **in the same PR** (don't create a new one). Max 3 attempts, then helper.
 
-### OpenBrain tagging
+### O'Brien tagging
 
 | Event | Tag |
 |-------|-----|
@@ -130,17 +130,17 @@ Do not tag `completed-work` before merge.
 
 ## Task-level locking
 
-Optimistic lock via OpenBrain to prevent two orchestrators from taking the same task:
+Optimistic lock via O'Brien to prevent two orchestrators from taking the same task:
 
 ```
-1. openbrain.search(tags: ["active-work", "issue-NNN"]) → if found → SKIP
-2. openbrain.store(content: "LOCK: issue #NNN", tags: ["active-work", "issue-NNN", "lock"])
+1. o-brien.search(tags: ["active-work", "issue-NNN"]) → if found → SKIP
+2. o-brien.store(content: "LOCK: issue #NNN", tags: ["active-work", "issue-NNN", "lock"])
 3. Wait 2 sec
-4. openbrain.search(tags: ["active-work", "issue-NNN"]) → if >1 records → race → delete own lock, SKIP
+4. o-brien.search(tags: ["active-work", "issue-NNN"]) → if >1 records → race → delete own lock, SKIP
 5. Otherwise → task locked, continue
 ```
 
-On completion: `openbrain.update(tags: ["completed-work"])`.
+On completion: `o-brien.update(tags: ["completed-work"])`.
 On crash recovery: `active-work` older than 24h → `stale-work`, lock auto-released.
 
 ---

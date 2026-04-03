@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'RESEARCH PROTOCOL: save findings to OpenBrain (openbrain.store) with tag research before completing task'"
+            "command": "echo \"RESEARCH PROTOCOL: save findings to O'Brien (o-brien MCP store tool) with tag research before completing task\""
           }
         ]
       }
