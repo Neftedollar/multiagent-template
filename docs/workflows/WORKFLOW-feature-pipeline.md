@@ -20,6 +20,7 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 | Senior Developer | Implementation + unit tests | sonnet |
 | Frontend Developer | UI implementation (conditional) | sonnet |
 | DevOps Automator | Infra changes + deploy | sonnet |
+| Evidence Collector | Browser QA, visual evidence (conditional: UI) | opus |
 | Code Reviewer | Quality gate | opus |
 | Security Engineer | Security gate (parallel with Code Reviewer) | opus |
 
@@ -69,20 +70,30 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 ---
 
 ### STEP 3: TEST
-**Actor**: Senior Developer
+**Actor**: Senior Developer + Evidence Collector (conditional: UI changes)
 **Gate**: `TESTS_PASSED`
 **Timeout**: 20 min
 
-**Action**:
-1. Full test suite
-2. Integration tests
-3. Browser QA for UI changes (conditional)
+**Action (Senior Developer)**:
+1. Full test suite (unit + integration)
+2. All existing tests must pass
+3. New/changed code must have tests
 
-**Output on SUCCESS**: `{ test_results, status: "TESTS_PASSED" }` → GO TO STEP 4
+**Action (Evidence Collector — when UI files changed)**:
+
+Triggered when BUILD touched UI files (`*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.vue`, `*.blade.php`, `templates/`).
+
+1. Open the running app with Playwright MCP (`browser_navigate`)
+2. Take screenshots of changed pages across viewports (desktop, tablet, mobile)
+3. Walk key user journeys: click nav, fill forms, trigger interactions
+4. Capture before/after screenshots for interactive elements
+5. Report visual issues, broken layouts, non-functional interactions
+
+**Output on SUCCESS**: `{ test_results, browser_evidence: [...screenshots], status: "TESTS_PASSED" }` → GO TO STEP 4
 
 **Output on FAILURE**:
 - `FAILURE(test_regression)` → return to STEP 2
-- `FAILURE(browser_qa_fail)` → return to STEP 2
+- `FAILURE(browser_qa_fail, evidence: [...screenshots])` → return to STEP 2
 
 ---
 

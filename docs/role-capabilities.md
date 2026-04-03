@@ -60,6 +60,7 @@
 | Pattern | Role |
 |---------|------|
 | `*.css`, `*.js`, `*.tsx`, `*.html` | `/engineering-frontend-developer` |
+| `*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.vue`, `*.blade.php`, `templates/` | `/testing-evidence-collector` (at TEST step) |
 | `Dockerfile`, `docker-compose*`, `.github/`, `scripts/` | `/engineering-devops-automator` |
 | `*.sql`, `*Migration*` | `/engineering-database-optimizer` |
 | `*.md` in `docs/` | `/engineering-technical-writer` |
@@ -70,8 +71,19 @@
 | deploy, ci, cd, docker, pipeline | `/engineering-devops-automator` |
 | query, index, performance, cache | `/engineering-database-optimizer` |
 | auth, policy, security, rbac | `/engineering-security-engineer` |
-| dashboard, ui, page, component | `/engineering-frontend-developer` |
+| dashboard, ui, page, component, form, layout | `/engineering-frontend-developer` |
+| dashboard, ui, page, component, form, layout, landing, website | `/testing-evidence-collector` (at TEST step) |
+| browser, e2e, visual, screenshot, responsive, mobile view | `/testing-evidence-collector` |
 | slo, monitoring, alert, incident | `/engineering-sre` |
+
+### Conditional roles at TEST step
+
+| Condition | Role added to TEST | Tool |
+|-----------|-------------------|------|
+| BUILD changed UI files (`*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.vue`, `*.blade.php`) | `/testing-evidence-collector` | Playwright MCP |
+| BUILD changed API routes | `/testing-api-tester` | Bash (curl/httpie) |
+
+Evidence Collector uses Playwright MCP to navigate pages, click elements, fill forms, and take screenshots. Requires the app to be running (dev server).
 
 ### Combined tasks
 
