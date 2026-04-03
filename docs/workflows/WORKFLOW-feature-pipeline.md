@@ -23,6 +23,7 @@ Full pipeline for new features: from issue to merge+deploy. 5 steps, each with a
 | Frontend Developer | UI implementation (conditional) | sonnet |
 | DevOps Automator | Infra changes + deploy | sonnet |
 | Evidence Collector | Browser QA, visual evidence (conditional: UI) | opus |
+| Performance Benchmarker | Performance review, bottlenecks (conditional) | opus |
 | Code Reviewer | Quality gate | opus |
 | Security Engineer | Security gate (parallel with Code Reviewer) | opus |
 
@@ -120,19 +121,34 @@ Triggered when BUILD touched UI files (`*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.v
 ---
 
 ### STEP 4: VERIFY
-**Actor**: Code Reviewer + Security Engineer (parallel)
+**Actor**: Code Reviewer + Security Engineer + Performance Benchmarker (all parallel)
 **Gate**: `VERIFIED`
 **Timeout**: 15 min per reviewer
 
-Both run **in parallel** (read code, don't write).
+All run **in parallel** (read code, don't write).
 
-**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", status: "VERIFIED" }` → GO TO STEP 5
+**Action (Code Reviewer)**: quality patterns, maintainability, test coverage.
+
+**Action (Security Engineer)**: OWASP, auth, injection, data exposure.
+
+**Action (Performance Benchmarker — conditional)**:
+
+Triggered when BUILD changed backend code (routes, queries, services) or frontend code (components, bundles).
+
+1. Review for N+1 queries, unoptimized loops, missing DB indexes
+2. Check memory allocation patterns, connection/resource leaks
+3. Frontend: bundle size impact, unnecessary re-renders, missing lazy loading
+4. Identify O(n^2)+ algorithms on potentially large datasets
+5. Flag missing pagination, unbounded queries, missing caching
+
+**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", perf_review?: "APPROVED", status: "VERIFIED" }` → GO TO STEP 5
 
 **Output on FAILURE**:
 - `NEEDS_WORK(code_quality)` → return to STEP 2
 - `NEEDS_WORK(security_issue)` → return to STEP 2, PRIORITY: security fix
+- `NEEDS_WORK(perf_issue, details)` → return to STEP 2
 
-**Merge rule**: Both MUST return APPROVED.
+**Merge rule**: Code Reviewer + Security Engineer MUST return APPROVED. Performance Benchmarker issues are advisory unless critical (unbounded queries, memory leaks).
 
 ---
 

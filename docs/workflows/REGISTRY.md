@@ -29,6 +29,7 @@
 | Software Architect | Feature (PLAN), Infra (PLAN) |
 | Senior Developer | Feature (BUILD, TEST), Bugfix (BUILD, TEST) |
 | Evidence Collector (`/testing-evidence-collector`) | Feature (TEST, conditional: UI) |
+| Performance Benchmarker (`/testing-performance-benchmarker`) | Feature (VERIFY, conditional) |
 | Code Reviewer | Feature (VERIFY), Bugfix (VERIFY) |
 | Security Engineer | Feature (VERIFY), Bugfix (VERIFY) |
 | DevOps | Feature (BUILD, SHIP), Infra (BUILD, SHIP) |

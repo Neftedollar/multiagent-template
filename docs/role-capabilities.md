@@ -38,6 +38,7 @@
 | Capability | Primary | Secondary |
 |------------|---------|-----------|
 | Code review, quality patterns | `/engineering-code-reviewer` | `/engineering-software-architect` |
+| Performance review, bottlenecks | `/testing-performance-benchmarker` | `/engineering-backend-architect` |
 | E2E testing, visual evidence | `/testing-evidence-collector` | `/testing-reality-checker` |
 | Production readiness | `/testing-reality-checker` | `/engineering-sre` |
 
@@ -70,7 +71,8 @@
 | Keywords | Role |
 |----------|------|
 | deploy, ci, cd, docker, pipeline | `/engineering-devops-automator` |
-| query, index, performance, cache | `/engineering-database-optimizer` |
+| query, index, cache | `/engineering-database-optimizer` |
+| performance, bottleneck, slow, latency, n+1, memory leak, bundle size, optimize | `/testing-performance-benchmarker` (at VERIFY step) |
 | auth, policy, security, rbac | `/engineering-security-engineer` |
 | dashboard, ui, page, component, form, layout | `/engineering-frontend-developer` |
 | dashboard, ui, page, component, form, layout, landing, website, onboarding, flow | `/design-ux-researcher` + `/design-ui-designer` (at PLAN step) |
@@ -86,6 +88,16 @@
 | Task touches UI files (from issue or description) | `/design-ux-researcher` → `/design-ui-designer` | After PM, before Architect |
 
 UX Researcher outputs user flows and screen states. UI Designer outputs layout spec and responsive notes. Architect receives both as input.
+
+### Conditional roles at VERIFY step
+
+| Condition | Role added to VERIFY | Focus |
+|-----------|---------------------|-------|
+| BUILD changed backend code (routes, queries, services) | `/testing-performance-benchmarker` | N+1 queries, unoptimized loops, missing indexes, memory allocation |
+| BUILD changed frontend code (components, pages, bundles) | `/testing-performance-benchmarker` | Bundle size, render performance, unnecessary re-renders, lazy loading |
+| Task keywords match performance signals (see above) | `/testing-performance-benchmarker` | Full performance audit |
+
+Performance Benchmarker reviews code for bottlenecks, runs parallel with Code Reviewer + Security Engineer.
 
 ### Conditional roles at TEST step
 
