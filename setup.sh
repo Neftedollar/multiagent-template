@@ -59,6 +59,9 @@ ERRORS=0
 # git
 install_or_fail git git git || ERRORS=$((ERRORS+1))
 
+# jq (required for hooks)
+install_or_fail jq jq jq || ERRORS=$((ERRORS+1))
+
 # gh CLI
 if ! has gh; then
   echo "  ..  gh CLI not found, installing..."
@@ -170,6 +173,12 @@ done
 cp "$TEMPLATE_DIR/tools/sync-roles.sh" "$TARGET_DIR/tools/sync-roles.sh"
 cp "$TEMPLATE_DIR/tools/install-mcps.sh" "$TARGET_DIR/tools/install-mcps.sh"
 chmod +x "$TARGET_DIR/tools/sync-roles.sh" "$TARGET_DIR/tools/install-mcps.sh"
+
+# Copy hooks
+mkdir -p "$TARGET_DIR/.claude/hooks"
+cp "$TEMPLATE_DIR"/.claude/hooks/*.sh "$TARGET_DIR/.claude/hooks/"
+cp "$TEMPLATE_DIR"/.claude/hooks/lint.json "$TARGET_DIR/.claude/hooks/"
+chmod +x "$TARGET_DIR"/.claude/hooks/*.sh
 
 # Sync roles from agency-agents → global ~/.claude/commands/
 if [ -d "$AGENCY_DIR" ]; then

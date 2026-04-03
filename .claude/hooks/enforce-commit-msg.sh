@@ -8,34 +8,46 @@ INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
 # Only check git commit commands
-if ! echo "$COMMAND" | grep -qE 'git\s+commit'; then
+if ! echo "$COMMAND" | grep -qE 'git[[:space:]]+commit'; then
   exit 0
 fi
 
-# Extract commit message from -m flag
-# Handle both 'git commit -m "msg"' and 'git commit -m "$(cat <<...)"' (HEREDOC)
-COMMIT_MSG=$(echo "$COMMAND" | grep -oP '(?<=-m\s")[^"]+' | head -1)
+# Extract commit message — handles:
+#   git commit -m "message"
+#   git commit -m 'message'
+#   git commit -m "$(cat <<'EOF'\nmessage\n...\nEOF\n)"
+# The command arrives as a single string from JSON, newlines are literal \n
 
-# Also try single quotes
+# Try double-quoted -m "..."
+COMMIT_MSG=$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+
+# Try single-quoted -m '...'
 if [ -z "$COMMIT_MSG" ]; then
-  COMMIT_MSG=$(echo "$COMMAND" | grep -oP "(?<=-m\s')[^']+" | head -1)
+  COMMIT_MSG=$(echo "$COMMAND" | sed -n "s/.*-m[[:space:]]*'\([^']*\)'.*/\1/p" | head -1)
 fi
 
-# Try HEREDOC pattern (cat <<'EOF' ... EOF)
+# Try HEREDOC: extract first content line after EOF marker
 if [ -z "$COMMIT_MSG" ]; then
-  COMMIT_MSG=$(echo "$COMMAND" | grep -oP '(?<=EOF\n).*?(?=\n.*EOF)' | head -1)
+  COMMIT_MSG=$(echo "$COMMAND" | sed -n "s/.*EOF[[:space:]]*$//" | sed -n '/^[[:space:]]*[a-z]/p' | head -1)
 fi
 
-# If we can't extract the message, let it through (might be interactive or complex)
+# If HEREDOC with literal \n: git commit -m "$(cat <<'EOF'\nfeat: ...\n..."
+if [ -z "$COMMIT_MSG" ]; then
+  # Split on literal \n, find first line that looks like a commit message
+  COMMIT_MSG=$(printf '%s' "$COMMAND" | tr '\n' '\0' | sed 's/\\n/\n/g' | grep -m1 -E '^[[:space:]]*(feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert)' | sed 's/^[[:space:]]*//')
+fi
+
+# If we still can't extract, let it through
 if [ -z "$COMMIT_MSG" ]; then
   exit 0
 fi
 
-# First line of commit message
+# First line, trimmed
 FIRST_LINE=$(echo "$COMMIT_MSG" | head -1 | sed 's/^[[:space:]]*//')
 
 # Check conventional commits pattern
-PATTERN='^(feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert)(\(.+\))?!?:\s.+'
+# \s doesn't work on macOS grep -E, use [[:space:]]
+PATTERN='^(feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert)(\(.+\))?!?:[[:space:]].+'
 
 if ! echo "$FIRST_LINE" | grep -qE "$PATTERN"; then
   echo "{

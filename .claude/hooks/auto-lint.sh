@@ -18,7 +18,8 @@ LINT_CONFIG="$HOOK_DIR/lint.json"
 if [ -f "$LINT_CONFIG" ]; then
   LINT_CMD=$(jq -r --arg ext "$EXT" '.linters[$ext] // empty' "$LINT_CONFIG")
   if [ -n "$LINT_CMD" ]; then
-    eval "$LINT_CMD \"$FILE_PATH\"" 2>/dev/null
+    # Run without eval to prevent command injection from lint.json
+    $LINT_CMD "$FILE_PATH" 2>/dev/null
     exit 0
   fi
 fi

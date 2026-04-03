@@ -56,6 +56,19 @@ echo ""
 echo "Phase 2: Runtime dependencies"
 echo ""
 
+# jq (required for hooks)
+if ! has jq; then
+  echo "  ..  Installing jq..."
+  if [ "$OS" = "Darwin" ]; then
+    brew install jq
+  elif [ -f /etc/debian_version ]; then
+    sudo apt-get install -y -qq jq
+  elif [ -f /etc/redhat-release ]; then
+    sudo dnf install -y jq 2>/dev/null || sudo yum install -y jq
+  fi
+fi
+echo "  OK: jq"
+
 # Node.js (for claude CLI)
 if ! has node; then
   echo "  ..  Installing Node.js..."

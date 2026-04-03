@@ -10,21 +10,21 @@ if [ -z "$COMMAND" ]; then
 fi
 
 # Patterns that should never run
+# Using [[:space:]] instead of \s for macOS BSD grep compatibility
 DANGEROUS_PATTERNS=(
-  'rm\s+-rf\s+/'
-  'rm\s+-rf\s+\.'
-  'rm\s+-rf\s+\*'
-  'git\s+push\s+.*--force.*\s+(main|master)'
-  'git\s+push\s+-f\s+.*\s+(main|master)'
-  'git\s+reset\s+--hard\s+origin/(main|master)'
-  'git\s+clean\s+-fd'
-  'DROP\s+(TABLE|DATABASE)'
-  'TRUNCATE\s+TABLE'
+  'rm[[:space:]]+-rf[[:space:]]+/'
+  'rm[[:space:]]+-rf[[:space:]]+\.'
+  'rm[[:space:]]+-rf[[:space:]]+\*'
+  'git[[:space:]]+push[[:space:]]+.*--force.*[[:space:]]+(main|master)'
+  'git[[:space:]]+push[[:space:]]+-f[[:space:]]+.*[[:space:]]+(main|master)'
+  'git[[:space:]]+reset[[:space:]]+--hard[[:space:]]+origin/(main|master)'
+  'git[[:space:]]+clean[[:space:]]+-fd'
+  'DROP[[:space:]]+(TABLE|DATABASE)'
+  'TRUNCATE[[:space:]]+TABLE'
   'mkfs\.'
-  'dd\s+if=.*of=/dev/'
-  ':\(\)\s*\{\s*:\|:\s*&\s*\}\s*;'
-  'chmod\s+-R\s+777\s+/'
-  'chown\s+-R.*\s+/'
+  'dd[[:space:]]+if=.*of=/dev/'
+  'chmod[[:space:]]+-R[[:space:]]+777[[:space:]]+/'
+  'chown[[:space:]]+-R.*[[:space:]]+/'
 )
 
 for pattern in "${DANGEROUS_PATTERNS[@]}"; do
@@ -33,7 +33,7 @@ for pattern in "${DANGEROUS_PATTERNS[@]}"; do
       \"hookSpecificOutput\": {
         \"hookEventName\": \"PreToolUse\",
         \"permissionDecision\": \"deny\",
-        \"permissionDecisionReason\": \"Blocked by safety hook: matches dangerous pattern '$pattern'. If you need this, ask the user to run it manually.\"
+        \"permissionDecisionReason\": \"Blocked by safety hook: dangerous command detected. If you need this, ask the user to run it manually.\"
       }
     }"
     exit 0
