@@ -48,9 +48,8 @@
       {
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Check if this session involved code changes. If yes, verify: 1) Were tests mentioned or run? If code was changed but no tests were run, respond with {\"decision\": \"block\", \"reason\": \"Run tests before finishing — code was changed but tests were not verified.\"}. 2) If this was a pipeline task, was OpenBrain tagged appropriately? If not, respond with {\"decision\": \"block\", \"reason\": \"Tag OpenBrain with the appropriate status before finishing.\"}. If everything looks good or this wasn't a code task, respond with {\"decision\": \"allow\"}.",
-            "model": "haiku"
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard.sh"
           }
         ]
       }
