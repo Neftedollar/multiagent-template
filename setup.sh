@@ -151,9 +151,11 @@ for f in CLAUDE.md docs/process.md docs/role-capabilities.md \
          docs/workflows/REGISTRY.md \
          docs/workflows/WORKFLOW-feature-pipeline.md \
          docs/workflows/WORKFLOW-infra-pipeline.md \
+         docs/workflows/WORKFLOW-bugfix-pipeline.md \
          docs/workflows/WORKFLOW-content-pipeline.md \
          docs/workflows/WORKFLOW-spike-pipeline.md \
-         .claude/commands/orchestrator.md .claude/settings.json; do
+         docs/workflows/WORKFLOW-autonomous-orchestration.md \
+         .claude/commands/orchestrator.md .claude/mcp.json .claude/settings.json; do
   if [ -f "$TEMPLATE_DIR/$f" ]; then
     mkdir -p "$TARGET_DIR/$(dirname "$f")"
     sed \
