@@ -69,20 +69,3 @@ _orchestrator_pipelines() {
   )
   _describe 'pipeline' pipelines
 }
-
-# --- gh shortcuts for multi-repo ---
-_gh_korat() {
-  local -a repos
-  # Read repos from CLAUDE.md backlog section if available
-  if [ -f CLAUDE.md ]; then
-    while IFS= read -r line; do
-      if [[ "$line" =~ '`([^`]+/[^`]+)`' ]]; then
-        repos+=("${match[1]}")
-      fi
-    done < <(grep 'korat-ai/' CLAUDE.md 2>/dev/null)
-  fi
-  if [ ${#repos} -eq 0 ]; then
-    repos=('owner/repo')
-  fi
-  _describe 'repository' repos
-}

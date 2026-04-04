@@ -3,3 +3,4 @@ code/
 .DS_Store
 .claude/settings.local.json
 .claude/agent-log.jsonl
+tools/agency-agents/

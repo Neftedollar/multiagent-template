@@ -17,4 +17,7 @@ if ! dotnet tool list -g 2>/dev/null | grep -q '^multiagent-setup\b'; then
   dotnet tool install -g multiagent-setup
 fi
 
+# Ensure ~/.dotnet/tools is on PATH (may be missing on first install)
+export PATH="$PATH:$HOME/.dotnet/tools"
+
 exec multiagent-setup "$@"

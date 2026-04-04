@@ -21,7 +21,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         var org = await ResolveOrgAsync();
         if (org is null) return 1;
 
-        var targetDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", projectName));
+        var targetDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), projectName));
         if (Directory.Exists(targetDir))
         {
             Console.Error.WriteLine($"Error: {targetDir} already exists");
