@@ -101,7 +101,12 @@ if ($env:PATH -notlike "*$toolsPath*") { $env:PATH += ";$toolsPath" }
 
 $installed = & dotnet tool list -g 2>$null | Select-String "^multiagent-setup"
 if (-not $installed) {
-    dotnet tool install -g multiagent-setup
+    & dotnet tool install -g multiagent-setup 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        & dotnet tool update -g multiagent-setup
+    }
+} else {
+    & dotnet tool update -g multiagent-setup 2>&1 | Out-Null
 }
 
 $argList = @($ProjectName)
