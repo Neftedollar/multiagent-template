@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,7 +29,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
 
         var graphName = $"{projectName.ToLower()}-ops";
 
-        Console.WriteLine($"Creating workspace...");
+        Console.WriteLine("Creating workspace...");
         Console.WriteLine($"  Project:    {projectName}");
         Console.WriteLine($"  GitHub org: {org}");
         Console.WriteLine($"  Graph:      {graphName}");
@@ -62,11 +61,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         Console.WriteLine("Next steps:");
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
-        var mcpScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? @".\tools\install-mcps.ps1"
-            : "./tools/install-mcps.sh";
-        Console.WriteLine($"  3. (Optional) Install MCPs: {mcpScript}");
-        Console.WriteLine($"  4. Start working: claude then /orchestrator <task>");
+        Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
+        Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
+        Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
         Console.WriteLine();
         return 0;
     }
@@ -86,25 +83,15 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
 
     private static bool Require(string name)
     {
-        if (IsOnPath(name)) { Console.WriteLine($"  OK: {name}"); return true; }
+        if (ProcessHelper.IsOnPath(name)) { Console.WriteLine($"  OK: {name}"); return true; }
         Console.Error.WriteLine($"  FAIL: {name} not found — install it and re-run");
         return false;
     }
 
     private static void Suggest(string name, string installUrl)
     {
-        if (IsOnPath(name)) Console.WriteLine($"  OK: {name}");
+        if (ProcessHelper.IsOnPath(name)) Console.WriteLine($"  OK: {name}");
         else Console.WriteLine($"  WARN: {name} not found — install: {installUrl}");
-    }
-
-    private static bool IsOnPath(string name)
-    {
-        var pathVar = Environment.GetEnvironmentVariable("PATH") ?? "";
-        var sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
-        string[] exts = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? [".exe", ".cmd", ".bat", ""] : [""];
-        return pathVar.Split(sep).Any(dir =>
-            exts.Any(ext => File.Exists(Path.Combine(dir, name + ext))));
     }
 
     // ── GitHub org resolution ─────────────────────────────────────────────────
@@ -113,13 +100,13 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
     {
         if (requestedOrg is not null) return requestedOrg;
 
-        var (authCode, _, _) = await RunAsync("gh", ["auth", "status"],
+        var (authCode, _, _) = await ProcessHelper.RunAsync("gh", ["auth", "status"],
             captureOutput: true, allowFailure: true);
 
         if (authCode != 0)
         {
             Console.WriteLine("GitHub CLI not authenticated. Launching login...");
-            var loginCode = await RunInteractiveAsync("gh", ["auth", "login"]);
+            var loginCode = await ProcessHelper.RunInteractiveAsync("gh", ["auth", "login"]);
             if (loginCode != 0)
             {
                 Console.Error.WriteLine("FAIL: gh auth login failed");
@@ -127,7 +114,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
             }
         }
 
-        var (code, stdout, _) = await RunAsync("gh", ["api", "user", "--jq", ".login"],
+        var (code, stdout, _) = await ProcessHelper.RunAsync("gh", ["api", "user", "--jq", ".login"],
             captureOutput: true);
         if (code != 0 || string.IsNullOrWhiteSpace(stdout))
         {
@@ -171,8 +158,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         var asm = Assembly.GetExecutingAssembly();
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
-            // LogicalName uses "/" separators; convert to OS separator for file path
-            var relPath = resourceName.Replace('/', Path.DirectorySeparatorChar);
+            var relPath    = resourceName.Replace('/', Path.DirectorySeparatorChar);
             var outputPath = Path.Combine(root, relPath);
 
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
@@ -181,7 +167,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
 
             if (IsTextResource(resourceName))
             {
-                using var reader = new StreamReader(stream, Encoding.UTF8);
+                using var reader  = new StreamReader(stream, Encoding.UTF8);
                 var content = reader.ReadToEnd();
                 foreach (var (k, v) in vars)
                     content = content.Replace(k, v, StringComparison.Ordinal);
@@ -209,7 +195,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         var scripts = Directory.GetFiles(root, "*.sh", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(root, "*.zsh", SearchOption.AllDirectories));
         foreach (var s in scripts)
-            await RunAsync("chmod", ["+x", s], allowFailure: true);
+            await ProcessHelper.RunAsync("chmod", ["+x", s], allowFailure: true);
     }
 
     // ── Agency-agents + role sync ─────────────────────────────────────────────
@@ -217,38 +203,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-
-        if (!Directory.Exists(agencyDir))
-        {
-            Console.WriteLine("Cloning agency-agents...");
-            var (code, _, err) = await RunAsync("git",
-                ["clone", "https://github.com/msitarzewski/agency-agents.git", agencyDir],
-                captureOutput: true, allowFailure: true);
-            if (code != 0)
-            {
-                Console.WriteLine($"  WARN: could not clone agency-agents — {err.Trim()}");
-                return;
-            }
-            Console.WriteLine("  OK: agency-agents cloned");
-        }
-        else
-        {
-            Console.WriteLine("Updating agency-agents...");
-            await RunAsync("git", ["pull", "--ff-only"],
-                workingDir: agencyDir, captureOutput: true, allowFailure: true);
-            Console.WriteLine("  OK: agency-agents updated");
-        }
-
-        Console.WriteLine("Syncing roles...");
-        var env = new Dictionary<string, string> { ["AGENCY_DIR"] = agencyDir };
-        var (syncCode, _, syncErr) = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? await RunAsync("pwsh", [Path.Combine(workspaceRoot, "tools", "sync-roles.ps1")],
-                workingDir: workspaceRoot, env: env, captureOutput: true, allowFailure: true)
-            : await RunAsync("bash", [Path.Combine(workspaceRoot, "tools", "sync-roles.sh")],
-                workingDir: workspaceRoot, env: env, captureOutput: true, allowFailure: true);
-        Console.WriteLine(syncCode == 0
-            ? "  OK: roles synced to ~/.claude/commands/"
-            : $"  WARN: sync-roles failed — {syncErr.Trim()}");
+        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────
@@ -256,12 +211,12 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
     private static async Task GitInitAsync(string root)
     {
         Console.WriteLine("Initializing git...");
-        await RunAsync("git", ["init", "-q"], workingDir: root, captureOutput: true);
+        await ProcessHelper.RunAsync("git", ["init", "-q"], workingDir: root, captureOutput: true);
         await File.WriteAllTextAsync(
             Path.Combine(root, ".gitignore"),
             "code/\n*.png\n.DS_Store\n.claude/settings.local.json\n");
-        await RunAsync("git", ["add", "-A"], workingDir: root, captureOutput: true);
-        await RunAsync("git",
+        await ProcessHelper.RunAsync("git", ["add", "-A"], workingDir: root, captureOutput: true);
+        await ProcessHelper.RunAsync("git",
             ["commit", "-q", "-m", "init: multi-agent workspace from template"],
             workingDir: root, captureOutput: true);
     }
@@ -290,67 +245,5 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
                 $"\n# Multi-agent workspace completions\nsource \"{completionsPath}\"\n");
             Console.WriteLine("  OK: completions added (restart shell or: source ~/.zshrc)");
         }
-    }
-
-    // ── Process helpers ───────────────────────────────────────────────────────
-
-    private static async Task<(int exitCode, string stdout, string stderr)> RunAsync(
-        string exe, string[] args,
-        string? workingDir = null,
-        Dictionary<string, string>? env = null,
-        bool captureOutput = false,
-        bool allowFailure = false)
-    {
-        var psi = new ProcessStartInfo(exe)
-        {
-            WorkingDirectory     = workingDir ?? "",
-            RedirectStandardOutput = captureOutput,
-            RedirectStandardError  = captureOutput,
-            UseShellExecute      = false,
-        };
-
-        foreach (var arg in args)
-            psi.ArgumentList.Add(arg);
-
-        if (env is not null)
-            foreach (var (k, v) in env)
-                psi.Environment[k] = v;
-
-        Process? proc;
-        try { proc = Process.Start(psi); }
-        catch (Exception ex)
-        {
-            if (!allowFailure) Console.Error.WriteLine($"FAIL: could not start {exe}: {ex.Message}");
-            return (1, "", ex.Message);
-        }
-
-        if (proc is null) return (1, "", $"Failed to start {exe}");
-
-        var stdoutTask = captureOutput ? proc.StandardOutput.ReadToEndAsync() : Task.FromResult("");
-        var stderrTask = captureOutput ? proc.StandardError.ReadToEndAsync()  : Task.FromResult("");
-
-        await proc.WaitForExitAsync();
-        var stdout = await stdoutTask;
-        var stderr = await stderrTask;
-
-        return (proc.ExitCode, stdout, stderr);
-    }
-
-    private static async Task<int> RunInteractiveAsync(string exe, string[] args, string? workingDir = null)
-    {
-        var psi = new ProcessStartInfo(exe)
-        {
-            WorkingDirectory = workingDir ?? "",
-            UseShellExecute  = false,
-        };
-        foreach (var arg in args) psi.ArgumentList.Add(arg);
-
-        Process? proc;
-        try { proc = Process.Start(psi); }
-        catch { return 1; }
-        if (proc is null) return 1;
-
-        await proc.WaitForExitAsync();
-        return proc.ExitCode;
     }
 }
