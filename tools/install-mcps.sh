@@ -25,6 +25,7 @@ OBRIEN_DB_URL="Host=localhost;Port=${OBRIEN_PORT};Database=obrien;Username=postg
 OBRIEN_CONTAINER="o-brien-db"
 
 OS="$(uname -s)"
+export PATH="$PATH:$HOME/.dotnet/tools"
 has() { command -v "$1" &>/dev/null; }
 
 echo "================================"
