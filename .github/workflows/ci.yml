@@ -1,6 +1,7 @@
 name: Publish NuGet
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -8,6 +9,11 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,5 +27,11 @@ jobs:
       - name: Pack
         run: dotnet pack tools/setup-cli/MultiagentSetup.csproj -c Release --no-build -o nupkg
 
+      - name: NuGet login with trusted publishing
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: Neftedollar
+
       - name: Push to NuGet
-        run: dotnet nuget push nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push nupkg/*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
