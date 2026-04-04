@@ -75,14 +75,14 @@ MyProject/
 │   └── workflows/           ← спецификации пайплайнов (WORKFLOW-*.md)
 ├── .claude/
 │   ├── commands/            ← слэш-команды (роли агентов)
-│   ├── hooks/               ← хуки безопасности и автоматизации
+│   ├── hooks/lint.json      ← конфиг форматтеров для auto-lint
 │   ├── mcp.json             ← MCP-конфигурация
 │   └── settings.json        ← конфигурация хуков
 └── tools/
-    ├── sync-roles.sh        ← синхронизация ролей из agency-agents
-    ├── install-mcps.sh      ← установка MCP-серверов (macOS/Linux)
-    ├── install-mcps.ps1     ← установка MCP-серверов (Windows)
-    └── completions.zsh      ← zsh-автодополнения
+    ├── sync-roles.sh / .ps1    ← синхронизация ролей из agency-agents
+    ├── install-mcps.sh / .ps1  ← установка MCP-серверов
+    ├── completions.zsh          ← zsh-автодополнения
+    └── completions.ps1          ← PowerShell-автодополнения
 ```
 
 ## Режимы работы
@@ -121,15 +121,18 @@ MyProject/
 
 ## Хуки
 
-`.claude/settings.json` подключает набор хуков, которые работают без участия человека:
+`.claude/settings.json` подключает набор хуков, реализованных внутри `multiagent-setup` (без отдельных `.sh` файлов — работают кросс-платформенно):
 
 | Хук | Триггер | Действие |
 |-----|---------|----------|
-| `block-dangerous.sh` | PreToolUse (Bash) | Блокирует `rm -rf /`, `push --force main`, `DROP TABLE` и т.д. |
-| `enforce-commit-msg.sh` | PreToolUse (Bash) | Требует conventional commits (`feat:`, `fix:` и т.д.) |
-| `auto-lint.sh` | PostToolUse (Edit/Write) | Запускает форматтер для изменённого файла |
-| `log-agent.sh` | PreToolUse (Agent) | Логирует запуск субагентов в `.claude/agent-log.jsonl` |
-| `stop-guard.sh` | Stop | Напоминает запустить тесты и проставить теги в O'Brien |
+| `block-dangerous` | PreToolUse (Bash) | Блокирует `rm -rf /`, `push --force main`, `DROP TABLE` и т.д. |
+| `enforce-commit-msg` | PreToolUse (Bash) | Требует conventional commits (`feat:`, `fix:` и т.д.) |
+| `auto-lint` | PostToolUse (Edit/Write) | Запускает форматтер для изменённого файла |
+| `log-agent` | PreToolUse (Agent) | Логирует запуск субагентов в `.claude/agent-log.jsonl` |
+| `stop-guard` | Stop | Напоминает запустить тесты и обновить O'Brien + age-mcp |
+| `research-reminder` | PostToolUse (WebSearch/WebFetch) | Напоминает сохранить результаты исследований в O'Brien и граф |
+
+Хук вызывается напрямую: `$HOME/.dotnet/tools/multiagent-setup hook <name>` (macOS/Linux) или `$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe hook <name>` (Windows/PowerShell). Путь подставляется автоматически при создании воркспейса.
 
 ## Роли
 
@@ -157,19 +160,30 @@ MyProject/
 
 ## multiagent-setup (dotnet tool)
 
-Создаёт воркспейс из шаблона. Все шаблонные файлы встроены в бинарник как embedded resources — никаких внешних зависимостей кроме .NET.
+Кросс-платформенный CLI, который покрывает весь жизненный цикл воркспейса. Все шаблонные файлы встроены в бинарник — никаких внешних зависимостей кроме .NET.
 
 ```bash
-# Установить глобально
+# Установить / обновить
 dotnet tool install -g multiagent-setup
+dotnet tool update  -g multiagent-setup
 
 # Создать воркспейс
-multiagent-setup <project-name> [github-org]
+multiagent-setup new <project-name> [github-org]
+multiagent-setup <project-name>          # сокращение
 
-# Обновить
-dotnet tool update -g multiagent-setup
+# Синхронизировать роли из agency-agents в ~/.claude/commands/
+multiagent-setup sync-roles              # clone + pull
+multiagent-setup sync-roles --pull       # только pull
+
+# Установить MCP-серверы (age-mcp, O'Brien)
+multiagent-setup install-mcps            # интерактивный Docker-режим
+multiagent-setup install-mcps --manual   # ввести строки подключения вручную
+
+# Запустить хук (вызывается из settings.json автоматически)
+multiagent-setup hook <name>
 ```
 
+Шаблоны: [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/)  
 Исходник: [`tools/setup-cli/`](tools/setup-cli/)
 
 ## Требования
