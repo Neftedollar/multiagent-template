@@ -239,16 +239,16 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
             Console.WriteLine("  OK: agency-agents updated");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
-
         Console.WriteLine("Syncing roles...");
-        var syncScript = Path.Combine(workspaceRoot, "tools", "sync-roles.sh");
         var env = new Dictionary<string, string> { ["AGENCY_DIR"] = agencyDir };
-        var (syncCode, _, syncErr) = await RunAsync("bash", [syncScript],
-            workingDir: workspaceRoot, env: env, captureOutput: true, allowFailure: true);
+        var (syncCode, _, syncErr) = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? await RunAsync("pwsh", [Path.Combine(workspaceRoot, "tools", "sync-roles.ps1")],
+                workingDir: workspaceRoot, env: env, captureOutput: true, allowFailure: true)
+            : await RunAsync("bash", [Path.Combine(workspaceRoot, "tools", "sync-roles.sh")],
+                workingDir: workspaceRoot, env: env, captureOutput: true, allowFailure: true);
         Console.WriteLine(syncCode == 0
             ? "  OK: roles synced to ~/.claude/commands/"
-            : $"  WARN: sync-roles.sh failed — {syncErr.Trim()}");
+            : $"  WARN: sync-roles failed — {syncErr.Trim()}");
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────

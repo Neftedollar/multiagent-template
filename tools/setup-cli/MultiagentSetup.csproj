@@ -87,6 +87,9 @@
     <EmbeddedResource Include="../../tools/sync-roles.sh" LogicalName="tools/sync-roles.sh">
       <Link>Templates/tools/sync-roles.sh</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="../../tools/sync-roles.ps1" LogicalName="tools/sync-roles.ps1">
+      <Link>Templates/tools/sync-roles.ps1</Link>
+    </EmbeddedResource>
     <EmbeddedResource Include="../../tools/install-mcps.sh" LogicalName="tools/install-mcps.sh">
       <Link>Templates/tools/install-mcps.sh</Link>
     </EmbeddedResource>
