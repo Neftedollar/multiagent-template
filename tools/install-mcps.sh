@@ -104,17 +104,13 @@ echo ""
 echo "── age-mcp (AGE graph) ─────────────────────────────────"
 echo ""
 
-# ─── Clone age-mcp ───────────────────────────────────────────
+# ─── Clone age-mcp (for docker-compose only) ─────────────────
 
 if [ -d "$AGEMCP_DIR" ]; then
-  if [ -f "$AGEMCP_DIR/age-mcp.fsproj" ]; then
-    echo "  OK: age-mcp already at $AGEMCP_DIR"
-    (cd "$AGEMCP_DIR" && git pull --ff-only 2>/dev/null) || echo "  WARN: git pull failed"
-  else
-    echo "FAIL: $AGEMCP_DIR exists but missing age-mcp.fsproj"; exit 1
-  fi
+  echo "  OK: age-mcp repo at $AGEMCP_DIR"
+  (cd "$AGEMCP_DIR" && git pull --ff-only 2>/dev/null) || echo "  WARN: git pull failed"
 else
-  echo "  ..  Cloning age-mcp..."
+  echo "  ..  Cloning age-mcp (for docker-compose)..."
   mkdir -p "$(dirname "$AGEMCP_DIR")"
   git clone "$AGEMCP_REPO" "$AGEMCP_DIR"
   echo "  OK: age-mcp cloned"
@@ -140,13 +136,17 @@ fi
 # ─── Install age-mcp dotnet tool ─────────────────────────────
 
 if has age-mcp; then
-  echo "  OK: age-mcp tool already installed"
+  echo "  OK: age-mcp already installed"
 else
-  echo "  ..  Installing age-mcp (dotnet tool)..."
-  dotnet tool install --global AgeMcp 2>/dev/null \
-    || dotnet tool update --global AgeMcp 2>/dev/null \
-    || echo "  WARN: could not install age-mcp globally"
-  has age-mcp && echo "  OK: age-mcp installed"
+  echo "  ..  Installing age-mcp (dotnet tool from NuGet)..."
+  if dotnet tool install --global AgeMcp; then
+    echo "  OK: age-mcp installed"
+  elif dotnet tool update --global AgeMcp; then
+    echo "  OK: age-mcp updated"
+  else
+    echo "FAIL: could not install AgeMcp from NuGet"
+    ERRORS=$((ERRORS+1))
+  fi
 fi
 
 echo ""
@@ -206,11 +206,7 @@ else
 fi
 
 # Build entries
-if has age-mcp; then
-  AGE_ENTRY="{\"type\":\"stdio\",\"command\":\"age-mcp\",\"env\":{\"AGE_CONNECTION_STRING\":\"${AGE_CONN}\",\"TENANT_ID\":\"default\"}}"
-else
-  AGE_ENTRY="{\"type\":\"stdio\",\"command\":\"dotnet\",\"args\":[\"run\",\"--project\",\"${AGEMCP_ABS}\"],\"env\":{\"AGE_CONNECTION_STRING\":\"${AGE_CONN}\",\"TENANT_ID\":\"default\"}}"
-fi
+AGE_ENTRY="{\"type\":\"stdio\",\"command\":\"age-mcp\",\"env\":{\"AGE_CONNECTION_STRING\":\"${AGE_CONN}\",\"TENANT_ID\":\"default\"}}"
 
 OBRIEN_ENTRY="{\"type\":\"stdio\",\"command\":\"obrien-mcp\",\"env\":{\"DATABASE_URL\":\"${OBRIEN_DB_URL}\"}}"
 
