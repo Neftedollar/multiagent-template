@@ -29,8 +29,7 @@ curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/mai
 ### Чистая машина (Windows)
 
 ```powershell
-irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 | iex
-# Затем:
+irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
 .\bootstrap.ps1 MyProject
 ```
 
