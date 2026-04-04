@@ -24,14 +24,20 @@ jobs:
       - name: Pack
         run: dotnet pack tools/setup-cli/MultiagentSetup.csproj -c Release --no-build -o nupkg
 
-      - name: Get NuGet publish token
-        id: oidc
+      - name: Get temporary NuGet API key (trusted publishing)
+        id: nuget-auth
         uses: actions/github-script@v7
         with:
           script: |
-            const token = await core.getIDToken('api.nuget.org')
-            core.setSecret(token)
-            core.setOutput('token', token)
+            const oidcToken = await core.getIDToken('api.nuget.org')
+            const resp = await fetch('https://api.nuget.org/v1/api-keys/provision', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${oidcToken}` }
+            })
+            if (!resp.ok) throw new Error(`NuGet auth failed: ${resp.status} ${await resp.text()}`)
+            const { apiKey } = await resp.json()
+            core.setSecret(apiKey)
+            core.setOutput('api-key', apiKey)
 
       - name: Push to NuGet
-        run: dotnet nuget push nupkg/*.nupkg --api-key ${{ steps.oidc.outputs.token }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push nupkg/*.nupkg --api-key ${{ steps.nuget-auth.outputs.api-key }} --source https://api.nuget.org/v3/index.json --skip-duplicate
