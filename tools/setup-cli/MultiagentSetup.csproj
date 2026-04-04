@@ -17,75 +17,35 @@
 
   <ItemGroup>
     <!-- Root docs -->
-    <EmbeddedResource Include="../../CLAUDE.md" LogicalName="CLAUDE.md">
-      <Link>Templates/CLAUDE.md</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/CLAUDE.md" LogicalName="CLAUDE.md" />
 
     <!-- Docs -->
-    <EmbeddedResource Include="../../docs/process.md" LogicalName="docs/process.md">
-      <Link>Templates/docs/process.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/role-capabilities.md" LogicalName="docs/role-capabilities.md">
-      <Link>Templates/docs/role-capabilities.md</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/docs/process.md" LogicalName="docs/process.md" />
+    <EmbeddedResource Include="Templates/docs/role-capabilities.md" LogicalName="docs/role-capabilities.md" />
 
     <!-- Workflows -->
-    <EmbeddedResource Include="../../docs/workflows/REGISTRY.md" LogicalName="docs/workflows/REGISTRY.md">
-      <Link>Templates/docs/workflows/REGISTRY.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-feature-pipeline.md" LogicalName="docs/workflows/WORKFLOW-feature-pipeline.md">
-      <Link>Templates/docs/workflows/WORKFLOW-feature-pipeline.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-bugfix-pipeline.md" LogicalName="docs/workflows/WORKFLOW-bugfix-pipeline.md">
-      <Link>Templates/docs/workflows/WORKFLOW-bugfix-pipeline.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-infra-pipeline.md" LogicalName="docs/workflows/WORKFLOW-infra-pipeline.md">
-      <Link>Templates/docs/workflows/WORKFLOW-infra-pipeline.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-content-pipeline.md" LogicalName="docs/workflows/WORKFLOW-content-pipeline.md">
-      <Link>Templates/docs/workflows/WORKFLOW-content-pipeline.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-spike-pipeline.md" LogicalName="docs/workflows/WORKFLOW-spike-pipeline.md">
-      <Link>Templates/docs/workflows/WORKFLOW-spike-pipeline.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-autonomous-orchestration.md" LogicalName="docs/workflows/WORKFLOW-autonomous-orchestration.md">
-      <Link>Templates/docs/workflows/WORKFLOW-autonomous-orchestration.md</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/docs/workflows/REGISTRY.md" LogicalName="docs/workflows/REGISTRY.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-feature-pipeline.md" LogicalName="docs/workflows/WORKFLOW-feature-pipeline.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-bugfix-pipeline.md" LogicalName="docs/workflows/WORKFLOW-bugfix-pipeline.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-infra-pipeline.md" LogicalName="docs/workflows/WORKFLOW-infra-pipeline.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-content-pipeline.md" LogicalName="docs/workflows/WORKFLOW-content-pipeline.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-spike-pipeline.md" LogicalName="docs/workflows/WORKFLOW-spike-pipeline.md" />
+    <EmbeddedResource Include="Templates/docs/workflows/WORKFLOW-autonomous-orchestration.md" LogicalName="docs/workflows/WORKFLOW-autonomous-orchestration.md" />
 
     <!-- Claude commands + config -->
-    <EmbeddedResource Include="../../.claude/commands/orchestrator.md" LogicalName=".claude/commands/orchestrator.md">
-      <Link>Templates/.claude/commands/orchestrator.md</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/mcp.json" LogicalName=".claude/mcp.json">
-      <Link>Templates/.claude/mcp.json</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/settings.json" LogicalName=".claude/settings.json">
-      <Link>Templates/.claude/settings.json</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/.claude/commands/orchestrator.md" LogicalName=".claude/commands/orchestrator.md" />
+    <EmbeddedResource Include="Templates/.claude/mcp.json" LogicalName=".claude/mcp.json" />
+    <EmbeddedResource Include="Templates/.claude/settings.json" LogicalName=".claude/settings.json" />
 
     <!-- Hooks -->
-    <EmbeddedResource Include="../../.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json">
-      <Link>Templates/.claude/hooks/lint.json</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json" />
 
     <!-- Tool scripts -->
-    <EmbeddedResource Include="../../tools/sync-roles.sh" LogicalName="tools/sync-roles.sh">
-      <Link>Templates/tools/sync-roles.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../tools/sync-roles.ps1" LogicalName="tools/sync-roles.ps1">
-      <Link>Templates/tools/sync-roles.ps1</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../tools/install-mcps.sh" LogicalName="tools/install-mcps.sh">
-      <Link>Templates/tools/install-mcps.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../tools/install-mcps.ps1" LogicalName="tools/install-mcps.ps1">
-      <Link>Templates/tools/install-mcps.ps1</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../tools/completions.zsh" LogicalName="tools/completions.zsh">
-      <Link>Templates/tools/completions.zsh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../tools/completions.ps1" LogicalName="tools/completions.ps1">
-      <Link>Templates/tools/completions.ps1</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />
+    <EmbeddedResource Include="Templates/tools/sync-roles.ps1" LogicalName="tools/sync-roles.ps1" />
+    <EmbeddedResource Include="Templates/tools/install-mcps.sh" LogicalName="tools/install-mcps.sh" />
+    <EmbeddedResource Include="Templates/tools/install-mcps.ps1" LogicalName="tools/install-mcps.ps1" />
+    <EmbeddedResource Include="Templates/tools/completions.zsh" LogicalName="tools/completions.zsh" />
+    <EmbeddedResource Include="Templates/tools/completions.ps1" LogicalName="tools/completions.ps1" />
   </ItemGroup>
 </Project>
