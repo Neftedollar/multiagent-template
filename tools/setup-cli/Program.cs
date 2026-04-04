@@ -15,6 +15,7 @@ return args[0] switch
     "new"           => await HandleNew(args[1..]),
     "sync-roles"    => await HandleSyncRoles(args[1..]),
     "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
+    "hook"          => await HandleHook(args[1..]),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
     _ => PrintUsage(error: $"Unknown command: {args[0]}")
 };
@@ -24,6 +25,13 @@ async Task<int> HandleNew(string[] a)
     var name = a.ElementAtOrDefault(0);
     if (name is null) return PrintUsage(error: "project-name is required");
     return await new SetupCommand(name, a.ElementAtOrDefault(1)).ExecuteAsync();
+}
+
+async Task<int> HandleHook(string[] a)
+{
+    var name = a.ElementAtOrDefault(0);
+    if (name is null) return PrintUsage(error: "hook name is required");
+    return await new HooksCommand(name).ExecuteAsync();
 }
 
 async Task<int> HandleSyncRoles(string[] a)
@@ -50,6 +58,8 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --age-conn <str>                  AGE connection string");
     Console.WriteLine("    --obrien-conn <str>               O'Brien connection string");
     Console.WriteLine("    --target <dir>                    Target dir for age-mcp clone");
+    Console.WriteLine("  hook <name>                         Run a Claude Code hook (cross-platform)");
+    Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  -h, --help                          Show this help");

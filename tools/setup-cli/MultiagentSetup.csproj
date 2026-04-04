@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;ai;multiagent;workspace</PackageTags>
@@ -98,6 +98,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="../../tools/completions.zsh" LogicalName="tools/completions.zsh">
       <Link>Templates/tools/completions.zsh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../tools/completions.ps1" LogicalName="tools/completions.ps1">
+      <Link>Templates/tools/completions.ps1</Link>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

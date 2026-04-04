@@ -52,8 +52,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            await OfferCompletionsAsync(targetDir);
+        await OfferCompletionsAsync(targetDir);
 
         Console.WriteLine();
         Console.WriteLine($"Done! Workspace created at: {targetDir}");
@@ -225,14 +224,22 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
 
     private static async Task OfferCompletionsAsync(string workspaceRoot)
     {
+        if (Console.IsInputRedirected) return;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            await OfferCompletionsWindowsAsync(workspaceRoot);
+        else
+            await OfferCompletionsUnixAsync(workspaceRoot);
+    }
+
+    private static async Task OfferCompletionsUnixAsync(string workspaceRoot)
+    {
         var zshrc = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".zshrc");
         if (!File.Exists(zshrc)) return;
 
         var existing = await File.ReadAllTextAsync(zshrc);
         if (existing.Contains("completions.zsh")) return;
-
-        if (Console.IsInputRedirected) return;
 
         Console.Write("\nAdd zsh completions to ~/.zshrc? [y/N] ");
         var key = Console.ReadKey(intercept: false);
@@ -244,6 +251,33 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
             await File.AppendAllTextAsync(zshrc,
                 $"\n# Multi-agent workspace completions\nsource \"{completionsPath}\"\n");
             Console.WriteLine("  OK: completions added (restart shell or: source ~/.zshrc)");
+        }
+    }
+
+    private static async Task OfferCompletionsWindowsAsync(string workspaceRoot)
+    {
+        var profile = Environment.GetEnvironmentVariable("PROFILE")
+            ?? Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "PowerShell", "Microsoft.PowerShell_profile.ps1");
+
+        if (!string.IsNullOrEmpty(profile) && File.Exists(profile))
+        {
+            var existing = await File.ReadAllTextAsync(profile);
+            if (existing.Contains("completions.ps1")) return;
+        }
+
+        Console.Write("\nAdd PowerShell completions to $PROFILE? [y/N] ");
+        var key = Console.ReadKey(intercept: false);
+        Console.WriteLine();
+
+        if (key.KeyChar is 'y' or 'Y')
+        {
+            var completionsPath = Path.Combine(workspaceRoot, "tools", "completions.ps1");
+            Directory.CreateDirectory(Path.GetDirectoryName(profile)!);
+            await File.AppendAllTextAsync(profile,
+                $"\r\n# Multi-agent workspace completions\r\n. \"{completionsPath}\"\r\n");
+            Console.WriteLine("  OK: completions added (restart PowerShell or: . $PROFILE)");
         }
     }
 }
