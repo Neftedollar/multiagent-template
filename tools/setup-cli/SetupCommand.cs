@@ -151,7 +151,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         ["{{GRAPH_NAME}}"]          = graph,
         ["{{DATE}}"]                = DateTime.Today.ToString("yyyy-MM-dd"),
         ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                                        ? @"%USERPROFILE%\.dotnet\tools\multiagent-setup.exe"
+                                        ? @"$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
                                         : "$HOME/.dotnet/tools/multiagent-setup",
     };
 
