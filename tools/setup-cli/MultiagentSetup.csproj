@@ -79,6 +79,9 @@
     <EmbeddedResource Include="../../.claude/hooks/stop-guard.sh" LogicalName=".claude/hooks/stop-guard.sh">
       <Link>Templates/.claude/hooks/stop-guard.sh</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/research-reminder.sh" LogicalName=".claude/hooks/research-reminder.sh">
+      <Link>Templates/.claude/hooks/research-reminder.sh</Link>
+    </EmbeddedResource>
     <EmbeddedResource Include="../../.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json">
       <Link>Templates/.claude/hooks/lint.json</Link>
     </EmbeddedResource>

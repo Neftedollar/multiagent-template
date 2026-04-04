@@ -6,11 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "multiagent-setup hook block-dangerous"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous.sh"
           },
           {
             "type": "command",
-            "command": "multiagent-setup hook enforce-commit-msg"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-commit-msg.sh"
           }
         ]
       },
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "multiagent-setup hook log-agent"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/log-agent.sh"
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "multiagent-setup hook auto-lint"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/auto-lint.sh"
           }
         ]
       },
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "multiagent-setup hook research-reminder"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/research-reminder.sh"
           }
         ]
       }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "multiagent-setup hook stop-guard"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard.sh"
           }
         ]
       }
