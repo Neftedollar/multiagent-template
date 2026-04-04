@@ -6,11 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook block-dangerous"
+            "command": "{{HOOK_EXEC}} hook block-dangerous"
           },
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook enforce-commit-msg"
+            "command": "{{HOOK_EXEC}} hook enforce-commit-msg"
           }
         ]
       },
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook log-agent"
+            "command": "{{HOOK_EXEC}} hook log-agent"
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook auto-lint"
+            "command": "{{HOOK_EXEC}} hook auto-lint"
           }
         ]
       },
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook research-reminder"
+            "command": "{{HOOK_EXEC}} hook research-reminder"
           }
         ]
       }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.dotnet/tools/multiagent-setup hook stop-guard"
+            "command": "{{HOOK_EXEC}} hook stop-guard"
           }
         ]
       }
