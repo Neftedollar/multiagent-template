@@ -1,0 +1,15 @@
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/bin/Release/net10.0/MultiagentSetup
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/bin/Release/net10.0/MultiagentSetup.deps.json
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/bin/Release/net10.0/MultiagentSetup.runtimeconfig.json
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/bin/Release/net10.0/MultiagentSetup.dll
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/bin/Release/net10.0/MultiagentSetup.pdb
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.GeneratedMSBuildEditorConfig.editorconfig
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.AssemblyInfoInputs.cache
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.AssemblyInfo.cs
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.csproj.CoreCompileInputs.cache
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.sourcelink.json
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.dll
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/refint/MultiagentSetup.dll
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.pdb
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/MultiagentSetup.genruntimeconfig.cache
+/Users/roman/Documents/dev/multiagent-template/tools/setup-cli/obj/Release/net10.0/ref/MultiagentSetup.dll

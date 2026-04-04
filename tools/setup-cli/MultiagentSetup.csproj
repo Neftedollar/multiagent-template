@@ -1,0 +1,97 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>multiagent-setup</ToolCommandName>
+    <PackageId>multiagent-setup</PackageId>
+    <Version>1.1.0</Version>
+    <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
+    <Authors>Roman Melnikov</Authors>
+    <PackageTags>claude;ai;multiagent;workspace</PackageTags>
+    <AssemblyName>MultiagentSetup</AssemblyName>
+    <RootNamespace>MultiagentSetup</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Root docs -->
+    <EmbeddedResource Include="../../CLAUDE.md" LogicalName="CLAUDE.md">
+      <Link>Templates/CLAUDE.md</Link>
+    </EmbeddedResource>
+
+    <!-- Docs -->
+    <EmbeddedResource Include="../../docs/process.md" LogicalName="docs/process.md">
+      <Link>Templates/docs/process.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/role-capabilities.md" LogicalName="docs/role-capabilities.md">
+      <Link>Templates/docs/role-capabilities.md</Link>
+    </EmbeddedResource>
+
+    <!-- Workflows -->
+    <EmbeddedResource Include="../../docs/workflows/REGISTRY.md" LogicalName="docs/workflows/REGISTRY.md">
+      <Link>Templates/docs/workflows/REGISTRY.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-feature-pipeline.md" LogicalName="docs/workflows/WORKFLOW-feature-pipeline.md">
+      <Link>Templates/docs/workflows/WORKFLOW-feature-pipeline.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-bugfix-pipeline.md" LogicalName="docs/workflows/WORKFLOW-bugfix-pipeline.md">
+      <Link>Templates/docs/workflows/WORKFLOW-bugfix-pipeline.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-infra-pipeline.md" LogicalName="docs/workflows/WORKFLOW-infra-pipeline.md">
+      <Link>Templates/docs/workflows/WORKFLOW-infra-pipeline.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-content-pipeline.md" LogicalName="docs/workflows/WORKFLOW-content-pipeline.md">
+      <Link>Templates/docs/workflows/WORKFLOW-content-pipeline.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-spike-pipeline.md" LogicalName="docs/workflows/WORKFLOW-spike-pipeline.md">
+      <Link>Templates/docs/workflows/WORKFLOW-spike-pipeline.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../docs/workflows/WORKFLOW-autonomous-orchestration.md" LogicalName="docs/workflows/WORKFLOW-autonomous-orchestration.md">
+      <Link>Templates/docs/workflows/WORKFLOW-autonomous-orchestration.md</Link>
+    </EmbeddedResource>
+
+    <!-- Claude commands + config -->
+    <EmbeddedResource Include="../../.claude/commands/orchestrator.md" LogicalName=".claude/commands/orchestrator.md">
+      <Link>Templates/.claude/commands/orchestrator.md</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/mcp.json" LogicalName=".claude/mcp.json">
+      <Link>Templates/.claude/mcp.json</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/settings.json" LogicalName=".claude/settings.json">
+      <Link>Templates/.claude/settings.json</Link>
+    </EmbeddedResource>
+
+    <!-- Hooks -->
+    <EmbeddedResource Include="../../.claude/hooks/block-dangerous.sh" LogicalName=".claude/hooks/block-dangerous.sh">
+      <Link>Templates/.claude/hooks/block-dangerous.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/enforce-commit-msg.sh" LogicalName=".claude/hooks/enforce-commit-msg.sh">
+      <Link>Templates/.claude/hooks/enforce-commit-msg.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/auto-lint.sh" LogicalName=".claude/hooks/auto-lint.sh">
+      <Link>Templates/.claude/hooks/auto-lint.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/log-agent.sh" LogicalName=".claude/hooks/log-agent.sh">
+      <Link>Templates/.claude/hooks/log-agent.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/stop-guard.sh" LogicalName=".claude/hooks/stop-guard.sh">
+      <Link>Templates/.claude/hooks/stop-guard.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json">
+      <Link>Templates/.claude/hooks/lint.json</Link>
+    </EmbeddedResource>
+
+    <!-- Tool scripts -->
+    <EmbeddedResource Include="../../tools/sync-roles.sh" LogicalName="tools/sync-roles.sh">
+      <Link>Templates/tools/sync-roles.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../tools/install-mcps.sh" LogicalName="tools/install-mcps.sh">
+      <Link>Templates/tools/install-mcps.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../tools/completions.zsh" LogicalName="tools/completions.zsh">
+      <Link>Templates/tools/completions.zsh</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
