@@ -4,7 +4,7 @@
 
 ## Идея
 
-Один человек (CEO) ставит задачи. Всё остальное делает команда AI-агентов, каждый из которых играет конкретную роль: продакт-менеджер, архитектор, разработчик, ревьюер, девопс, дизайнер, техписатель и т.д.
+Один человек (CEO) ставит задачи. Всё остальное делает команда AI-агентов, каждый из которых играет конкретную роль: продакт-менеджер, архитектор, разработчик, ревьюер, DevOps, дизайнер, AI-инженер, техписатель и т.д.
 
 Центральное звено — **Оркестратор**: автономный агент, который получает задачу, разбивает её на шаги, подбирает роли, запускает пайплайн и доводит до готового PR. Человек подключается только в точках эскалации: публичный контент, breaking changes, инфрарешения с затратами, или 5+ провалов подряд.
 
@@ -18,13 +18,34 @@ PLAN → BUILD → TEST → VERIFY → SHIP
 
 ## Быстрый старт
 
-**Создать воркспейс:**
+### Чистая машина (macOS / Linux)
 
 ```bash
-# Через обёртку (устанавливает тул если нет, затем запускает)
-./setup.sh MyProject
+curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
+```
 
-# Или напрямую через dotnet
+Устанавливает git, jq, gh, .NET SDK, Claude Code — и создаёт воркспейс.
+
+### Чистая машина (Windows)
+
+```powershell
+irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 | iex
+# Затем:
+.\bootstrap.ps1 MyProject
+```
+
+Устанавливает все зависимости через `winget` и создаёт воркспейс.
+
+### Если зависимости уже есть
+
+```bash
+# macOS / Linux
+./setup.sh MyProject          # установит .NET если нет, затем запустит тул
+
+# Windows
+.\setup.ps1 MyProject
+
+# Или напрямую:
 dotnet tool install -g multiagent-setup
 multiagent-setup MyProject
 ```
@@ -32,12 +53,13 @@ multiagent-setup MyProject
 GitHub org берётся автоматически из `gh auth` — если не авторизован, запустит `gh auth login`.  
 Явно задать org: `multiagent-setup MyProject my-org`
 
-**Начать работу:**
+### Начать работу
 
 ```bash
-cd ../MyProject
+cd MyProject
 # (опционально) установить MCP-серверы
-./tools/install-mcps.sh
+./tools/install-mcps.sh       # macOS / Linux
+.\tools\install-mcps.ps1      # Windows
 
 claude
 /orchestrator Реализовать авторизацию по OAuth2
@@ -59,7 +81,8 @@ MyProject/
 │   └── settings.json        ← конфигурация хуков
 └── tools/
     ├── sync-roles.sh        ← синхронизация ролей из agency-agents
-    ├── install-mcps.sh      ← установка age-mcp и o-brien
+    ├── install-mcps.sh      ← установка MCP-серверов (macOS/Linux)
+    ├── install-mcps.ps1     ← установка MCP-серверов (Windows)
     └── completions.zsh      ← zsh-автодополнения
 ```
 
@@ -85,7 +108,17 @@ MyProject/
 
 Используется для: блокировки задач (оптимистичный lock), тегирования прогресса (`code-done` → `pr-created` → `completed-work`), хранения результатов исследований, crash recovery (lock старше 24ч → `stale-work`).
 
-Установка обоих инструментов: `./tools/install-mcps.sh`
+### Установка MCP-серверов
+
+```bash
+# macOS / Linux
+./tools/install-mcps.sh
+
+# Windows
+.\tools\install-mcps.ps1
+```
+
+Скрипт спрашивает: поднять локальный Docker или указать готовые строки подключения (удалённый сервер, существующая БД). Затем устанавливает `AgeMcp` и `OBrienMcp` из NuGet и прописывает оба сервера в MCP-конфиг Claude Code.
 
 ## Хуки
 
@@ -103,17 +136,16 @@ MyProject/
 
 Роли подключаются как слэш-команды из [agency-agents](https://github.com/msitarzewski/agency-agents) — устанавливаются глобально в `~/.claude/commands/` при создании воркспейса.
 
-Роли по слоям:
-
 | Слой | Роли |
 |------|------|
 | Стратегия | `/product-manager`, `/product-trend-researcher` |
 | Управление | `/orchestrator`, `/testing-reality-checker`, `/specialized-workflow-architect` |
 | Инженерия | `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer`, `/engineering-devops-automator`, `/engineering-security-engineer` |
+| AI / ML | `/engineering-ai-engineer` |
 | Дизайн | `/design-ux-researcher`, `/design-ui-designer` |
 | GTM | `/specialized-developer-advocate`, `/engineering-technical-writer`, `/marketing-content-creator` |
 
-Оркестратор подбирает роли **динамически** по сигналам задачи (файлы, ключевые слова, лейблы) через индекс `docs/role-capabilities.md`. Если ни одна роль не подходит — создаётся ad-hoc роль на лету.
+Оркестратор подбирает роли **динамически** по сигналам задачи (файлы, ключевые слова, лейблы) через индекс `docs/role-capabilities.md`. Задачи с LLM/RAG/embedding автоматически роутятся на AI-инженера; задачи с UI — на UX + дизайнера перед архитектором. Если ни одна роль не подходит — создаётся ad-hoc роль на лету.
 
 ## Модели по уровням
 
@@ -126,7 +158,7 @@ MyProject/
 
 ## multiagent-setup (dotnet tool)
 
-Тул, который создаёт воркспейс из шаблона. Все шаблонные файлы встроены в бинарник как embedded resources — никаких внешних зависимостей.
+Создаёт воркспейс из шаблона. Все шаблонные файлы встроены в бинарник как embedded resources — никаких внешних зависимостей кроме .NET.
 
 ```bash
 # Установить глобально
@@ -136,15 +168,19 @@ dotnet tool install -g multiagent-setup
 multiagent-setup <project-name> [github-org]
 
 # Обновить
-dotnet tool update -g multiagentsetup
+dotnet tool update -g multiagent-setup
 ```
 
 Исходник: [`tools/setup-cli/`](tools/setup-cli/)
 
 ## Требования
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude`)
-- [GitHub CLI](https://cli.github.com/) (`gh`) + авторизация
-- `git`, `jq`
-- [.NET SDK](https://dotnet.microsoft.com/download) 10+ (для `multiagent-setup` и MCP-серверов)
-- Docker (для AGE graph и O'Brien — опционально)
+| Инструмент | macOS/Linux | Windows |
+|------------|-------------|---------|
+| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `npm i -g @anthropic-ai/claude-code` | то же |
+| [GitHub CLI](https://cli.github.com/) | `brew install gh` / apt | `winget install GitHub.cli` |
+| git, jq | brew / apt | `winget install Git.Git jqlang.jq` |
+| [.NET SDK](https://dotnet.microsoft.com/download) 9+ | `brew install dotnet` / скрипт | `winget install Microsoft.DotNet.SDK.9` |
+| Docker | опционально, для AGE/O'Brien | `winget install Docker.DockerDesktop` |
+
+`bootstrap.sh` / `bootstrap.ps1` устанавливают всё автоматически на чистой машине.
