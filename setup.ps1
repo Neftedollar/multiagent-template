@@ -58,6 +58,14 @@ if (-not $installed) {
     & dotnet tool update -g multiagent-setup 2>&1 | Out-Null
 }
 
+# Verify tool is at the standard path expected by .claude/settings.json hooks.
+$toolExe = "$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
+if (-not (Test-Path $toolExe)) {
+    Write-Warning "multiagent-setup not found at $toolExe"
+    Write-Warning "The generated workspace hooks expect the tool at that path."
+    Write-Warning "If you used a custom DOTNET_ROOT, update .claude/settings.json in the new workspace manually."
+}
+
 if ([string]::IsNullOrEmpty($ProjectName)) {
     Write-Host "Usage: .\setup.ps1 <project-name> [github-org]"
     exit 1

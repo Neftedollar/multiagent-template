@@ -6,11 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook block-dangerous"
           },
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-commit-msg.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook enforce-commit-msg"
           }
         ]
       },
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/log-agent.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook log-agent"
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/auto-lint.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook auto-lint"
           }
         ]
       },
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/research-reminder.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook research-reminder"
           }
         ]
       }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard.sh"
+            "command": "$HOME/.dotnet/tools/multiagent-setup hook stop-guard"
           }
         ]
       }

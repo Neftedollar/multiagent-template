@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.5.0</Version>
+    <Version>1.6.0</Version>
     <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;ai;multiagent;workspace</PackageTags>
@@ -64,24 +64,6 @@
     </EmbeddedResource>
 
     <!-- Hooks -->
-    <EmbeddedResource Include="../../.claude/hooks/block-dangerous.sh" LogicalName=".claude/hooks/block-dangerous.sh">
-      <Link>Templates/.claude/hooks/block-dangerous.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/hooks/enforce-commit-msg.sh" LogicalName=".claude/hooks/enforce-commit-msg.sh">
-      <Link>Templates/.claude/hooks/enforce-commit-msg.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/hooks/auto-lint.sh" LogicalName=".claude/hooks/auto-lint.sh">
-      <Link>Templates/.claude/hooks/auto-lint.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/hooks/log-agent.sh" LogicalName=".claude/hooks/log-agent.sh">
-      <Link>Templates/.claude/hooks/log-agent.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/hooks/stop-guard.sh" LogicalName=".claude/hooks/stop-guard.sh">
-      <Link>Templates/.claude/hooks/stop-guard.sh</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="../../.claude/hooks/research-reminder.sh" LogicalName=".claude/hooks/research-reminder.sh">
-      <Link>Templates/.claude/hooks/research-reminder.sh</Link>
-    </EmbeddedResource>
     <EmbeddedResource Include="../../.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json">
       <Link>Templates/.claude/hooks/lint.json</Link>
     </EmbeddedResource>
