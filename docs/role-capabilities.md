@@ -76,8 +76,10 @@
 | `Dockerfile`, `docker-compose*`, `.github/`, `scripts/` | `/engineering-devops-automator` |
 | `*.sql`, `*Migration*` | `/engineering-database-optimizer` |
 | `*.md` in `docs/` | `/engineering-technical-writer` |
-| `*.ipynb`, `models/`, `embeddings/`, `vectorstore/`, `prompts/`, `chains/` | `/engineering-ai-engineer` |
+| `*.ipynb`, `*.onnx`, `*.pt`, `*.pth`, `*.pkl`, `*.safetensors` | `/engineering-ai-engineer` |
+| `models/`, `embeddings/`, `vectorstore/`, `prompts/`, `chains/` | `/engineering-ai-engineer` |
 | `*llm*`, `*rag*`, `*embedding*`, `*openai*`, `*anthropic*`, `*langchain*` | `/engineering-ai-engineer` |
+| `*onnx*`, `*mlnet*`, `*ml.net*`, `*torchsharp*`, `*tensorflow*` | `/engineering-ai-engineer` |
 
 ### By keywords in task description
 | Keywords | Role |
@@ -92,6 +94,7 @@
 | browser, e2e, visual, screenshot, responsive, mobile view | `/testing-evidence-collector` |
 | slo, monitoring, alert, incident | `/engineering-sre` |
 | llm, rag, embedding, vector, prompt, inference, fine-tune, ai agent, openai, anthropic, langchain, huggingface, claude api, gpt, gemini, model, ml, machine learning, recommendation, classification | `/engineering-ai-engineer` |
+| onnx, ml.net, mlnet, torchsharp, tensorflow.net, microsoft.ml, semantic kernel, kernel memory, microsoft.extensions.ai | `/engineering-ai-engineer` |
 
 ### Conditional roles at PLAN step
 
