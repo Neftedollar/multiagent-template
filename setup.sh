@@ -6,10 +6,19 @@
 
 set -euo pipefail
 
-if ! command -v dotnet &>/dev/null; then
-  echo "FAIL: .NET SDK not found."
-  echo "  Install from: https://dotnet.microsoft.com/download"
-  exit 1
+OS="$(uname -s)"
+has() { command -v "$1" &>/dev/null; }
+
+if ! has dotnet; then
+  echo "  ..  Installing .NET SDK..."
+  if [ "$OS" = "Darwin" ] && has brew; then
+    brew install dotnet
+  else
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS
+    export PATH="$HOME/.dotnet:$PATH"
+  fi
+  has dotnet || { echo "FAIL: dotnet install failed — https://dotnet.microsoft.com/download"; exit 1; }
+  echo "  OK: dotnet installed"
 fi
 
 if ! dotnet tool list -g 2>/dev/null | grep -q '^multiagent-setup\b'; then

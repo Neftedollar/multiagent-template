@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;ai;multiagent;workspace</PackageTags>
@@ -89,6 +89,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="../../tools/install-mcps.sh" LogicalName="tools/install-mcps.sh">
       <Link>Templates/tools/install-mcps.sh</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../tools/install-mcps.ps1" LogicalName="tools/install-mcps.ps1">
+      <Link>Templates/tools/install-mcps.ps1</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="../../tools/completions.zsh" LogicalName="tools/completions.zsh">
       <Link>Templates/tools/completions.zsh</Link>

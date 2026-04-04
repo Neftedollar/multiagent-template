@@ -62,7 +62,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         Console.WriteLine("Next steps:");
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
-        Console.WriteLine($"  3. (Optional) Install MCPs: ./tools/install-mcps.sh");
+        var mcpScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? @".\tools\install-mcps.ps1"
+            : "./tools/install-mcps.sh";
+        Console.WriteLine($"  3. (Optional) Install MCPs: {mcpScript}");
         Console.WriteLine($"  4. Start working: claude then /orchestrator <task>");
         Console.WriteLine();
         return 0;
@@ -196,7 +199,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         name.EndsWith(".md")   ||
         name.EndsWith(".json") ||
         name.EndsWith(".sh")   ||
-        name.EndsWith(".zsh");
+        name.EndsWith(".zsh")  ||
+        name.EndsWith(".ps1");
 
     // ── Permissions ───────────────────────────────────────────────────────────
 
