@@ -4,18 +4,19 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class SetupCommand(string projectName, string? requestedOrg)
+public sealed class SetupCommand(string projectName, string? requestedOrg, string provider = "claude")
 {
     public async Task<int> ExecuteAsync()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
         Console.WriteLine($"\nmultiagent-setup v{version}");
-        Console.WriteLine($"  Project: {projectName}");
+        Console.WriteLine($"  Project:  {projectName}");
+        Console.WriteLine($"  Provider: {provider}");
         Console.WriteLine();
 
         Console.WriteLine("Pre-flight checks...");
         Console.WriteLine();
-        if (!CheckTools()) return 1;
+        if (!CheckTools(provider)) return 1;
 
         var org = await ResolveOrgAsync();
         if (org is null) return 1;
@@ -36,10 +37,14 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         Console.WriteLine($"  Target:     {targetDir}");
         Console.WriteLine();
 
-        CreateDirectories(targetDir);
+        var providers = provider == "all"
+            ? new[] { "claude", "codex", "qwen" }
+            : new[] { provider };
+
+        CreateDirectories(targetDir, providers);
 
         var vars = BuildVars(projectName, org, graphName);
-        ExtractTemplates(targetDir, vars);
+        ExtractTemplates(targetDir, vars, providers);
         Console.WriteLine("  OK: templates extracted");
 
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -48,7 +53,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
             Console.WriteLine("  OK: permissions set");
         }
 
-        await SetupAgencyRolesAsync(targetDir);
+        if (providers.Contains("claude"))
+            await SetupAgencyRolesAsync(targetDir);
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
 
@@ -61,21 +67,34 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
         Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
-        Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
-        Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
+        if (providers.Contains("claude"))
+        {
+            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
+            Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
+        }
+        if (providers.Contains("codex"))
+            Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
+        if (providers.Contains("qwen"))
+            Console.WriteLine($"  5. Start working: qwen-code");
         Console.WriteLine();
         return 0;
     }
 
     // ── Pre-flight ────────────────────────────────────────────────────────────
 
-    private static bool CheckTools()
+    private static bool CheckTools(string provider)
     {
         var ok = true;
         ok &= Require("git");
         ok &= Require("jq");
         ok &= Require("gh");
-        Suggest("claude", "https://docs.anthropic.com/en/docs/claude-code");
+        var providers = provider == "all" ? new[] { "claude", "codex", "qwen" } : new[] { provider };
+        if (providers.Contains("claude"))
+            Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
+        if (providers.Contains("codex"))
+            Suggest("codex",      "https://github.com/openai/codex");
+        if (providers.Contains("qwen"))
+            Suggest("qwen-code",  "https://github.com/QwenLM/qwen-code");
         Console.WriteLine();
         return ok;
     }
@@ -125,17 +144,21 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
 
     // ── Directory creation ────────────────────────────────────────────────────
 
-    private static void CreateDirectories(string root)
+    private static void CreateDirectories(string root, string[] providers)
     {
-        string[] dirs =
-        [
-            "code",
-            "docs/workflows", "docs/archive", "docs/obsolete-docs",
-            ".claude/commands", ".claude/hooks",
-            "tools",
-        ];
-        foreach (var d in dirs)
+        // Shared
+        foreach (var d in new[] { "code", "docs/workflows", "docs/archive", "docs/obsolete-docs", "tools" })
             Directory.CreateDirectory(Path.Combine(root, d.Replace('/', Path.DirectorySeparatorChar)));
+
+        if (providers.Contains("claude"))
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
+        }
+        if (providers.Contains("codex"))
+            Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
+        if (providers.Contains("qwen"))
+            Directory.CreateDirectory(Path.Combine(root, ".qwen"));
     }
 
     // ── Template extraction ───────────────────────────────────────────────────
@@ -155,21 +178,22 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
                                         : "$HOME/.dotnet/tools/multiagent-setup",
     };
 
-    private static void ExtractTemplates(string root, Dictionary<string, string> vars)
+    private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
     {
         var asm = Assembly.GetExecutingAssembly();
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
-            var relPath    = resourceName.Replace('/', Path.DirectorySeparatorChar);
-            var outputPath = Path.Combine(root, relPath);
+            var outputRel = ResolveOutputPath(resourceName, providers);
+            if (outputRel is null) continue;
 
+            var outputPath = Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar));
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
             using var stream = asm.GetManifestResourceStream(resourceName)!;
 
             if (IsTextResource(resourceName))
             {
-                using var reader  = new StreamReader(stream, Encoding.UTF8);
+                using var reader = new StreamReader(stream, Encoding.UTF8);
                 var content = reader.ReadToEnd();
                 foreach (var (k, v) in vars)
                     content = content.Replace(k, v, StringComparison.Ordinal);
@@ -183,9 +207,25 @@ public sealed class SetupCommand(string projectName, string? requestedOrg)
         }
     }
 
+    private static string? ResolveOutputPath(string resourceName, string[] providers)
+    {
+        if (resourceName.StartsWith(".claude/"))
+            return providers.Contains("claude") ? resourceName : null;
+
+        if (resourceName.StartsWith("providers/codex/"))
+            return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/qwen/"))
+            return providers.Contains("qwen")  ? resourceName["providers/qwen/".Length..]  : null;
+
+        // Shared (CLAUDE.md, docs/, tools/)
+        return resourceName;
+    }
+
     private static bool IsTextResource(string name) =>
         name.EndsWith(".md")   ||
         name.EndsWith(".json") ||
+        name.EndsWith(".toml") ||
         name.EndsWith(".sh")   ||
         name.EndsWith(".zsh")  ||
         name.EndsWith(".ps1");

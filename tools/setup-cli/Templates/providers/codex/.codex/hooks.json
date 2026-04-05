@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook block-dangerous"
+          },
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook enforce-commit-msg"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "write_file|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook auto-lint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook stop-guard"
+          }
+        ]
+      }
+    ]
+  }
+}

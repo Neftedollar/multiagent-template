@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
     <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;ai;multiagent;workspace</PackageTags>
@@ -39,6 +39,14 @@
 
     <!-- Hooks -->
     <EmbeddedResource Include="Templates/.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json" />
+
+    <!-- Provider: Codex -->
+    <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />
+    <EmbeddedResource Include="Templates/providers/codex/.codex/hooks.json" LogicalName="providers/codex/.codex/hooks.json" />
+    <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
+
+    <!-- Provider: Qwen -->
+    <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
 
     <!-- Tool scripts -->
     <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />

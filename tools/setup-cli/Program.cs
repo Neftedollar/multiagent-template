@@ -23,8 +23,24 @@ return args[0] switch
 async Task<int> HandleNew(string[] a)
 {
     var name = a.ElementAtOrDefault(0);
-    if (name is null) return PrintUsage(error: "project-name is required");
-    return await new SetupCommand(name, a.ElementAtOrDefault(1)).ExecuteAsync();
+    if (name is null || name.StartsWith('-')) return PrintUsage(error: "project-name is required");
+
+    string? org      = null;
+    string  provider = "claude";
+
+    for (int i = 1; i < a.Length; i++)
+    {
+        if (a[i] == "--provider" && i + 1 < a.Length)
+            provider = a[++i];
+        else if (!a[i].StartsWith('-'))
+            org ??= a[i];
+    }
+
+    string[] validProviders = ["claude", "codex", "qwen", "all"];
+    if (!validProviders.Contains(provider))
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, codex, qwen, all");
+
+    return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
 
 async Task<int> HandleHook(string[] a)
@@ -50,6 +66,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine();
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
+    Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, all");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
