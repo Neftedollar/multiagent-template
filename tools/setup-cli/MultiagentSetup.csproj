@@ -7,13 +7,18 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.8.0</Version>
-    <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
+    <Version>1.9.0</Version>
+    <Description>Scaffold a multi-agent AI workspace (Claude Code, Nessy CLI, Codex, Qwen)</Description>
     <Authors>Roman Melnikov</Authors>
-    <PackageTags>claude;ai;multiagent;workspace</PackageTags>
+    <PackageTags>claude;ai;multiagent;workspace;nessy</PackageTags>
     <AssemblyName>MultiagentSetup</AssemblyName>
     <RootNamespace>MultiagentSetup</RootNamespace>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Root docs -->
