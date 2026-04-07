@@ -53,8 +53,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  OK: permissions set");
         }
 
-        if (providers.Contains("claude"))
-            await SetupAgencyRolesAsync(targetDir);
+        foreach (var p in providers)
+            await SetupAgencyRolesAsync(targetDir, p);
+        
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
 
@@ -69,7 +70,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
         if (providers.Contains("claude"))
         {
-            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
+            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull --provider claude");
             Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
         }
         if (providers.Contains("codex"))
@@ -242,10 +243,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Agency-agents + role sync ─────────────────────────────────────────────
 
-    private static async Task SetupAgencyRolesAsync(string workspaceRoot)
+    private static async Task SetupAgencyRolesAsync(string workspaceRoot, string provider = "claude")
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, provider).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────

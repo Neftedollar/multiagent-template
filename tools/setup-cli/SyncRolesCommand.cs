@@ -2,7 +2,7 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
+public sealed class SyncRolesCommand(string action, string? agencyDirOverride, string provider = "claude")
 {
     private const string AgencyRepo = "https://github.com/msitarzewski/agency-agents.git";
     private const string Marker     = "<!-- auto-generated from agency-agents -->";
@@ -19,9 +19,12 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
             ?? Environment.GetEnvironmentVariable("AGENCY_DIR")
             ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "agency-agents"));
 
-        var commandsDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".claude", "commands");
+        var (commandsDir, markerPrefix) = provider.ToLowerInvariant() switch
+        {
+            "codex" => (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".codex", "skills"), ""),
+            "qwen"  => (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".qwen", "commands"), ""),
+            _       => (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".claude", "commands"), Marker + "\n\n")
+        };
 
         var currentAction = action;
 
@@ -70,7 +73,7 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
         foreach (var f in Directory.GetFiles(commandsDir, "*.md"))
         {
             var first = File.ReadLines(f).FirstOrDefault() ?? "";
-            if (first == Marker) File.Delete(f);
+            if (first == Marker || (provider != "claude" && first.StartsWith("Adopt the following"))) File.Delete(f);
         }
 
         int count = 0, skipped = 0;
@@ -90,11 +93,29 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
             var cmdName = Path.GetFileNameWithoutExtension(basename);
 
             // Don't overwrite project-level commands
-            var projectCmd = Path.Combine(Directory.GetCurrentDirectory(), ".claude", "commands", $"{cmdName}.md");
+            var projectCmdDir = provider.ToLowerInvariant() switch
+            {
+                "codex" => Path.Combine(Directory.GetCurrentDirectory(), ".codex", "skills"),
+                "qwen"  => Path.Combine(Directory.GetCurrentDirectory(), ".qwen", "commands"),
+                _       => Path.Combine(Directory.GetCurrentDirectory(), ".claude", "commands")
+            };
+            var projectCmd = Path.Combine(projectCmdDir, $"{cmdName}.md");
             if (File.Exists(projectCmd)) { skipped++; continue; }
 
             var body = ExtractAfterFrontmatter(await File.ReadAllTextAsync(roleFile));
-            var output = $$"""
+            var output = provider.ToLowerInvariant() switch
+            {
+                "codex" => $$"""
+{{body}}
+
+Task: $ARGUMENTS
+""",
+                "qwen" => $$"""
+{{body}}
+
+Task: $ARGUMENTS
+""",
+                _ => $$"""
 {{Marker}}
 
 Adopt the following expert role for this conversation. Apply this role's full knowledge, methodology, and communication style to the task below.
@@ -106,7 +127,8 @@ Adopt the following expert role for this conversation. Apply this role's full kn
 Now, using the expertise above, help with the following:
 
 $ARGUMENTS
-""";
+"""
+            };
 
             await File.WriteAllTextAsync(
                 Path.Combine(commandsDir, $"{cmdName}.md"),
@@ -120,7 +142,7 @@ $ARGUMENTS
         if (skipped > 0) Console.WriteLine($"Skipped {skipped} (project-level override exists)");
         Console.WriteLine();
         Console.WriteLine("Check for new roles periodically:");
-        Console.WriteLine("  multiagent-setup sync-roles --pull");
+        Console.WriteLine($"  multiagent-setup sync-roles --pull --provider {provider}");
         return 0;
     }
 

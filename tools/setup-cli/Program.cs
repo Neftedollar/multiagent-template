@@ -54,9 +54,15 @@ async Task<int> HandleSyncRoles(string[] a)
 {
     var action     = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
     string? agDir  = null;
+    string  provider = "claude";
+    
     for (int i = 0; i < a.Length - 1; i++)
+    {
         if (a[i] == "--agency-dir") agDir = a[i + 1];
-    return await new SyncRolesCommand(action, agDir).ExecuteAsync();
+        if (a[i] == "--provider" && i + 1 < a.Length) provider = a[++i];
+    }
+    
+    return await new SyncRolesCommand(action, agDir, provider).ExecuteAsync();
 }
 
 static int PrintUsage(string? error = null)
@@ -68,6 +74,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, all");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
+    Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
     Console.WriteLine("    --docker                          Use local Docker (default, interactive)");
@@ -75,7 +82,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --age-conn <str>                  AGE connection string");
     Console.WriteLine("    --obrien-conn <str>               O'Brien connection string");
     Console.WriteLine("    --target <dir>                    Target dir for age-mcp clone");
-    Console.WriteLine("  hook <name>                         Run a Claude Code hook (cross-platform)");
+    Console.WriteLine("  hook <name>                         Run a hook (cross-platform)");
     Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard");
     Console.WriteLine();
     Console.WriteLine("Options:");

@@ -2,6 +2,8 @@
 
 Шаблон рабочего пространства, в котором команда AI-агентов на базе [Claude Code](https://docs.anthropic.com/en/docs/claude-code) автономно выполняет задачи по разработке — от планирования до деплоя — с минимальным участием человека.
 
+> **Поддержка AI-агентов**: Шаблон работает с Claude Code, а также может использоваться с другими AI-агентами (Nessy CLI, Codex, Qwen) через параметр `--provider`.
+
 ## Идея
 
 Один человек (CEO) ставит задачи. Всё остальное делает команда AI-агентов, каждый из которых играет конкретную роль: продакт-менеджер, архитектор, разработчик, ревьюер, DevOps, дизайнер, AI-инженер, техписатель и т.д.
@@ -183,7 +185,7 @@ multiagent-setup install-mcps --manual   # ввести строки подкл�
 multiagent-setup hook <name>
 ```
 
-Шаблоны: [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/)  
+Шаблоны: [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/)
 Исходник: [`tools/setup-cli/`](tools/setup-cli/)
 
 ## Требования
