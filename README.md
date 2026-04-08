@@ -1,9 +1,27 @@
 # multiagent-template
 
-A scaffold for AI-powered development workspaces where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — autonomously drives software from backlog to merged PR. You set direction; the agents handle execution.
+**One command. A full AI engineering team. Ship faster.**
+
+Scaffold a multi-agent AI workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — autonomously drives software from backlog to merged PR. You set direction; the agents handle execution.
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Neftedollar/multiagent-template?style=social)](https://github.com/Neftedollar/multiagent-template)
+
+---
+
+## Why multiagent-template?
+
+Most AI coding setups give you a single agent that writes code when you ask. multiagent-template gives you a **coordinated team**:
+
+- **Orchestrator** breaks tasks into steps and picks the right specialist for each
+- **Pipeline gates** catch issues before they compound (`PLAN → BUILD → TEST → VERIFY → SHIP`)
+- **5 AI coding agents** supported out of the box: Claude, Gemini, Codex, Qwen, Nessy
+- **Safety hooks baked in** — block dangerous commands, enforce commit conventions, auto-lint, log agents
+- **Semantic memory** via AGE graph + O'Brien pgvector — agents remember context across sessions
+- **Zero platform-specific scripts** — all hooks run through the cross-platform `multiagent-setup` binary
+
+Human involvement: direction-setting and final PR approval. Everything else is autonomous.
 
 ---
 
@@ -18,7 +36,7 @@ irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/boots
 .\bootstrap.ps1 MyProject
 ```
 
-Already have git, gh, jq, and .NET installed?
+Already have git, gh, jq, and .NET 10 installed?
 
 ```bash
 dotnet tool install -g multiagent-setup
@@ -28,6 +46,13 @@ multiagent-setup new MyProject --provider nessy     # Nessy (Claude-compatible)
 multiagent-setup new MyProject --provider codex     # OpenAI Codex
 multiagent-setup new MyProject --provider qwen      # Qwen Code
 multiagent-setup new MyProject --provider all       # all providers at once
+```
+
+Then open the workspace and start:
+```bash
+cd MyProject
+claude          # or: gemini / codex / nessy / qwen-code
+/orchestrator Build me a REST API with auth
 ```
 
 GitHub org is auto-detected from `gh auth`. Override: `multiagent-setup new MyProject my-org`.
@@ -43,6 +68,13 @@ GitHub org is auto-detected from `gh auth`. Override: `multiagent-setup new MyPr
 | **gemini** | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) by Google |
 | **codex** | `codex` | [OpenAI Codex CLI](https://github.com/openai/codex) |
 | **qwen** | `qwen-code` | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
+
+Mix providers freely — add one to an existing workspace anytime:
+
+```bash
+multiagent-setup add-provider gemini    # adds Gemini to an existing Claude workspace
+multiagent-setup add-provider all       # adds any missing providers
+```
 
 ---
 
@@ -80,7 +112,7 @@ MyProject/
 │   ├── role-capabilities.md <- role index for orchestrator
 │   └── workflows/           <- pipeline specs (WORKFLOW-*.md)
 ├── .claude/                 <- Claude / Nessy config
-│   ├── commands/            <- slash-command roles
+│   ├── commands/            <- slash-command roles (synced from agency-agents)
 │   ├── hooks/lint.json      <- auto-lint formatter config
 │   ├── mcp.json             <- MCP server config
 │   └── settings.json        <- hook configuration
@@ -88,8 +120,6 @@ MyProject/
 │   └── settings.json
 ├── .codex/                  <- Codex config (--provider codex)
 └── tools/
-    ├── sync-roles.csx       <- sync roles from agency-agents
-    ├── install-mcps.csx     <- install MCP servers
     ├── completions.zsh      <- zsh completions
     └── completions.ps1      <- PowerShell completions
 ```
@@ -98,7 +128,7 @@ MyProject/
 
 ## Hook System
 
-Hooks run automatically via `settings.json` (or `.gemini/settings.json` / `.codex/hooks.json`). All hooks are built into the `multiagent-setup` binary — no separate shell scripts, fully cross-platform.
+Hooks run automatically via `settings.json` (`.gemini/settings.json` / `.codex/hooks.json`). All hooks are built into the `multiagent-setup` binary — no separate shell scripts, fully cross-platform.
 
 | Hook | Trigger | Action |
 |------|---------|--------|
@@ -106,7 +136,7 @@ Hooks run automatically via `settings.json` (or `.gemini/settings.json` / `.code
 | `enforce-commit-msg` | PreToolUse (Bash) | Enforces conventional commits (`feat:`, `fix:`, etc.) |
 | `auto-lint` | PostToolUse (Edit/Write) | Runs formatter on changed file |
 | `log-agent` | PreToolUse (Agent) | Logs sub-agent launches to `.claude/agent-log.jsonl` |
-| `stop-guard` | Stop | Reminds to run tests and update O'Brien + graph |
+| `stop-guard` | Stop / SessionEnd | Reminds to run tests and update O'Brien + graph |
 | `research-reminder` | PostToolUse (WebSearch/WebFetch) | Reminds to persist research in O'Brien and graph |
 
 ---
@@ -125,6 +155,11 @@ Roles ship as slash commands from [agency-agents](https://github.com/msitarzewsk
 | GTM | `/specialized-developer-advocate`, `/engineering-technical-writer`, `/marketing-content-creator` |
 
 The orchestrator selects roles **dynamically** via `docs/role-capabilities.md` based on task signals (files touched, keywords, labels). No hardcoded routing. If no role fits, an ad-hoc role is created on the fly.
+
+Update roles anytime:
+```bash
+multiagent-setup sync-roles --pull
+```
 
 ---
 
@@ -146,12 +181,25 @@ multiagent-setup install-mcps --manual # enter connection strings manually
 ## CLI Reference
 
 ```bash
+# Create workspace
 multiagent-setup new <project> [org] [--provider <name>]
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+
+# Add a provider to an existing workspace
+multiagent-setup add-provider <provider> [--workspace-dir <path>] [--force]
+
+# Sync agent roles from agency-agents
+multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>] [--workspace-root <path>]
+
+# Install MCP servers (AGE + O'Brien)
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+
+# Run a hook manually
 multiagent-setup hook <name>
+
 multiagent-setup -v | --version
 ```
+
+Providers: `claude` (default), `nessy`, `gemini`, `codex`, `qwen`, `all`
 
 ---
 
@@ -169,9 +217,39 @@ multiagent-setup -v | --version
 
 ---
 
+## FAQ
+
+**Can I use multiple AI providers in the same workspace?**  
+Yes. Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once, or `multiagent-setup add-provider <name>` to add one later. Each provider gets its own config directory (`.gemini/`, `.codex/`, etc.) while sharing the same `docs/` and `code/` directories.
+
+**Do I need Docker?**  
+No. Docker is only needed for the optional AGE graph + O'Brien memory components. The base workspace and all hooks work without it.
+
+**What is Nessy?**  
+Nessy is a Claude-compatible AI coding agent. Since it uses the same CLI conventions as Claude Code (slash commands, settings.json hooks), `--provider nessy` reuses the `.claude/` config directory. No separate config needed.
+
+**How do I update agent roles?**  
+Roles come from the community [agency-agents](https://github.com/msitarzewski/agency-agents) repo. Run `multiagent-setup sync-roles --pull` to get the latest. Project-level role files (those without the auto-generated marker) are never overwritten.
+
+**Can I add my own roles?**  
+Yes. Create a `.md` file in `.claude/commands/` with a `name:` field in frontmatter. The orchestrator picks it up automatically. The Orchestrator can also create ad-hoc roles on the fly when no existing role fits.
+
+**Does this work without Claude?**  
+Yes. Use `--provider gemini`, `--provider codex`, or `--provider qwen`. Each provider gets a pre-configured settings file with hooks wired up. The pipeline, process docs, and role system work the same regardless of which agent CLI you use.
+
+**Is there a web UI?**  
+Not yet. The workspace is driven entirely via slash commands in your agent CLI (e.g., `/orchestrator`, `/product-manager`).
+
+---
+
 ## Contributing
 
 Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Each provider gets its own subdirectory under `providers/`. See [`tools/setup-cli/`](tools/setup-cli/) for the CLI source.
+
+Pull requests welcome. To add a new provider:
+1. Add a directory `tools/setup-cli/Templates/providers/<name>/`
+2. Wire it up in `SetupCommand.cs` (`CreateDirectories`, `ResolveOutputPath`, `CheckTools`)
+3. Add the provider name to `validProviders` in `Program.cs`
 
 ---
 
