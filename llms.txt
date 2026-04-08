@@ -1,0 +1,73 @@
+# multiagent-template
+
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 5 coding agent providers.
+
+## Project
+
+- [GitHub Repository](https://github.com/Neftedollar/multiagent-template): Source code, templates, and CLI tool
+- [NuGet Package](https://www.nuget.org/packages/multiagent-setup): Install via `dotnet tool install -g multiagent-setup`
+- [Landing Page](https://neftedollar.com/multiagent-template/): Overview and quick start
+- [Russian README](https://github.com/Neftedollar/multiagent-template/blob/main/README_RU.md): Русская версия
+
+## Install
+
+```bash
+# One-liner (macOS/Linux) — installs all dependencies
+curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
+
+# Direct install (requires git, gh, jq, .NET 10)
+dotnet tool install -g multiagent-setup
+multiagent-setup new MyProject
+```
+
+## Supported AI Coding Agents
+
+- **Claude** (`claude`) — Claude Code by Anthropic, default provider
+- **Nessy** (`nessy`) — Claude-compatible agent, reuses `.claude/` config
+- **Gemini** (`gemini`) — Gemini CLI by Google
+- **Codex** (`codex`) — OpenAI Codex CLI
+- **Qwen** (`qwen-code`) — Qwen Code by Alibaba
+
+Use `--provider all` to scaffold all providers at once, or `add-provider <name>` to add one to an existing workspace.
+
+## Key Concepts
+
+### Pipeline
+The orchestrator runs a 5-step pipeline: `PLAN → BUILD → TEST → VERIFY → SHIP`. Each step ends with a gate (APPROVED / NEEDS WORK). Failed gates trigger automatic retries with helper agents before escalating to the human.
+
+### Agent Roles
+Specialized slash commands sourced from [agency-agents](https://github.com/msitarzewski/agency-agents). Key roles: `/orchestrator`, `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer`, `/product-manager`, `/engineering-security-engineer`, `/design-ux-researcher`.
+
+### Hook System
+All safety hooks are baked into the `multiagent-setup` binary (cross-platform, no shell scripts):
+- `block-dangerous` — blocks destructive commands
+- `enforce-commit-msg` — enforces conventional commits
+- `auto-lint` — runs formatter after file edits
+- `stop-guard` — reminds agents to run tests and persist knowledge
+- `research-reminder` — reminds to store research findings
+
+### Infrastructure (optional)
+- **AGE graph** — PostgreSQL + Apache AGE knowledge base for modules, pipelines, role bindings, security findings
+- **O'Brien** — pgvector semantic memory for agent coordination and recall
+
+## CLI Reference
+
+```
+multiagent-setup new <project> [org] [--provider <name>]
+multiagent-setup add-provider <provider> [--workspace-dir <path>] [--force]
+multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+multiagent-setup install-mcps [--docker|--manual]
+multiagent-setup hook <name>
+```
+
+## Source Structure
+
+- `tools/setup-cli/` — .NET CLI source (C#, .NET 10)
+- `tools/setup-cli/Templates/` — embedded workspace templates
+- `tools/setup-cli/Templates/providers/` — provider-specific configs (gemini, codex, qwen)
+- `tools/setup-cli/Templates/.claude/` — Claude/Nessy config templates
+- `tools/setup-cli/Templates/docs/` — process.md, role-capabilities.md, workflow specs
+
+## License
+
+MIT — free for commercial and personal use.
