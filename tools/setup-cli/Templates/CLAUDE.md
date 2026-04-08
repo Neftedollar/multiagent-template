@@ -114,6 +114,7 @@ Each step has a gate: `APPROVED` / `NEEDS WORK (reason)`. Retry: 3x â†’ helper â
 ## Backlog
 
 GitHub Project in org `{{GITHUB_ORG}}`. Issues in `{{GITHUB_ORG}}/{{GITHUB_REPO}}`.
+{{GITHUB_PROJECT_URL}}
 
 ## Archive
 

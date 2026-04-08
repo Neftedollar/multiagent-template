@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 
 namespace MultiagentSetup;
 
@@ -49,7 +50,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
         CreateDirectories(targetDir, providers);
 
-        var vars = BuildVars(projectName, org, graphName);
+        var projectUrl = await SetupGitHubProjectAsync(org, projectName);
+
+        var vars = BuildVars(projectName, org, graphName, projectUrl);
         ExtractTemplates(targetDir, vars, providers);
         Console.WriteLine("  OK: templates extracted");
 
@@ -190,9 +193,54 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         }
     }
 
+    // ── GitHub Project board ──────────────────────────────────────────────────
+
+    private static async Task<string?> SetupGitHubProjectAsync(string owner, string projectName)
+    {
+        var title = $"{projectName}-backlog";
+        Console.WriteLine($"Creating GitHub Project board '{title}'...");
+
+        var (code, stdout, stderr) = await ProcessHelper.RunAsync(
+            "gh",
+            ["project", "create", "--owner", owner, "--title", title, "--format", "json"],
+            captureOutput: true,
+            allowFailure: true);
+
+        if (code != 0)
+        {
+            Console.WriteLine($"  WARN: gh project create failed — skipping (reason: {stderr.Trim()})");
+            return null;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(stdout);
+            var root = doc.RootElement;
+
+            // gh project create returns { "url": "...", "number": N, ... }
+            if (root.TryGetProperty("url", out var urlProp))
+            {
+                var url = urlProp.GetString();
+                if (!string.IsNullOrWhiteSpace(url))
+                {
+                    Console.WriteLine($"  OK: GitHub Project created: {url}");
+                    return url;
+                }
+            }
+
+            Console.WriteLine("  WARN: gh project create succeeded but URL not found in output — skipping");
+            return null;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"  WARN: could not parse gh project output — skipping ({ex.Message})");
+            return null;
+        }
+    }
+
     // ── Template extraction ───────────────────────────────────────────────────
 
-    private static Dictionary<string, string> BuildVars(string project, string org, string graph) => new()
+    private static Dictionary<string, string> BuildVars(string project, string org, string graph, string? projectUrl = null) => new()
     {
         ["{{PROJECT_NAME}}"]        = project,
         ["{{PROJECT_DESCRIPTION}}"] = $"{project} project workspace",
@@ -205,6 +253,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                                         ? @"$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
                                         : "$HOME/.dotnet/tools/multiagent-setup",
+        ["{{GITHUB_PROJECT_URL}}"]  = projectUrl is not null ? $"Project board: {projectUrl}" : "",
     };
 
     private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
