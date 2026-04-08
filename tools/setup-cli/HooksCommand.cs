@@ -28,9 +28,9 @@ public sealed class HooksCommand(string hookName)
         (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /"),
         (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf ."),
         (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *"),
-        (new(@"git\s+push\s+.*--force.*\s+(main|master)",    RegexOptions.IgnoreCase), "force push to main/master"),
-        (new(@"git\s+push\s+-f\s+.*\s+(main|master)",        RegexOptions.IgnoreCase), "force push to main/master"),
-        (new(@"git\s+push\s+(--force|-f)\s*$",               RegexOptions.IgnoreCase), "force push (no branch specified — affects tracked branch)"),
+        // Match: git push [--force|-f] [origin] main|master   or   git push origin [--force|-f] main|master
+        (new(@"git\s+push\s+(?:(?:--force|-f)\s+(?:origin\s+)?|origin\s+(?:--force|-f)\s+)(main|master)(?:\s|$)", RegexOptions.IgnoreCase), "force push to main/master"),
+        (new(@"git\s+push\s+(--force|-f)\s*(?:2>|$)",        RegexOptions.IgnoreCase), "force push (no branch specified — affects tracked branch)"),
         (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main"),
         (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd"),
         (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE"),
