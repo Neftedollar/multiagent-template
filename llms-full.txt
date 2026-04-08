@@ -49,7 +49,7 @@ multiagent-setup new <project-name> [github-org] [--provider <name>]
 
 Creates a workspace directory at `./project-name/`. Clones agency-agents and syncs roles globally to `~/.claude/commands/`. Initializes a git repo in the workspace.
 
-Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `all`
+Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `cline`, `aider`, `continue`, `roo`, `all`
 
 ### `sync-roles` — Update agent roles
 
@@ -69,7 +69,7 @@ multiagent-setup add-provider <provider> [--force]
 multiagent-setup add-provider all [--force]
 ```
 
-Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue).
+Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo).
 
 ### `update` — Update workspace templates to latest version
 
@@ -122,6 +122,10 @@ Runs a compiled safety hook. All hooks are baked into the binary (no shell scrip
 | `cursor` | Cursor | `.cursor/rules/workspace.mdc` (alwaysApply: true) | `.cursor/rules/workspace.mdc` |
 | `windsurf` | Windsurf | `.windsurf/rules/workspace.md` | `.windsurf/rules/workspace.md` |
 | `copilot` | VS Code + GitHub Copilot | `.github/copilot-instructions.md` | `.github/copilot-instructions.md` |
+| `cline` | VS Code Cline extension | `.clinerules` (project root) | `.clinerules` |
+| `aider` | Aider (terminal) | `.aider.conf.yml` | `CLAUDE.md` (auto-read) |
+| `continue` | VS Code/JetBrains Continue | `.continue/config.yaml` | `.continue/config.yaml` |
+| `roo` | VS Code Roo Code extension | `.roo/rules/workspace.md` | `.roo/rules/workspace.md` |
 
 ## Pipeline System
 
