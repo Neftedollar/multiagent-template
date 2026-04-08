@@ -27,7 +27,7 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
     # Complete --provider values when previous token is --provider
     $prevToken = if ($tokens.Count -ge 2) { $tokens[-2].ToString() } else { "" }
     if ($prevToken -eq '--provider') {
-        @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'cursor', 'windsurf', 'copilot', 'cline', 'aider', 'all') |
+        @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'cursor', 'windsurf', 'copilot', 'cline', 'aider', 'continue', 'all') |
         Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
@@ -43,7 +43,7 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
         }
         'add-provider' {
             if ($tokens.Count -eq 1 -or ($tokens.Count -eq 2 -and $wordToComplete)) {
-                @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'cursor', 'windsurf', 'copilot', 'cline', 'aider', 'all') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'cursor', 'windsurf', 'copilot', 'cline', 'aider', 'continue', 'all') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
                     [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
                 }
             } else {

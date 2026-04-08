@@ -1,0 +1,47 @@
+# Continue.dev config for {{PROJECT_NAME}} multi-agent workspace
+# Full reference: https://docs.continue.dev/reference/config
+
+## Custom slash commands — invoke agent roles directly in Continue
+customCommands:
+  - name: orchestrator
+    description: "Run the orchestrator pipeline for a task"
+    prompt: |
+      You are the Orchestrator for the {{PROJECT_NAME}} multi-agent workspace.
+
+      Read docs/process.md for the operational pipeline and gate rules.
+      Read docs/role-capabilities.md to select the right specialist roles.
+
+      Task: {{{ input }}}
+
+      Execute the appropriate pipeline (feature/bugfix/infra/content/spike).
+      Delegate all code changes to engineering roles — never write code yourself.
+
+  - name: expert
+    description: "Ask a specialist role a question (e.g. /expert architect: how should I structure this?)"
+    prompt: |
+      You are the {{PROJECT_NAME}} Chief of Staff.
+      The user wants a specialist answer. Role hinted: {{{ input }}}
+      Answer as that role. Be concise and expert.
+
+## Always load workspace context in every chat session
+context:
+  - provider: file
+    params:
+      nRetrieve: 5
+      nFinal: 3
+
+## Rules applied to every chat (equivalent to system prompt additions)
+rules:
+  - name: "{{PROJECT_NAME}} workspace"
+    rule: |
+      This is the {{PROJECT_NAME}} multi-agent workspace.
+      {{PROJECT_DESCRIPTION}}
+
+      Workspace structure:
+      - CLAUDE.md — workspace overview and agent team
+      - docs/process.md — pipeline rules (PLAN→BUILD→TEST→VERIFY→SHIP)
+      - docs/role-capabilities.md — specialist roles index
+      - code/{{PROJECT_NAME}}/ — main code repository
+
+      Always read CLAUDE.md before answering workspace questions.
+      For pipeline tasks, use /orchestrator. For quick expert questions, use /expert.

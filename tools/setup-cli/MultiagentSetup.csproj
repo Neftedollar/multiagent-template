@@ -7,10 +7,10 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.17.0</Version>
-    <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Aider, Cline, Cursor, Windsurf, Copilot)</Description>
+    <Version>1.18.0</Version>
+    <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Aider, Cline, Continue, Cursor, Windsurf, Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
-    <PackageTags>claude;nessy;gemini;codex;qwen;aider;cline;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
+    <PackageTags>claude;nessy;gemini;codex;qwen;aider;cline;continue;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
     <AssemblyName>MultiagentSetup</AssemblyName>
     <RootNamespace>MultiagentSetup</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -76,6 +76,10 @@
     <!-- Provider: Aider -->
     <EmbeddedResource Include="Templates/providers/aider/.aider.conf.yml" LogicalName="providers/aider/.aider.conf.yml" />
     <EmbeddedResource Include="Templates/providers/aider/AIDER.md" LogicalName="providers/aider/AIDER.md" />
+
+    <!-- Provider: Continue.dev -->
+    <EmbeddedResource Include="Templates/providers/continue/.continue/config.yaml" LogicalName="providers/continue/.continue/config.yaml" />
+    <EmbeddedResource Include="Templates/providers/continue/CONTINUE.md" LogicalName="providers/continue/CONTINUE.md" />
 
     <!-- Tool scripts -->
     <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />

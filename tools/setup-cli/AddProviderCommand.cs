@@ -66,6 +66,8 @@ public sealed class AddProviderCommand(string provider, bool force = false)
             Console.WriteLine($"  cline         → open {cwd} in VS Code with Cline extension, .clinerules loads automatically");
         else if (provider is "aider")
             Console.WriteLine($"  aider         → run 'aider' from {cwd}, CLAUDE.md loaded automatically");
+        else if (provider is "continue")
+            Console.WriteLine($"  continue      → open {cwd} in VS Code/JetBrains, rules load from .continue/config.yaml");
         Console.WriteLine();
         return 0;
     }
@@ -89,6 +91,8 @@ public sealed class AddProviderCommand(string provider, bool force = false)
             Directory.CreateDirectory(Path.Combine(root, ".github"));
         if (providers.Contains("gemini"))
             Directory.CreateDirectory(Path.Combine(root, ".gemini"));
+        if (providers.Contains("continue"))
+            Directory.CreateDirectory(Path.Combine(root, ".continue"));
         // cline and aider write to workspace root — no subdirectory needed
     }
 
@@ -186,6 +190,9 @@ public sealed class AddProviderCommand(string provider, bool force = false)
 
         if (resourceName.StartsWith("providers/aider/"))
             return providers.Contains("aider") ? resourceName["providers/aider/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/continue/"))
+            return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
 
         // nessy reuses .claude/ — extract only if there's no .claude/ already
         if (resourceName.StartsWith(".claude/") && providers.Contains("nessy"))
