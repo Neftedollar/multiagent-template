@@ -60,7 +60,7 @@ All safety hooks are baked into the `multiagent-setup` binary (cross-platform, n
 
 ```
 multiagent-setup new <project> [org] [--provider <name>]
-multiagent-setup add-provider <provider> [--workspace-dir <path>] [--force]
+multiagent-setup add-provider <provider> [--force]
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual]
 multiagent-setup hook <name>
