@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.15.0] — 2026-04-09
+
+### Fixed
+- `install-mcps`: replaced `Environment.Exit(0)` inside `SetupDockerAsync` with proper `return false` — callers now receive a result instead of the process aborting mid-execution, making the method composable and testable
+- `install-mcps`: connection strings are now masked in console output (`password=***`)
+
+---
+
 ## [1.14.0] — 2026-04-09
 
 ### Added
@@ -168,7 +176,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...v1.12.0
