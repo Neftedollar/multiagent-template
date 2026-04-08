@@ -72,6 +72,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine($"  5. Start working:");
         if (providers.Contains("claude"))
             Console.WriteLine($"       claude        → /orchestrator <task>");
+        if (providers.Contains("nessy"))
+            Console.WriteLine($"       nessy         → /orchestrator <task>");
         if (providers.Contains("codex"))
             Console.WriteLine($"       codex         → /orchestrator <task>");
         if (providers.Contains("qwen"))
@@ -97,6 +99,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
+        if (providers.Contains("nessy"))
+            Suggest("nessy",      "https://nessy.ai");
         if (providers.Contains("codex"))
             Suggest("codex",      "https://github.com/openai/codex");
         if (providers.Contains("qwen"))
@@ -164,7 +168,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         foreach (var d in new[] { "code", "docs/workflows", "docs/archive", "docs/obsolete-docs", "tools" })
             Directory.CreateDirectory(Path.Combine(root, d.Replace('/', Path.DirectorySeparatorChar)));
 
-        if (providers.Contains("claude"))
+        if (providers.Contains("claude") || providers.Contains("nessy"))
         {
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
             Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
@@ -230,7 +234,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
-            return providers.Contains("claude") ? resourceName : null;
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
         if (resourceName.StartsWith("providers/codex/"))
             return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
