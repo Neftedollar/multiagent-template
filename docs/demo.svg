@@ -85,7 +85,7 @@
 
     <!-- Line 2: header -->
     <g class="l1">
-      <text x="0" y="22" class="head">multiagent-setup v1.10.0</text>
+      <text x="0" y="22" class="head">multiagent-setup v1.13.0</text>
     </g>
     <g class="l2">
       <text x="0" y="38" class="muted">  Project:  </text>
