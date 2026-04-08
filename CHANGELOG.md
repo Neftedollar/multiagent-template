@@ -6,6 +6,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.24.0] — 2026-04-09
+
+### Added
+- **Interactive provider picker** — `multiagent-setup new <project>` now shows a numbered menu of all 12 providers when `--provider` is not specified and stdin is a terminal. Selecting by number or name replaces the previous silent default to `claude`. Non-interactive mode (CI, piped input) retains the `claude` default.
+
+---
+
 ## [1.23.0] — 2026-04-09
 
 ### Changed

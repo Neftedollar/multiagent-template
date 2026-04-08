@@ -29,7 +29,7 @@ async Task<int> HandleNew(string[] a)
     if (name is null || name.StartsWith('-')) return PrintUsage(error: "project-name is required");
 
     string? org      = null;
-    string  provider = "claude";
+    string? provider = null;  // null = not specified by user
 
     for (int i = 1; i < a.Length; i++)
     {
@@ -38,6 +38,12 @@ async Task<int> HandleNew(string[] a)
         else if (!a[i].StartsWith('-'))
             org ??= a[i];
     }
+
+    // Interactive provider picker when not specified and stdin is a terminal
+    if (provider is null && !Console.IsInputRedirected)
+        provider = ProviderPicker.Ask();
+
+    provider ??= "claude";  // non-interactive fallback (CI / piped input)
 
     if (provider != "all" && ProviderRegistry.Find(provider) is null)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
