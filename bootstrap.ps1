@@ -2,12 +2,14 @@
 # Installs all dependencies and creates the workspace in one command.
 #
 # Usage:
-#   irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 | iex
-#   # or locally:
-#   .\bootstrap.ps1 MyProject [github-org]
+#   irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
+#   .\bootstrap.ps1 MyProject
+#   .\bootstrap.ps1 MyProject --provider gemini
+#   .\bootstrap.ps1 MyProject my-org --provider all
 param(
     [Parameter(Position=0, Mandatory=$true)][string]$ProjectName,
-    [Parameter(Position=1)][string]$GithubOrg = ""
+    [Parameter(Position=1)][string]$GithubOrg = "",
+    [string]$Provider = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -27,8 +29,9 @@ function Install-WinGet([string]$Id, [string]$Name) {
 
 Write-Host "============================================"
 Write-Host "  Multi-Agent Workspace Bootstrap"
-Write-Host "  Project: $ProjectName"
-Write-Host "  OS: Windows"
+Write-Host "  Project:  $ProjectName"
+Write-Host "  Provider: $(if ($Provider) { $Provider } else { 'claude (default)' })"
+Write-Host "  OS:       Windows"
 Write-Host "============================================"
 Write-Host ""
 
@@ -109,8 +112,9 @@ if (-not $installed) {
     & dotnet tool update -g multiagent-setup 2>&1 | Out-Null
 }
 
-$argList = @($ProjectName)
-if ($GithubOrg) { $argList += $GithubOrg }
+$argList = @("new", $ProjectName)
+if ($GithubOrg)  { $argList += $GithubOrg }
+if ($Provider)   { $argList += "--provider"; $argList += $Provider }
 
 & multiagent-setup @argList
 exit $LASTEXITCODE

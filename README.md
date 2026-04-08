@@ -19,10 +19,12 @@ Scaffold a multi-agent AI workspace where a team of specialized agents — orche
 ```bash
 # macOS / Linux
 curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
+curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject --provider gemini
 
 # Windows (PowerShell)
 irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
 .\bootstrap.ps1 MyProject
+.\bootstrap.ps1 MyProject --provider codex
 ```
 
 Already have git, gh, jq, and .NET 10 installed? (You don't need to know .NET — it's just the packaging mechanism.)
