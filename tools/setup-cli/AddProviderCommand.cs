@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MultiagentSetup;
 
@@ -10,10 +11,11 @@ public sealed class AddProviderCommand(string provider, bool force = false)
     {
         var cwd = Directory.GetCurrentDirectory();
 
-        // Detect workspace root — look for CLAUDE.md
-        if (!File.Exists(Path.Combine(cwd, "CLAUDE.md")))
+        // Detect workspace root — look for CLAUDE.md and docs/process.md
+        if (!File.Exists(Path.Combine(cwd, "CLAUDE.md")) ||
+            !File.Exists(Path.Combine(cwd, "docs", "process.md")))
         {
-            Console.Error.WriteLine("Error: not in a multiagent workspace (CLAUDE.md not found)");
+            Console.Error.WriteLine("Error: not in a multiagent workspace (CLAUDE.md or docs/process.md not found)");
             Console.Error.WriteLine("Run this command from the workspace root directory.");
             return 1;
         }
@@ -87,7 +89,16 @@ public sealed class AddProviderCommand(string provider, bool force = false)
 
     private static Dictionary<string, string> BuildVarsFromWorkspace(string root, string projectName)
     {
-        // Try to read existing CLAUDE.md for project vars; fall back to defaults
+        // Parse vars from existing CLAUDE.md; fall back to defaults where missing
+        var claudeMd = Path.Combine(root, "CLAUDE.md");
+        var existing = File.Exists(claudeMd) ? File.ReadAllText(claudeMd) : "";
+
+        var orgMatch  = Regex.Match(existing, @"GitHub Project in org `([^`]+)`");
+        var repoMatch = Regex.Match(existing, @"Issues in `[^/]+/([^`]+)`");
+
+        var githubOrg  = orgMatch.Success  ? orgMatch.Groups[1].Value  : Environment.UserName;
+        var githubRepo = repoMatch.Success ? repoMatch.Groups[1].Value : projectName;
+
         var graphName = $"{projectName.ToLower()}-ops";
         return new()
         {
@@ -95,8 +106,8 @@ public sealed class AddProviderCommand(string provider, bool force = false)
             ["{{PROJECT_DESCRIPTION}}"] = $"{projectName} project workspace",
             ["{{FOUNDER}}"]             = Environment.UserName,
             ["{{PHASE}}"]               = "early development",
-            ["{{GITHUB_ORG}}"]          = Environment.UserName,
-            ["{{GITHUB_REPO}}"]         = projectName,
+            ["{{GITHUB_ORG}}"]          = githubOrg,
+            ["{{GITHUB_REPO}}"]         = githubRepo,
             ["{{GRAPH_NAME}}"]          = graphName,
             ["{{DATE}}"]                = DateTime.Today.ToString("yyyy-MM-dd"),
             ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
