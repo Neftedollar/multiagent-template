@@ -23,5 +23,8 @@ jobs:
       - name: Build
         run: dotnet build tools/setup-cli/MultiagentSetup.csproj -c Release --nologo
 
+      - name: Test
+        run: dotnet test tools/setup-cli.Tests/MultiagentSetup.Tests/MultiagentSetup.Tests.csproj --nologo
+
       - name: Pack (verify templates embed)
         run: dotnet pack tools/setup-cli/MultiagentSetup.csproj -c Release --no-build --nologo -o nupkg
