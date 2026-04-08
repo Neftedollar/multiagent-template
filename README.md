@@ -41,6 +41,7 @@ multiagent-setup new MyProject --provider copilot    # GitHub Copilot
 multiagent-setup new MyProject --provider gemini     # Google Gemini CLI
 multiagent-setup new MyProject --provider cline      # Cline / Roo Code (VS Code)
 multiagent-setup new MyProject --provider aider      # Aider AI pair programmer
+multiagent-setup new MyProject --provider continue   # Continue.dev (VS Code / JetBrains)
 multiagent-setup new MyProject --provider all        # all providers at once
 
 # Add a provider to an existing workspace (no need to recreate)
@@ -103,8 +104,9 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | **copilot** | GitHub Copilot | VS Code + GitHub users | Reads `.github/copilot-instructions.md` |
 | **cline** | [Cline](https://github.com/cline/cline) / Roo Code | VS Code extension users | Creates `.clinerules` in project root |
 | **aider** | [Aider](https://aider.chat) | Terminal pair programming | Creates `.aider.conf.yml` — auto-reads CLAUDE.md |
+| **continue** | [Continue.dev](https://continue.dev) | VS Code + JetBrains users | `.continue/config.yaml` with `/orchestrator` slash command |
 
-Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider).
+Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider + continue).
 
 ---
 
@@ -223,7 +225,7 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|all]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|all]
 multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
 multiagent-setup update [--force]                    # update workspace templates to latest version
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
