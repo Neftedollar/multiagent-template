@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.15.2] — 2026-04-09
+
+### Added
+- `auto-lint` hook: C# (`.cs`) support via `dotnet format --include <file>`
+- `block-dangerous` hook: blocks `git push --force` / `git push -f` without a branch argument (which would force-push to the tracked branch)
+
+---
+
 ## [1.15.1] — 2026-04-09
 
 ### Fixed
@@ -186,7 +194,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.1...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.2...HEAD
+[1.15.2]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...v1.14.0
