@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen" }
+            ? new[] { "claude", "nessy", "codex", "qwen" }
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -53,7 +53,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  OK: permissions set");
         }
 
-        if (providers.Contains("claude"))
+        if (providers.Contains("claude") || providers.Contains("nessy"))
             await SetupAgencyRolesAsync(targetDir);
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
@@ -72,6 +72,11 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
             Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
         }
+        if (providers.Contains("nessy"))
+        {
+            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
+            Console.WriteLine($"  5. Start working: nessy then /orchestrator <task>");
+        }
         if (providers.Contains("codex"))
             Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
         if (providers.Contains("qwen"))
@@ -88,9 +93,11 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ok &= Require("git");
         ok &= Require("jq");
         ok &= Require("gh");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen" } : new[] { provider };
+        var providers = provider == "all" ? new[] { "claude", "nessy", "codex", "qwen" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
+        if (providers.Contains("nessy"))
+            Suggest("nessy",      "https://github.com/Neftedollar/nessy");
         if (providers.Contains("codex"))
             Suggest("codex",      "https://github.com/openai/codex");
         if (providers.Contains("qwen"))
@@ -150,7 +157,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         foreach (var d in new[] { "code", "docs/workflows", "docs/archive", "docs/obsolete-docs", "tools" })
             Directory.CreateDirectory(Path.Combine(root, d.Replace('/', Path.DirectorySeparatorChar)));
 
-        if (providers.Contains("claude"))
+        if (providers.Contains("claude") || providers.Contains("nessy"))
         {
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
             Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
@@ -210,7 +217,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
-            return providers.Contains("claude") ? resourceName : null;
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
         if (resourceName.StartsWith("providers/codex/"))
             return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
