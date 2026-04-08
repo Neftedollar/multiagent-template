@@ -51,10 +51,11 @@ You'll have a PR in minutes. Your job: review and merge.
 **Tweet 5 (role separation)**
 The Orchestrator coordinates but never writes code. Architects design before developers build. Reviewers validate independently. Failures retry 3× → helper role → human escalation. You only get paged when it actually matters.
 
-**Tweet 6 (8 providers)**
+**Tweet 6 (12 providers)**
 Not locked to one AI tool. Supports:
-- Claude, Codex, Gemini CLI, Qwen Code
-- Cursor, Windsurf, GitHub Copilot
+- Terminal: Claude, Codex, Gemini CLI, Qwen Code
+- IDE: Cursor, Windsurf, GitHub Copilot
+- Extensions: Cline, Aider, Continue.dev, Roo Code
 One command adds any provider to an existing workspace.
 
 **Tweet 7 (safety hooks)**
