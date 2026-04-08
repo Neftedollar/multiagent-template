@@ -67,40 +67,14 @@ public sealed class UpdateCommand(bool force = false)
     private static string[] DetectProviders(string root)
     {
         var found = new List<string>();
-
-        if (Directory.Exists(Path.Combine(root, ".claude")))
-            found.Add("claude");
-
-        if (Directory.Exists(Path.Combine(root, ".codex")))
-            found.Add("codex");
-
-        if (Directory.Exists(Path.Combine(root, ".qwen")))
-            found.Add("qwen");
-
-        if (Directory.Exists(Path.Combine(root, ".cursor", "rules")))
-            found.Add("cursor");
-
-        if (Directory.Exists(Path.Combine(root, ".windsurf", "rules")))
-            found.Add("windsurf");
-
-        if (File.Exists(Path.Combine(root, ".github", "copilot-instructions.md")))
-            found.Add("copilot");
-
-        if (Directory.Exists(Path.Combine(root, ".gemini")))
-            found.Add("gemini");
-
-        if (File.Exists(Path.Combine(root, ".clinerules")))
-            found.Add("cline");
-
-        if (File.Exists(Path.Combine(root, ".aider.conf.yml")))
-            found.Add("aider");
-
-        if (Directory.Exists(Path.Combine(root, ".continue")))
-            found.Add("continue");
-
-        if (Directory.Exists(Path.Combine(root, ".roo", "rules")))
-            found.Add("roo");
-
+        foreach (var def in ProviderRegistry.All)
+        {
+            if (def.Detection == DetectionHint.Never) continue;
+            var detected = def.Detection.DetectFile is not null
+                ? File.Exists(Path.Combine(root, def.Detection.DetectFile.Replace('/', Path.DirectorySeparatorChar)))
+                : Directory.Exists(Path.Combine(root, def.Detection.DetectDir!.Replace('/', Path.DirectorySeparatorChar)));
+            if (detected) found.Add(def.Name);
+        }
         return [.. found];
     }
 
@@ -185,40 +159,19 @@ public sealed class UpdateCommand(bool force = false)
             return resourceName;
         }
 
-        // Provider-specific files
-        if (resourceName.StartsWith("providers/codex/"))
-            return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
+        // .github/workflows/ — update only for claude/nessy workspaces
+        if (resourceName.StartsWith(".github/workflows/"))
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
-        if (resourceName.StartsWith("providers/qwen/"))
-            return providers.Contains("qwen") ? resourceName["providers/qwen/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/cursor/"))
-            return providers.Contains("cursor") ? resourceName["providers/cursor/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/windsurf/"))
-            return providers.Contains("windsurf") ? resourceName["providers/windsurf/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/copilot/"))
-            return providers.Contains("copilot") ? resourceName["providers/copilot/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/gemini/"))
-            return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/cline/"))
-            return providers.Contains("cline") ? resourceName["providers/cline/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/aider/"))
-            return providers.Contains("aider") ? resourceName["providers/aider/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/continue/"))
-            return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/roo/"))
-            return providers.Contains("roo") ? resourceName["providers/roo/".Length..] : null;
-
-        // GitHub Actions workflow — update only for claude workspaces
-        if (resourceName == ".github/workflows/orchestrator.yml")
-            return providers.Contains("claude") ? resourceName : null;
+        // Provider-prefixed templates (registry-driven; nessy has null prefix and is handled via .claude/ above)
+        foreach (var def in ProviderRegistry.All)
+        {
+            if (def.TemplatePrefix is null) continue;
+            if (resourceName.StartsWith(def.TemplatePrefix))
+                return providers.Contains(def.Name)
+                    ? resourceName[def.TemplatePrefix.Length..]
+                    : null;
+        }
 
         return null;
     }

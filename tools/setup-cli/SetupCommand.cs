@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo" }
+            ? ProviderRegistry.AllExpansion.ToArray()
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -67,33 +67,15 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
         Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
-        if (providers.Contains("claude") || providers.Contains("nessy"))
+        if (providers.Any(p => p is "claude" or "nessy"))
             Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
         Console.WriteLine($"  5. Start working:");
-        if (providers.Contains("claude"))
-            Console.WriteLine($"       claude        → /orchestrator <task>");
-        if (providers.Contains("nessy"))
-            Console.WriteLine($"       nessy         → /orchestrator <task>");
-        if (providers.Contains("codex"))
-            Console.WriteLine($"       codex         → /orchestrator <task>");
-        if (providers.Contains("qwen"))
-            Console.WriteLine($"       qwen-code     → /orchestrator <task>");
-        if (providers.Contains("cursor"))
-            Console.WriteLine($"       cursor        → open {targetDir}, rules load automatically");
-        if (providers.Contains("windsurf"))
-            Console.WriteLine($"       windsurf      → open {targetDir}, rules load automatically");
-        if (providers.Contains("copilot"))
-            Console.WriteLine($"       copilot       → open {targetDir} in VS Code, reads .github/copilot-instructions.md");
-        if (providers.Contains("gemini"))
-            Console.WriteLine($"       gemini        → /orchestrator <task>");
-        if (providers.Contains("cline"))
-            Console.WriteLine($"       cline         → open {targetDir} in VS Code, .clinerules loads automatically");
-        if (providers.Contains("aider"))
-            Console.WriteLine($"       aider         → run 'aider' from {targetDir}, CLAUDE.md loaded automatically");
-        if (providers.Contains("continue"))
-            Console.WriteLine($"       continue      → open {targetDir} in VS Code/JetBrains, rules load from .continue/config.yaml");
-        if (providers.Contains("roo"))
-            Console.WriteLine($"       roo           → open {targetDir} in VS Code with Roo Code extension, .roo/rules/ loads automatically");
+        foreach (var name in providers)
+        {
+            var def = ProviderRegistry.Find(name);
+            if (def is not null)
+                Console.WriteLine(def.NextStepTemplate.Replace("{cwd}", targetDir));
+        }
         Console.WriteLine();
         return 0;
     }
@@ -103,34 +85,20 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static bool CheckTools(string provider)
     {
         var ok = true;
-        ok &= Require("git", macOs: "brew install git",      win: "winget install Git.Git");
-        ok &= Require("jq",  macOs: "brew install jq",       win: "winget install jqlang.jq");
-        ok &= Require("gh",  macOs: "brew install gh",        win: "winget install GitHub.cli");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo" } : new[] { provider };
-        if (providers.Contains("claude"))
-            Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
-        if (providers.Contains("nessy"))
-            Suggest("nessy",      "https://nessy.ai");
-        if (providers.Contains("codex"))
-            Suggest("codex",      "https://github.com/openai/codex");
-        if (providers.Contains("qwen"))
-            Suggest("qwen-code",  "https://github.com/QwenLM/qwen-code");
-        if (providers.Contains("cursor"))
-            Console.WriteLine("  INFO: cursor — IDE tool, install from https://cursor.com");
-        if (providers.Contains("windsurf"))
-            Console.WriteLine("  INFO: windsurf — IDE tool, install from https://windsurf.com");
-        if (providers.Contains("copilot"))
-            Console.WriteLine("  INFO: copilot — GitHub Copilot, install VS Code extension");
-        if (providers.Contains("gemini"))
-            Suggest("gemini",     "https://ai.google.dev/gemini-api/docs/gemini-cli");
-        if (providers.Contains("cline"))
-            Console.WriteLine("  INFO: cline — VS Code extension, install from marketplace");
-        if (providers.Contains("aider"))
-            Suggest("aider",      "https://aider.chat");
-        if (providers.Contains("continue"))
-            Console.WriteLine("  INFO: continue — VS Code/JetBrains extension, install from https://continue.dev");
-        if (providers.Contains("roo"))
-            Console.WriteLine("  INFO: roo — Roo Code VS Code extension, install from marketplace");
+        ok &= Require("git", macOs: "brew install git", win: "winget install Git.Git");
+        ok &= Require("jq",  macOs: "brew install jq",  win: "winget install jqlang.jq");
+        ok &= Require("gh",  macOs: "brew install gh",   win: "winget install GitHub.cli");
+        var providers = provider == "all" ? ProviderRegistry.AllExpansion.ToArray() : new[] { provider };
+        foreach (var name in providers)
+        {
+            var def = ProviderRegistry.Find(name);
+            if (def is null) continue;
+            switch (def.ToolCheck)
+            {
+                case ToolCheckMode.Suggest: Suggest(def.BinaryName!, def.InstallHint); break;
+                case ToolCheckMode.Info:    Console.WriteLine($"  INFO: {def.InstallHint}"); break;
+            }
+        }
         Console.WriteLine();
         return ok;
     }
@@ -188,29 +156,14 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         foreach (var d in new[] { "code", "docs/workflows", "docs/archive", "docs/obsolete-docs", "tools" })
             Directory.CreateDirectory(Path.Combine(root, d.Replace('/', Path.DirectorySeparatorChar)));
 
-        if (providers.Contains("claude") || providers.Contains("nessy"))
+        // Provider-specific dirs (driven by registry; Directory.CreateDirectory is idempotent)
+        foreach (var name in providers)
         {
-            Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
-            Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
-            Directory.CreateDirectory(Path.Combine(root, ".github", "workflows"));
+            var def = ProviderRegistry.Find(name);
+            if (def is null) continue;
+            foreach (var dir in def.Directories)
+                Directory.CreateDirectory(Path.Combine(root, dir.Replace('/', Path.DirectorySeparatorChar)));
         }
-        if (providers.Contains("codex"))
-            Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
-        if (providers.Contains("qwen"))
-            Directory.CreateDirectory(Path.Combine(root, ".qwen"));
-        if (providers.Contains("cursor"))
-            Directory.CreateDirectory(Path.Combine(root, ".cursor", "rules"));
-        if (providers.Contains("windsurf"))
-            Directory.CreateDirectory(Path.Combine(root, ".windsurf", "rules"));
-        if (providers.Contains("copilot"))
-            Directory.CreateDirectory(Path.Combine(root, ".github"));
-        if (providers.Contains("gemini"))
-            Directory.CreateDirectory(Path.Combine(root, ".gemini"));
-        if (providers.Contains("continue"))
-            Directory.CreateDirectory(Path.Combine(root, ".continue"));
-        if (providers.Contains("roo"))
-            Directory.CreateDirectory(Path.Combine(root, ".roo", "rules"));
-        // cline and aider write files to workspace root — no subdirectory needed
     }
 
     // ── Template extraction ───────────────────────────────────────────────────
@@ -261,42 +214,23 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
+        // .claude/ resources — active for claude or nessy
         if (resourceName.StartsWith(".claude/"))
             return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
-        // GitHub Actions workflow — scaffold for claude/nessy (or any provider that has a code pipeline)
-        if (resourceName == ".github/workflows/orchestrator.yml")
+        // .github/workflows/ — scaffolded for claude/nessy workspaces
+        if (resourceName.StartsWith(".github/workflows/"))
             return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
-        if (resourceName.StartsWith("providers/codex/"))
-            return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/qwen/"))
-            return providers.Contains("qwen")  ? resourceName["providers/qwen/".Length..]  : null;
-
-        if (resourceName.StartsWith("providers/cursor/"))
-            return providers.Contains("cursor") ? resourceName["providers/cursor/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/windsurf/"))
-            return providers.Contains("windsurf") ? resourceName["providers/windsurf/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/copilot/"))
-            return providers.Contains("copilot") ? resourceName["providers/copilot/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/gemini/"))
-            return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/cline/"))
-            return providers.Contains("cline") ? resourceName["providers/cline/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/aider/"))
-            return providers.Contains("aider") ? resourceName["providers/aider/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/continue/"))
-            return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/roo/"))
-            return providers.Contains("roo") ? resourceName["providers/roo/".Length..] : null;
+        // Provider-prefixed templates (registry-driven; nessy has null prefix and is handled above)
+        foreach (var def in ProviderRegistry.All)
+        {
+            if (def.TemplatePrefix is null) continue;
+            if (resourceName.StartsWith(def.TemplatePrefix))
+                return providers.Contains(def.Name)
+                    ? resourceName[def.TemplatePrefix.Length..]
+                    : null;
+        }
 
         // Shared (CLAUDE.md, docs/, tools/)
         return resourceName;
