@@ -18,6 +18,7 @@ return args[0] switch
     "sync-roles"    => await HandleSyncRoles(args[1..]),
     "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
     "hook"          => await HandleHook(args[1..]),
+    "doctor"        => await new DoctorCommand().ExecuteAsync(),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
     _ => PrintUsage(error: $"Unknown command: {args[0]}")
 };
@@ -86,7 +87,7 @@ async Task<int> HandleHook(string[] a)
 
 async Task<int> HandleSyncRoles(string[] a)
 {
-    var action = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
+    var action = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "--pull";
     string? agDir = null;
     for (int i = 0; i < a.Length - 1; i++)
         if (a[i] == "--agency-dir") agDir = a[i + 1];
@@ -117,6 +118,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --target <dir>                    Target dir for age-mcp clone");
     Console.WriteLine("  hook <name>                         Run a hook (cross-platform)");
     Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard");
+    Console.WriteLine("  doctor                              Check workspace health (tools, files, hooks)");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  -h, --help                          Show this help");
