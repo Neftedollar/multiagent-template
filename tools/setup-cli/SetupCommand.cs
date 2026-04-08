@@ -101,7 +101,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (providers.Contains("qwen"))
             Suggest("qwen-code",  "https://github.com/QwenLM/qwen-code");
         if (providers.Contains("nessy"))
-            Suggest("nessy",      "https://docs.anthropic.com");
+            Suggest("nessy",      "https://docs.anthropic.com/en/docs/claude-code"); // nessy is Claude-compatible; reuses .claude/ config
         if (providers.Contains("gemini"))
             Suggest("gemini",     "https://github.com/google-gemini/gemini-cli");
         Console.WriteLine();
@@ -164,6 +164,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
             Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
         }
+        // nessy is Claude-compatible: it reuses .claude/ config, CLAUDE.md, and all slash commands
         if (providers.Contains("nessy"))
         {
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
@@ -230,7 +231,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
-            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null; // nessy intentionally reuses claude templates
 
         if (resourceName.StartsWith("providers/codex/"))
             return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;

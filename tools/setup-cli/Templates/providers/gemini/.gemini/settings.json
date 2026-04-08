@@ -35,7 +35,7 @@
         ]
       }
     ],
-    "AfterAgent": [
+    "SessionEnd": [
       {
         "hooks": [
           {
