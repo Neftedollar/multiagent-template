@@ -4,21 +4,35 @@
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
+#   bash -s -- MyProject --provider gemini
+#   bash -s -- MyProject my-org --provider all
 #   # or locally:
-#   ./bootstrap.sh MyProject [github-org]
+#   ./bootstrap.sh MyProject [github-org] [--provider <name>]
 
 set -euo pipefail
 
-PROJECT_NAME="${1:?Usage: ./bootstrap.sh <project-name> [github-org]}"
-GITHUB_ORG="${2:-}"
+PROJECT_NAME="${1:?Usage: ./bootstrap.sh <project-name> [github-org] [--provider <name>]}"
+shift
+GITHUB_ORG=""
+PROVIDER=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --provider) PROVIDER="$2"; shift 2 ;;
+    --provider=*) PROVIDER="${1#*=}"; shift ;;
+    -*) shift ;;
+    *) GITHUB_ORG="$1"; shift ;;
+  esac
+done
 
 OS="$(uname -s)"
 has() { command -v "$1" &>/dev/null; }
 
 echo "============================================"
 echo "  Multi-Agent Workspace Bootstrap"
-echo "  Project: $PROJECT_NAME"
-echo "  OS: $OS $(uname -m)"
+echo "  Project:  $PROJECT_NAME"
+echo "  Provider: ${PROVIDER:-claude (default)}"
+echo "  OS:       $OS $(uname -m)"
 echo "============================================"
 echo ""
 
@@ -108,8 +122,7 @@ if ! dotnet tool list -g 2>/dev/null | grep -q '^multiagent-setup\b'; then
   dotnet tool install -g multiagent-setup
 fi
 
-if [ -n "$GITHUB_ORG" ]; then
-  multiagent-setup "$PROJECT_NAME" "$GITHUB_ORG"
-else
-  multiagent-setup "$PROJECT_NAME"
-fi
+SETUP_ARGS=("new" "$PROJECT_NAME")
+[ -n "$GITHUB_ORG" ] && SETUP_ARGS+=("$GITHUB_ORG")
+[ -n "$PROVIDER" ]   && SETUP_ARGS+=("--provider" "$PROVIDER")
+multiagent-setup "${SETUP_ARGS[@]}"
