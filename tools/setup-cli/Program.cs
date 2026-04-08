@@ -52,11 +52,15 @@ async Task<int> HandleHook(string[] a)
 
 async Task<int> HandleSyncRoles(string[] a)
 {
-    var action     = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
-    string? agDir  = null;
+    var action        = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
+    string? agDir     = null;
+    string? wsRoot    = null;
     for (int i = 0; i < a.Length - 1; i++)
-        if (a[i] == "--agency-dir") agDir = a[i + 1];
-    return await new SyncRolesCommand(action, agDir).ExecuteAsync();
+    {
+        if (a[i] == "--agency-dir")     agDir  = a[i + 1];
+        if (a[i] == "--workspace-root") wsRoot = a[i + 1];
+    }
+    return await new SyncRolesCommand(action, agDir, wsRoot).ExecuteAsync();
 }
 
 static int PrintUsage(string? error = null)
@@ -67,8 +71,9 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, nessy, gemini, all");
-    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
+    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to .claude/commands/ (project-local)");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
+    Console.WriteLine("    --workspace-root <path>           Target project root (default: cwd)");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
     Console.WriteLine("    --docker                          Use local Docker (default, interactive)");
     Console.WriteLine("    --manual                          Enter connection strings manually");
