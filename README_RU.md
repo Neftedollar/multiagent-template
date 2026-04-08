@@ -16,7 +16,7 @@
 
 - **Оркестратор** разбивает задачи на шаги и подбирает нужного специалиста для каждого
 - **Гейты пайплайна** ловят проблемы до того, как они накапливаются (`PLAN → BUILD → TEST → VERIFY → SHIP`)
-- **5 AI-агентов** из коробки: Claude, Gemini, Codex, Qwen, Nessy
+- **8 AI-агентов** из коробки: Claude, Gemini, Codex, Qwen, Nessy, Cursor, Windsurf, Copilot
 - **Хуки безопасности** — блокировка опасных команд, conventional commits, автолинт, логирование агентов
 - **Семантическая память** через AGE-граф + O'Brien pgvector — агенты помнят контекст между сессиями
 - **Без платформо-специфичных скриптов** — все хуки работают через кросс-платформенный бинарник `multiagent-setup`
@@ -40,18 +40,30 @@ irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/boots
 
 ```bash
 dotnet tool install -g multiagent-setup
-multiagent-setup new MyProject                      # Claude (по умолчанию)
-multiagent-setup new MyProject --provider gemini    # Gemini CLI
-multiagent-setup new MyProject --provider nessy     # Nessy (совместим с Claude)
-multiagent-setup new MyProject --provider codex     # OpenAI Codex
-multiagent-setup new MyProject --provider qwen      # Qwen Code
-multiagent-setup new MyProject --provider all       # все провайдеры сразу
+multiagent-setup new MyProject                        # Claude (по умолчанию)
+multiagent-setup new MyProject --provider nessy       # Nessy (совместим с Claude)
+multiagent-setup new MyProject --provider gemini      # Gemini CLI
+multiagent-setup new MyProject --provider codex       # OpenAI Codex
+multiagent-setup new MyProject --provider qwen        # Qwen Code
+multiagent-setup new MyProject --provider cursor      # Cursor IDE
+multiagent-setup new MyProject --provider windsurf    # Windsurf IDE
+multiagent-setup new MyProject --provider copilot     # GitHub Copilot
+multiagent-setup new MyProject --provider all         # все провайдеры сразу
+
+# Добавить провайдер в существующий воркспейс
+multiagent-setup add-provider cursor
+multiagent-setup add-provider gemini --force   # перезаписать существующие файлы
+
+# Обновить шаблоны воркспейса до последней версии
+multiagent-setup update          # пропустить уже изменённые файлы
+multiagent-setup update --force  # перезаписать всё
 ```
 
 Начать работу:
 ```bash
 cd MyProject
-claude          # или: gemini / codex / nessy / qwen-code
+claude          # или: nessy / codex / qwen-code / gemini (терминальные агенты)
+                # или открыть в Cursor / Windsurf / VS Code (IDE-агенты)
 /orchestrator Сделай REST API с авторизацией
 ```
 
@@ -61,19 +73,18 @@ GitHub org определяется автоматически из `gh auth`. �
 
 ## Поддерживаемые провайдеры
 
-| Провайдер | Бинарник | Описание |
-|-----------|----------|----------|
+| Провайдер | Бинарник / Инструмент | Описание |
+|-----------|----------------------|----------|
 | **claude** | `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) от Anthropic — по умолчанию |
 | **nessy** | `nessy` | Claude-совместимый агент; переиспользует конфиг `.claude/` |
-| **gemini** | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) от Google |
 | **codex** | `codex` | [OpenAI Codex CLI](https://github.com/openai/codex) |
 | **qwen** | `qwen-code` | [Qwen Code](https://github.com/QwenLM/qwen-code) от Alibaba |
+| **gemini** | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) от Google |
+| **cursor** | [Cursor](https://cursor.com) IDE | Правила в `.cursor/rules/` (MDC-формат) |
+| **windsurf** | [Windsurf](https://windsurf.com) IDE | Правила в `.windsurf/rules/` (Wave 8+) |
+| **copilot** | GitHub Copilot | Читает `.github/copilot-instructions.md` |
 
-Добавить провайдер в существующий воркспейс:
-```bash
-multiagent-setup add-provider gemini    # добавляет Gemini в существующий Claude-воркспейс
-multiagent-setup add-provider all       # добавляет все недостающие провайдеры
-```
+`--provider all` устанавливает все 8 провайдеров одновременно.
 
 ---
 
@@ -105,6 +116,7 @@ PLAN → BUILD → TEST → VERIFY → SHIP
 
 ```
 MyProject/
+├── CLAUDE.md                ← контекст воркспейса (читается AI при каждой сессии)
 ├── code/                    ← репозиторий продукта (в .gitignore)
 ├── docs/
 │   ├── process.md           ← операционный мануал (источник истины для пайплайна)
@@ -115,9 +127,12 @@ MyProject/
 │   ├── hooks/lint.json      ← конфиг авто-линтера
 │   ├── mcp.json             ← конфигурация MCP-серверов
 │   └── settings.json        ← конфигурация хуков
-├── .gemini/                 ← конфиг Gemini CLI (--provider gemini)
-│   └── settings.json
 ├── .codex/                  ← конфиг Codex (--provider codex)
+├── .qwen/                   ← конфиг Qwen (--provider qwen)
+├── .cursor/rules/           ← правила Cursor IDE (--provider cursor)
+├── .windsurf/rules/         ← правила Windsurf IDE (--provider windsurf)
+├── .github/                 ← инструкции Copilot (--provider copilot)
+├── .gemini/                 ← конфиг Gemini CLI (--provider gemini)
 └── tools/
     ├── completions.zsh      ← автодополнения для zsh
     └── completions.ps1      ← автодополнения для PowerShell
@@ -181,13 +196,16 @@ multiagent-setup install-mcps --manual # ввести строки подклю�
 
 ```bash
 # Создать воркспейс
-multiagent-setup new <project> [org] [--provider <name>]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|all]
 
 # Добавить провайдер в существующий воркспейс
-multiagent-setup add-provider <provider> [--workspace-dir <path>] [--force]
+multiagent-setup add-provider <provider> [--force]
+
+# Обновить шаблоны воркспейса до последней версии
+multiagent-setup update [--force]
 
 # Синхронизировать роли из agency-agents
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>] [--workspace-root <path>]
+multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 
 # Установить MCP-серверы (AGE + O'Brien)
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
@@ -197,8 +215,6 @@ multiagent-setup hook <name>
 
 multiagent-setup -v | --version
 ```
-
-Провайдеры: `claude` (по умолчанию), `nessy`, `gemini`, `codex`, `qwen`, `all`
 
 ---
 
