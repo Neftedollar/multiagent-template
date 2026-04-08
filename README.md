@@ -89,6 +89,17 @@ PLAN → BUILD → TEST → VERIFY → SHIP
 
 Each step has an approval gate. Failures retry (3×) → helper role (2×) → human escalation. The human only sees escalations, not every step.
 
+### When to choose multiagent-template
+
+| Scenario | multiagent-template | Single Claude Code | Standalone Aider |
+|----------|--------------------|--------------------|-----------------|
+| Pair-programming a single file | — | ✅ | ✅ |
+| Full feature from spec to merged PR | ✅ | Struggles | Struggles |
+| Team of specialized roles | ✅ | ❌ | ❌ |
+| Autonomous overnight backlog drain | ✅ | Limited | ❌ |
+| Works inside your existing IDE | ✅ (via provider flags) | ✅ | ✅ |
+| Any AI provider (Claude, Gemini, Codex…) | ✅ 12 providers | Claude only | Any, but no pipeline |
+
 ---
 
 ## Supported Providers
