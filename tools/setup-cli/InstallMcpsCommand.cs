@@ -67,7 +67,9 @@ public sealed class InstallMcpsCommand
                 Environment.SetEnvironmentVariable("PATH", path + sep + dotnetTools);
         }
 
-        var (ageConn, obrienDbUrl) = await ResolveConnectionStringsAsync();
+        var connResult = await ResolveConnectionStringsAsync();
+        if (connResult is null) return 0;
+        var (ageConn, obrienDbUrl) = connResult.Value;
 
         var errors = await InstallDotnetToolsAsync();
         if (errors > 0) return 1;
@@ -79,8 +81,8 @@ public sealed class InstallMcpsCommand
         Console.WriteLine("  my-mcps installed!");
         Console.WriteLine("================================");
         Console.WriteLine();
-        Console.WriteLine($"  age-mcp connection: {ageConn}");
-        Console.WriteLine($"  o-brien connection: {obrienDbUrl}");
+        Console.WriteLine($"  age-mcp connection: {MaskConnString(ageConn)}");
+        Console.WriteLine($"  o-brien connection: {MaskConnString(obrienDbUrl)}");
         Console.WriteLine();
         Console.WriteLine("  Start a Claude Code session — both MCPs are ready.");
         Console.WriteLine();
@@ -89,7 +91,7 @@ public sealed class InstallMcpsCommand
 
     // ── Connection strings ────────────────────────────────────────────────────
 
-    private async Task<(string ageConn, string obrienDbUrl)> ResolveConnectionStringsAsync()
+    private async Task<(string ageConn, string obrienDbUrl)?> ResolveConnectionStringsAsync()
     {
         if (_ageConnArg is not null && _obrienConnArg is not null)
             return (_ageConnArg, _obrienConnArg);
@@ -122,7 +124,7 @@ public sealed class InstallMcpsCommand
             return (age, obrien);
         }
 
-        await SetupDockerAsync();
+        if (!await SetupDockerAsync()) return null;
         return (AgeConnDocker, ObrienDbUrlDocker);
     }
 
@@ -136,9 +138,17 @@ public sealed class InstallMcpsCommand
         return string.IsNullOrEmpty(input) ? defaultValue : input;
     }
 
+    // Mask passwords in connection strings for safe console output
+    private static string MaskConnString(string conn)
+    {
+        // Replace password=... or Password=... values
+        return System.Text.RegularExpressions.Regex.Replace(
+            conn, @"(?i)(password=)[^;@]+", "$1***");
+    }
+
     // ── Docker ────────────────────────────────────────────────────────────────
 
-    private async Task SetupDockerAsync()
+    private async Task<bool> SetupDockerAsync()
     {
         var agemcpDir = Path.Combine(_targetDir, "age-mcp");
 
@@ -162,7 +172,7 @@ public sealed class InstallMcpsCommand
             {
                 Console.Error.WriteLine("FAIL: install Docker Desktop — https://docker.com/products/docker-desktop");
             }
-            Environment.Exit(0);
+            return false;
         }
 
         var (infoCode, _, _) = await ProcessHelper.RunAsync("docker", ["info"],
@@ -173,7 +183,7 @@ public sealed class InstallMcpsCommand
             if (OperatingSystem.IsMacOS())
                 await ProcessHelper.RunAsync("open", ["-a", "Docker"], allowFailure: true);
             Console.WriteLine("  >>  Wait for Docker Desktop to start, then re-run.");
-            Environment.Exit(0);
+            return false;
         }
         Console.WriteLine("  OK: docker");
 
@@ -263,6 +273,8 @@ public sealed class InstallMcpsCommand
                 ? $"  OK: o-brien database running on :{ObrienPort}"
                 : $"  WARN: o-brien postgres not reachable on :{ObrienPort} yet");
         }
+
+        return true;
     }
 
     // ── dotnet tools ─────────────────────────────────────────────────────────
