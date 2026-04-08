@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.14.0] — 2026-04-09
+
+### Added
+- `add-provider all` — adds all providers to an existing workspace in one command
+- README: `add-provider all` example in Quick Start
+- bootstrap.sh + bootstrap.ps1: `--provider` flag support
+
+---
+
 ## [1.13.0] — 2026-04-08
 
 ### Added
@@ -159,7 +168,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...v1.11.0

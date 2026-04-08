@@ -54,8 +54,19 @@ async Task<int> HandleAddProvider(string[] a)
     bool force = a.Contains("--force");
 
     string[] validProviders = ["nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini"];
+
+    if (provider == "all")
+    {
+        foreach (var p in validProviders)
+        {
+            var r = await new AddProviderCommand(p, force).ExecuteAsync();
+            if (r != 0) return r;
+        }
+        return 0;
+    }
+
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
 
     return await new AddProviderCommand(provider, force).ExecuteAsync();
 }
@@ -92,6 +103,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen,");
     Console.WriteLine("                                               cursor, windsurf, copilot, gemini, all");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
+    Console.WriteLine("    <name>: nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
     Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");
