@@ -34,7 +34,7 @@ multiagent-setup new MyProject
 - **Windsurf** (`windsurf`) — Windsurf IDE by Codeium; rules via `.windsurf/rules/`
 - **Copilot** (`copilot`) — GitHub Copilot in VS Code; instructions via `.github/copilot-instructions.md`
 
-Use `--provider all` to scaffold all providers at once, `add-provider <name>` to add one to an existing workspace, or `update` to pull the latest templates into an existing workspace.
+Use `--provider all` to scaffold all providers at once, `add-provider <name>` (or `add-provider all`) to add providers to an existing workspace, or `update` to pull the latest templates into an existing workspace.
 
 ## Key Concepts
 
@@ -60,7 +60,7 @@ All safety hooks are baked into the `multiagent-setup` binary (cross-platform, n
 
 ```
 multiagent-setup new <project> [org] [--provider <name>]
-multiagent-setup add-provider <provider> [--force]
+multiagent-setup add-provider <provider>|all [--force]
 multiagent-setup update [--force]
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual]
