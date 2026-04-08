@@ -89,6 +89,18 @@ public sealed class UpdateCommand(bool force = false)
         if (Directory.Exists(Path.Combine(root, ".gemini")))
             found.Add("gemini");
 
+        if (File.Exists(Path.Combine(root, ".clinerules")))
+            found.Add("cline");
+
+        if (File.Exists(Path.Combine(root, ".aider.conf.yml")))
+            found.Add("aider");
+
+        if (Directory.Exists(Path.Combine(root, ".continue")))
+            found.Add("continue");
+
+        if (Directory.Exists(Path.Combine(root, ".roo", "rules")))
+            found.Add("roo");
+
         return [.. found];
     }
 
@@ -188,6 +200,22 @@ public sealed class UpdateCommand(bool force = false)
 
         if (resourceName.StartsWith("providers/gemini/"))
             return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/cline/"))
+            return providers.Contains("cline") ? resourceName["providers/cline/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/aider/"))
+            return providers.Contains("aider") ? resourceName["providers/aider/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/continue/"))
+            return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/roo/"))
+            return providers.Contains("roo") ? resourceName["providers/roo/".Length..] : null;
+
+        // GitHub Actions workflow — update only for claude workspaces
+        if (resourceName == ".github/workflows/orchestrator.yml")
+            return providers.Contains("claude") ? resourceName : null;
 
         return null;
     }
