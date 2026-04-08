@@ -48,11 +48,13 @@
     <!-- Provider: Qwen -->
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
 
+    <!-- Provider: Gemini -->
+    <EmbeddedResource Include="Templates/providers/gemini/.gemini/settings.json" LogicalName="providers/gemini/.gemini/settings.json" />
+    <EmbeddedResource Include="Templates/providers/gemini/GEMINI.md" LogicalName="providers/gemini/GEMINI.md" />
+
     <!-- Tool scripts -->
-    <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />
-    <EmbeddedResource Include="Templates/tools/sync-roles.ps1" LogicalName="tools/sync-roles.ps1" />
-    <EmbeddedResource Include="Templates/tools/install-mcps.sh" LogicalName="tools/install-mcps.sh" />
-    <EmbeddedResource Include="Templates/tools/install-mcps.ps1" LogicalName="tools/install-mcps.ps1" />
+    <EmbeddedResource Include="Templates/tools/sync-roles.csx" LogicalName="tools/sync-roles.csx" />
+    <EmbeddedResource Include="Templates/tools/install-mcps.csx" LogicalName="tools/install-mcps.csx" />
     <EmbeddedResource Include="Templates/tools/completions.zsh" LogicalName="tools/completions.zsh" />
     <EmbeddedResource Include="Templates/tools/completions.ps1" LogicalName="tools/completions.ps1" />
   </ItemGroup>

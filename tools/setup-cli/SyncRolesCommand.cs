@@ -2,7 +2,7 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
+public sealed class SyncRolesCommand(string action, string? agencyDirOverride, string? workspaceRoot = null)
 {
     private const string AgencyRepo = "https://github.com/msitarzewski/agency-agents.git";
     private const string Marker     = "<!-- auto-generated from agency-agents -->";
@@ -19,9 +19,7 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
             ?? Environment.GetEnvironmentVariable("AGENCY_DIR")
             ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "agency-agents"));
 
-        var commandsDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".claude", "commands");
+        var commandsDir = Path.Combine(workspaceRoot ?? Directory.GetCurrentDirectory(), ".claude", "commands");
 
         var currentAction = action;
 
@@ -87,11 +85,11 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
             // Must have frontmatter with name:
             if (!File.ReadLines(roleFile).Take(20).Any(l => l.StartsWith("name:"))) continue;
 
-            var cmdName = Path.GetFileNameWithoutExtension(basename);
+            var cmdName  = Path.GetFileNameWithoutExtension(basename);
+            var destFile = Path.Combine(commandsDir, $"{cmdName}.md");
 
-            // Don't overwrite project-level commands
-            var projectCmd = Path.Combine(Directory.GetCurrentDirectory(), ".claude", "commands", $"{cmdName}.md");
-            if (File.Exists(projectCmd)) { skipped++; continue; }
+            // Don't overwrite manually-created roles (they have no marker)
+            if (File.Exists(destFile)) { skipped++; continue; }
 
             var body = ExtractAfterFrontmatter(await File.ReadAllTextAsync(roleFile));
             var output = $$"""
@@ -108,9 +106,7 @@ Now, using the expertise above, help with the following:
 $ARGUMENTS
 """;
 
-            await File.WriteAllTextAsync(
-                Path.Combine(commandsDir, $"{cmdName}.md"),
-                output,
+            await File.WriteAllTextAsync(destFile, output,
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             count++;
         }

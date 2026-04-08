@@ -23,11 +23,24 @@ public sealed class HooksCommand(string hookName)
 
     // ── block-dangerous ───────────────────────────────────────────────────────
 
+    // Matches any combination of -r and -f flags: -rf, -fr, -Rf, -rRf, etc.
+    private const string RmRfAny = @"rm\s+-(?=[a-zA-Z]*r)(?=[a-zA-Z]*f)[a-zA-Z]+\s+";
+
     private static readonly (Regex re, string label)[] DangerousPatterns =
     [
-        (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /"),
-        (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf ."),
-        (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *"),
+        // Root filesystem — block / and /* but NOT specific subpaths like /var/lib/apt/lists/*
+        (new(RmRfAny + @"/\s*$",    RegexOptions.IgnoreCase | RegexOptions.Multiline), "rm -rf /"),
+        (new(RmRfAny + @"/\s",      RegexOptions.IgnoreCase),                          "rm -rf /"),
+        (new(RmRfAny + @"/\*",      RegexOptions.IgnoreCase),                          "rm -rf /*"),
+        // Top-level system directories only (not deeper paths like /var/lib/apt/...)
+        (new(RmRfAny + @"/(etc|usr|bin|sbin|lib|lib64|boot|dev|sys|proc|root|run)([/\s]|$)",
+             RegexOptions.IgnoreCase), "rm -rf /system-dir"),
+        // Home directory
+        (new(RmRfAny + @"(~|\$HOME)[/\s]",  RegexOptions.IgnoreCase), "rm -rf ~/"),
+        // Current directory (rm -rf . but not rm -rf ./dist)
+        (new(RmRfAny + @"\.\s*$",           RegexOptions.IgnoreCase | RegexOptions.Multiline), "rm -rf ."),
+        // Bare wildcard without a path prefix (rm -rf * but not rm -rf /some/path/*)
+        (new(RmRfAny + @"\*(?!\S)",         RegexOptions.IgnoreCase), "rm -rf *"),
         (new(@"git\s+push\s+.*--force.*\s+(main|master)",    RegexOptions.IgnoreCase), "force push to main/master"),
         (new(@"git\s+push\s+-f\s+.*\s+(main|master)",        RegexOptions.IgnoreCase), "force push to main/master"),
         (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main"),
@@ -213,13 +226,20 @@ public sealed class HooksCommand(string hookName)
 
     private static async Task<bool> HasCodeChangesAsync(string projDir)
     {
-        var (code, diff, _) = await ProcessHelper.RunAsync("git",
+        const string codeExts =
+            @"\.(ts|tsx|js|jsx|py|go|rs|rb|php|fs|fsx|cs|java|kt|swift|vue|svelte)$";
+
+        // Unstaged modifications to tracked files
+        var (_, diff, _) = await ProcessHelper.RunAsync("git",
             ["-C", projDir, "diff", "--name-only", "HEAD"],
             captureOutput: true, allowFailure: true);
-        if (code != 0) return false;
-        return Regex.IsMatch(diff,
-            @"\.(ts|tsx|js|jsx|py|go|rs|rb|php|fs|fsx|cs|java|kt|swift|vue|svelte)$",
-            RegexOptions.Multiline);
+        if (Regex.IsMatch(diff, codeExts, RegexOptions.Multiline)) return true;
+
+        // Staged-only changes (new files, renames) — fixes false negative when only staged files changed
+        var (_, staged, _) = await ProcessHelper.RunAsync("git",
+            ["-C", projDir, "diff", "--cached", "--name-only"],
+            captureOutput: true, allowFailure: true);
+        return Regex.IsMatch(staged, codeExts, RegexOptions.Multiline);
     }
 
     private static int UnknownHook(string name)

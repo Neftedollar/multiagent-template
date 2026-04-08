@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen" }
+            ? new[] { "claude", "codex", "qwen", "nessy", "gemini" }
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -53,7 +53,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  OK: permissions set");
         }
 
-        if (providers.Contains("claude"))
+        if (providers.Contains("claude") || providers.Contains("nessy"))
             await SetupAgencyRolesAsync(targetDir);
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
@@ -67,15 +67,20 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
         Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
-        if (providers.Contains("claude"))
+        if (providers.Contains("claude") || providers.Contains("nessy"))
         {
             Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
-            Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
+            var bins = string.Join(" or ",
+                new[] { providers.Contains("claude") ? "claude" : null, providers.Contains("nessy") ? "nessy" : null }
+                .Where(x => x != null));
+            Console.WriteLine($"  5. Start working: {bins} then /orchestrator <task>");
         }
         if (providers.Contains("codex"))
             Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
         if (providers.Contains("qwen"))
             Console.WriteLine($"  5. Start working: qwen-code");
+        if (providers.Contains("gemini"))
+            Console.WriteLine($"  5. Start working: gemini then /orchestrator <task>");
         Console.WriteLine();
         return 0;
     }
@@ -88,13 +93,17 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ok &= Require("git");
         ok &= Require("jq");
         ok &= Require("gh");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen" } : new[] { provider };
+        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "nessy", "gemini" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
         if (providers.Contains("codex"))
             Suggest("codex",      "https://github.com/openai/codex");
         if (providers.Contains("qwen"))
             Suggest("qwen-code",  "https://github.com/QwenLM/qwen-code");
+        if (providers.Contains("nessy"))
+            Suggest("nessy",      "https://docs.anthropic.com");
+        if (providers.Contains("gemini"))
+            Suggest("gemini",     "https://github.com/google-gemini/gemini-cli");
         Console.WriteLine();
         return ok;
     }
@@ -155,10 +164,21 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
             Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
         }
+        if (providers.Contains("nessy"))
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
+        }
         if (providers.Contains("codex"))
             Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
         if (providers.Contains("qwen"))
             Directory.CreateDirectory(Path.Combine(root, ".qwen"));
+        if (providers.Contains("gemini"))
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".gemini"));
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
+            Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
+        }
     }
 
     // ── Template extraction ───────────────────────────────────────────────────
@@ -210,7 +230,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
-            return providers.Contains("claude") ? resourceName : null;
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
         if (resourceName.StartsWith("providers/codex/"))
             return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
@@ -218,7 +238,13 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (resourceName.StartsWith("providers/qwen/"))
             return providers.Contains("qwen")  ? resourceName["providers/qwen/".Length..]  : null;
 
-        // Shared (CLAUDE.md, docs/, tools/)
+        if (resourceName.StartsWith("providers/gemini/"))
+            return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
+
+        if (resourceName == "CLAUDE.md")
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
+
+        // Shared (docs/, tools/)
         return resourceName;
     }
 
@@ -226,7 +252,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         name.EndsWith(".md")   ||
         name.EndsWith(".json") ||
         name.EndsWith(".toml") ||
-        name.EndsWith(".sh")   ||
+        name.EndsWith(".csx")  ||
         name.EndsWith(".zsh")  ||
         name.EndsWith(".ps1");
 
@@ -234,7 +260,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     private static async Task ChmodShellScriptsAsync(string root)
     {
-        var scripts = Directory.GetFiles(root, "*.sh", SearchOption.AllDirectories)
+        var scripts = Directory.GetFiles(root, "*.csx", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(root, "*.zsh", SearchOption.AllDirectories));
         foreach (var s in scripts)
             await ProcessHelper.RunAsync("chmod", ["+x", s], allowFailure: true);
@@ -245,7 +271,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, workspaceRoot).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────
