@@ -33,9 +33,10 @@ multiagent-setup new MyProject
 - **Cursor** (`cursor`) — Cursor IDE; rules injected via `.cursor/rules/` (MDC format)
 - **Windsurf** (`windsurf`) — Windsurf IDE by Codeium; rules via `.windsurf/rules/`
 - **Copilot** (`copilot`) — GitHub Copilot in VS Code; instructions via `.github/copilot-instructions.md`
-- **Cline** (`cline`) — Cline and Roo Code VS Code extension; rules via `.clinerules`
+- **Cline** (`cline`) — Cline VS Code extension; rules via `.clinerules`
 - **Aider** (`aider`) — Aider AI pair programmer; config via `.aider.conf.yml` (auto-reads CLAUDE.md)
 - **Continue.dev** (`continue`) — VS Code/JetBrains extension; config via `.continue/config.yaml` with `/orchestrator` slash command
+- **Roo Code** (`roo`) — Roo Code VS Code extension; rules auto-loaded from `.roo/rules/`
 
 Use `--provider all` to scaffold all providers at once, `add-provider <name>` (or `add-provider all`) to add providers to an existing workspace, or `update` to pull the latest templates into an existing workspace.
 
