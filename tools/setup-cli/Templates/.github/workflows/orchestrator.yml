@@ -69,10 +69,21 @@ jobs:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           INPUT_TASK: ${{ inputs.task }}
         run: |
+          # Use heredoc output pattern to prevent newline injection into GITHUB_OUTPUT
           if [ "$EVENT_NAME" = "issues" ]; then
-            echo "prompt=/orchestrator #${ISSUE_NUMBER}: ${ISSUE_TITLE}" >> "$GITHUB_OUTPUT"
+            {
+              echo 'prompt<<EOF'
+              printf '/orchestrator #%s: %s' "$ISSUE_NUMBER" "$ISSUE_TITLE"
+              echo
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
           elif [ -n "$INPUT_TASK" ]; then
-            echo "prompt=/orchestrator ${INPUT_TASK}" >> "$GITHUB_OUTPUT"
+            {
+              echo 'prompt<<EOF'
+              printf '/orchestrator %s' "$INPUT_TASK"
+              echo
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
           else
             echo "prompt=/orchestrator Pick the top task from the GitHub backlog and execute it." >> "$GITHUB_OUTPUT"
           fi

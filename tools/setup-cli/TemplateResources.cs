@@ -12,5 +12,5 @@ internal static class TemplateResources
         name.EndsWith(".ps1")   ||
         name.EndsWith(".yml")   ||
         name.EndsWith(".yaml")  ||
-        name.EndsWith("clinerules"); // .clinerules has no dot-extension match above
+        name.EndsWith(".clinerules");
 }

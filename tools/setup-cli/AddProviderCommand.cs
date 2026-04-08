@@ -112,6 +112,11 @@ public sealed class AddProviderCommand(string provider, bool force = false)
         var githubOrg  = orgMatch.Success  ? orgMatch.Groups[1].Value  : Environment.UserName;
         var githubRepo = repoMatch.Success ? repoMatch.Groups[1].Value : projectName;
 
+        if (!orgMatch.Success)
+            Console.WriteLine($"  WARN: could not read GitHub org from CLAUDE.md — using '{githubOrg}' (edit provider files manually if wrong)");
+        if (!repoMatch.Success)
+            Console.WriteLine($"  WARN: could not read GitHub repo from CLAUDE.md — using '{githubRepo}' (edit provider files manually if wrong)");
+
         var graphName = $"{projectName.ToLower()}-ops";
         return new()
         {

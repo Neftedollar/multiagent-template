@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.22.0] — 2026-04-09
+
+### Fixed
+- **GitHub Actions template**: prevent newline injection into `$GITHUB_OUTPUT` via issue title — switched to heredoc output pattern (`<<EOF`) per GitHub security guidance
+- **Windows PowerShell completions**: removed unreliable `$PROFILE` env-var lookup; path now always derived from `SpecialFolder.MyDocuments`
+- **`add-provider` / `update`**: emit visible `WARN` when GitHub org/repo can't be parsed from `CLAUDE.md` instead of silently using OS username as fallback
+- **`TemplateResources.IsTextResource`**: tightened `.clinerules` match from `EndsWith("clinerules")` to `EndsWith(".clinerules")`
+
+---
 ## [1.21.0] — 2026-04-09
 
 ### Fixed
