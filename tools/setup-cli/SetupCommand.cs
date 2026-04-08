@@ -153,7 +153,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Directory creation ────────────────────────────────────────────────────
 
-    private static void CreateDirectories(string root, string[] providers)
+    internal static void CreateDirectories(string root, string[] providers)
     {
         // Shared
         foreach (var d in new[] { "code", "docs/workflows", "docs/archive", "docs/obsolete-docs", "tools" })
@@ -184,7 +184,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Template extraction ───────────────────────────────────────────────────
 
-    private static Dictionary<string, string> BuildVars(string project, string org, string graph) => new()
+    internal static Dictionary<string, string> BuildVars(string project, string org, string graph) => new()
     {
         ["{{PROJECT_NAME}}"]        = project,
         ["{{PROJECT_DESCRIPTION}}"] = $"{project} project workspace",
@@ -199,7 +199,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
                                         : "$HOME/.dotnet/tools/multiagent-setup",
     };
 
-    private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
+    internal static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers, bool skipExisting = false)
     {
         var asm = Assembly.GetExecutingAssembly();
         foreach (var resourceName in asm.GetManifestResourceNames())
@@ -208,6 +208,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             if (outputRel is null) continue;
 
             var outputPath = Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar));
+            if (skipExisting && File.Exists(outputPath)) continue;
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
             using var stream = asm.GetManifestResourceStream(resourceName)!;
@@ -228,7 +229,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         }
     }
 
-    private static string? ResolveOutputPath(string resourceName, string[] providers)
+    internal static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
             return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null; // nessy intentionally reuses claude templates
@@ -249,7 +250,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         return resourceName;
     }
 
-    private static bool IsTextResource(string name) =>
+    internal static bool IsTextResource(string name) =>
         name.EndsWith(".md")   ||
         name.EndsWith(".json") ||
         name.EndsWith(".toml") ||
@@ -259,7 +260,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Permissions ───────────────────────────────────────────────────────────
 
-    private static async Task ChmodShellScriptsAsync(string root)
+    internal static async Task ChmodShellScriptsAsync(string root)
     {
         var scripts = Directory.GetFiles(root, "*.csx", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(root, "*.zsh", SearchOption.AllDirectories));
@@ -269,7 +270,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Agency-agents + role sync ─────────────────────────────────────────────
 
-    private static async Task SetupAgencyRolesAsync(string workspaceRoot)
+    internal static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
         await new SyncRolesCommand("--clone", agencyDir, workspaceRoot).ExecuteAsync();

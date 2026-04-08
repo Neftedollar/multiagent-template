@@ -13,6 +13,7 @@ if (args[0] is "-v" or "--version")
 return args[0] switch
 {
     "new"           => await HandleNew(args[1..]),
+    "add-provider"  => await HandleAddProvider(args[1..]),
     "sync-roles"    => await HandleSyncRoles(args[1..]),
     "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
     "hook"          => await HandleHook(args[1..]),
@@ -43,6 +44,26 @@ async Task<int> HandleNew(string[] a)
     return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
 
+async Task<int> HandleAddProvider(string[] a)
+{
+    var provider = a.FirstOrDefault(x => !x.StartsWith('-')) ?? "";
+    if (string.IsNullOrEmpty(provider))
+        return PrintUsage(error: "add-provider requires a provider name: claude, nessy, gemini, codex, qwen, all");
+
+    string[] validProviders = ["claude", "codex", "qwen", "nessy", "gemini", "all"];
+    if (!validProviders.Contains(provider))
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, codex, qwen, nessy, gemini, all");
+
+    string? wsDir = null;
+    bool force = false;
+    for (int i = 0; i < a.Length; i++)
+    {
+        if (a[i] == "--workspace-dir" && i + 1 < a.Length) wsDir = a[++i];
+        if (a[i] == "--force") force = true;
+    }
+    return await new AddProviderCommand(provider, wsDir, force).ExecuteAsync();
+}
+
 async Task<int> HandleHook(string[] a)
 {
     var name = a.ElementAtOrDefault(0);
@@ -71,6 +92,9 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, nessy, gemini, all");
+    Console.WriteLine("  add-provider <provider>            Add a provider to an existing workspace");
+    Console.WriteLine("    --workspace-dir <path>            Workspace root (default: cwd)");
+    Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to .claude/commands/ (project-local)");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("    --workspace-root <path>           Target project root (default: cwd)");
