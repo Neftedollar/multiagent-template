@@ -291,8 +291,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (key.KeyChar is 'y' or 'Y')
         {
             var completionsPath = Path.Combine(workspaceRoot, "tools", "completions.zsh");
+            // Single-quote the path to prevent shell interpretation of special characters
+            var escapedPath = completionsPath.Replace("'", "'\\''");
             await File.AppendAllTextAsync(zshrc,
-                $"\n# Multi-agent workspace completions\nsource \"{completionsPath}\"\n");
+                $"\n# Multi-agent workspace completions\nsource -- '{escapedPath}'\n");
             Console.WriteLine("  OK: completions added (restart shell or: source ~/.zshrc)");
         }
     }
