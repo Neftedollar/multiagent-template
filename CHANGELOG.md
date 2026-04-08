@@ -15,7 +15,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **`TemplateResources.IsTextResource`**: tightened `.clinerules` match from `EndsWith("clinerules")` to `EndsWith(".clinerules")`
 
 ---
-
 ## [1.21.0] — 2026-04-09
 
 ### Fixed
