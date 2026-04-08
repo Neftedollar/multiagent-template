@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.13.0] — 2026-04-08
+
+### Added
+- `update` subcommand — updates an existing workspace with the latest templates
+  - Auto-detects installed providers (claude, codex, qwen, cursor, windsurf, copilot, gemini)
+  - Re-extracts `docs/`, `tools/`, hooks, and provider configs
+  - Preserves user-customised files (`CLAUDE.md`, `GEMINI.md`, etc.) by default
+  - `--force` flag to overwrite all files
+- README: `update` command documented in Quick Start and CLI Reference
+
+---
+
 ## [1.12.0] — 2026-04-08
 
 ### Fixed
@@ -147,7 +159,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.9.0...v1.10.0

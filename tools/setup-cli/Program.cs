@@ -14,6 +14,7 @@ return args[0] switch
 {
     "new"           => await HandleNew(args[1..]),
     "add-provider"  => await HandleAddProvider(args[1..]),
+    "update"        => await HandleUpdate(args[1..]),
     "sync-roles"    => await HandleSyncRoles(args[1..]),
     "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
     "hook"          => await HandleHook(args[1..]),
@@ -59,6 +60,12 @@ async Task<int> HandleAddProvider(string[] a)
     return await new AddProviderCommand(provider, force).ExecuteAsync();
 }
 
+Task<int> HandleUpdate(string[] a)
+{
+    bool force = a.Contains("--force");
+    return new UpdateCommand(force).ExecuteAsync();
+}
+
 async Task<int> HandleHook(string[] a)
 {
     var name = a.ElementAtOrDefault(0);
@@ -86,6 +93,8 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("                                               cursor, windsurf, copilot, gemini, all");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
     Console.WriteLine("    --force                           Overwrite existing provider config");
+    Console.WriteLine("  update                              Update workspace templates to latest version");
+    Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
