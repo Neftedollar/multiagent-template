@@ -1,6 +1,6 @@
 # multiagent-template
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 5 coding agent providers.
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 8 coding agent providers.
 
 ## Project
 
@@ -22,11 +22,17 @@ multiagent-setup new MyProject
 
 ## Supported AI Coding Agents
 
+### Terminal agents
 - **Claude** (`claude`) — Claude Code by Anthropic, default provider
 - **Nessy** (`nessy`) — Claude-compatible agent, reuses `.claude/` config
 - **Gemini** (`gemini`) — Gemini CLI by Google
 - **Codex** (`codex`) — OpenAI Codex CLI
 - **Qwen** (`qwen-code`) — Qwen Code by Alibaba
+
+### IDE agents
+- **Cursor** (`cursor`) — Cursor IDE; rules injected via `.cursor/rules/` (MDC format)
+- **Windsurf** (`windsurf`) — Windsurf IDE by Codeium; rules via `.windsurf/rules/`
+- **Copilot** (`copilot`) — GitHub Copilot in VS Code; instructions via `.github/copilot-instructions.md`
 
 Use `--provider all` to scaffold all providers at once, or `add-provider <name>` to add one to an existing workspace.
 
@@ -64,7 +70,7 @@ multiagent-setup hook <name>
 
 - `tools/setup-cli/` — .NET CLI source (C#, .NET 10)
 - `tools/setup-cli/Templates/` — embedded workspace templates
-- `tools/setup-cli/Templates/providers/` — provider-specific configs (gemini, codex, qwen)
+- `tools/setup-cli/Templates/providers/` — provider-specific configs (gemini, codex, qwen, cursor, windsurf, copilot)
 - `tools/setup-cli/Templates/.claude/` — Claude/Nessy config templates
 - `tools/setup-cli/Templates/docs/` — process.md, role-capabilities.md, workflow specs
 
