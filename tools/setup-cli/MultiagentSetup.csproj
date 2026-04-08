@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.10.0</Version>
+    <Version>1.11.0</Version>
     <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;nessy;gemini;codex;qwen;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
@@ -49,6 +49,7 @@
     <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/hooks.json" LogicalName="providers/codex/.codex/hooks.json" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
+    <EmbeddedResource Include="Templates/providers/codex/AGENTS.md" LogicalName="providers/codex/AGENTS.md" />
 
     <!-- Provider: Qwen -->
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
