@@ -8,8 +8,6 @@
       name="description"
       content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. You set direction."
     />
-    <link rel="canonical" href="https://neftedollar.com/multiagent-template/" />
-
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta
@@ -22,7 +20,7 @@
     />
     <meta
       property="og:description"
-      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Nessy."
+      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Nessy."
     />
     <meta
       property="og:image"
@@ -38,7 +36,7 @@
     />
     <meta
       name="twitter:description"
-      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Nessy."
+      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Nessy."
     />
     <meta
       name="twitter:image"
@@ -62,16 +60,10 @@
         "url": "https://github.com/Neftedollar/multiagent-template",
         "downloadUrl": "https://www.nuget.org/packages/multiagent-setup",
         "softwareVersion": "latest",
-        "keywords": "multi-agent, AI coding, Claude Code, Gemini CLI, Codex, autonomous agents, LLM, orchestrator, developer tools"
+        "keywords": "multi-agent, AI coding, Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, GitHub Copilot, autonomous agents, LLM, orchestrator, developer tools"
       }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
     <style>
       *,
       *::before,
@@ -100,7 +92,6 @@
 
       body {
         font-family:
-          "Inter",
           system-ui,
           -apple-system,
           sans-serif;
@@ -806,12 +797,12 @@
               alt="MIT License"
             />
             <img
-              src="https://img.shields.io/badge/.NET-8.0+-bc8cff?style=flat-square&labelColor=161b22"
-              alt=".NET 8+"
+              src="https://img.shields.io/badge/.NET-10+-bc8cff?style=flat-square&labelColor=161b22"
+              alt=".NET 10+"
             />
             <img
-              src="https://img.shields.io/badge/providers-5-f0883e?style=flat-square&labelColor=161b22"
-              alt="5 providers"
+              src="https://img.shields.io/badge/providers-8-f0883e?style=flat-square&labelColor=161b22"
+              alt="8 providers"
             />
           </div>
         </div>
@@ -858,9 +849,10 @@
           </div>
           <div class="feature-card">
             <div class="feature-icon">🔌</div>
-            <div class="feature-title">5 AI providers</div>
+            <div class="feature-title">8 AI providers</div>
             <p class="feature-desc">
-              Claude, Gemini, Codex, Qwen, Nessy — one command each, or
+              Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Nessy —
+              one command each, or
               <code style="color: var(--code-fg)">--provider all</code> to
               scaffold every provider at once.
             </p>
@@ -1038,6 +1030,21 @@
             <div class="provider-logo">🌐</div>
             <div class="provider-name">Qwen</div>
             <span class="provider-cmd">--provider qwen</span>
+          </div>
+          <div class="provider-card">
+            <div class="provider-logo">🖱️</div>
+            <div class="provider-name">Cursor</div>
+            <span class="provider-cmd">--provider cursor</span>
+          </div>
+          <div class="provider-card">
+            <div class="provider-logo">🌊</div>
+            <div class="provider-name">Windsurf</div>
+            <span class="provider-cmd">--provider windsurf</span>
+          </div>
+          <div class="provider-card">
+            <div class="provider-logo">🐙</div>
+            <div class="provider-name">Copilot</div>
+            <span class="provider-cmd">--provider copilot</span>
           </div>
           <div class="provider-card">
             <div class="provider-logo">🦄</div>
