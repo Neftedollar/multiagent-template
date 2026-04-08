@@ -166,6 +166,14 @@ multiagent-setup install-mcps --manual    # enter connection strings manually
 
 ---
 
+## Examples
+
+See [`examples/`](examples/) for concrete workflows:
+- [SaaS Starter](examples/saas-starter.md) — foundation, auth, billing, autonomous sessions
+- [Open Source Maintainer](examples/open-source-maintainer.md) — bug triage, PR reviews, releases
+
+---
+
 ## CLI Reference
 
 ```bash
