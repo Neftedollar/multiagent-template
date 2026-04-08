@@ -256,13 +256,25 @@ Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Ea
 Yes. The workspace wraps your existing repo: `multiagent-setup new MyProject` creates the workspace, then clone your repo into `code/MyProject/`.
 
 **How do I use multiple providers?**  
-Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once.
+Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once. To add a provider to an existing workspace: `multiagent-setup add-provider gemini`.
 
 **What does the orchestrator do when I'm not watching?**  
 In CEO Mode it waits for your next task. In Autonomous mode (`claude -p`), it picks tasks from the GitHub Project backlog and escalates only for defined edge cases.
 
 **Can I add custom roles?**  
 Yes. Create a `.md` file in `.claude/commands/` with a `name:` frontmatter field. The orchestrator uses it automatically, and can also create ad-hoc roles on the fly.
+
+**Do I need Docker / AGE graph / O'Brien?**  
+No. The MCPs are entirely optional. The workspace and pipeline work without them. `install-mcps` is a separate optional step for teams that want persistent memory across sessions.
+
+**A safety hook is blocking a command I need.**  
+Claude Code will prompt you to approve or deny the hook's decision. Click "Allow" to override for that command. You can also edit `.claude/settings.json` to adjust which hooks are active.
+
+**How do I update an existing workspace to the latest templates?**  
+Run `multiagent-setup update` from inside your workspace. Your customised context files (`CLAUDE.md`, `GEMINI.md`, etc.) are preserved. Add `--force` to overwrite everything.
+
+**Where can I see what agents were spawned in a session?**  
+The `log-agent` hook writes to `.claude/agent-log.jsonl` — one JSON line per agent launch with timestamp, type, model, and prompt preview.
 
 ---
 
