@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.8.0</Version>
+    <Version>1.9.0</Version>
     <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;ai;multiagent;workspace</PackageTags>
@@ -41,6 +41,7 @@
     <EmbeddedResource Include="Templates/.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json" />
 
     <!-- Provider: Codex -->
+    <EmbeddedResource Include="Templates/providers/codex/AGENTS.md" LogicalName="providers/codex/AGENTS.md" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/hooks.json" LogicalName="providers/codex/.codex/hooks.json" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
