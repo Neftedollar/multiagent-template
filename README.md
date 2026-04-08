@@ -29,6 +29,7 @@ multiagent-setup new MyProject --provider qwen       # Qwen Code
 multiagent-setup new MyProject --provider cursor     # Cursor IDE
 multiagent-setup new MyProject --provider windsurf   # Windsurf IDE
 multiagent-setup new MyProject --provider copilot    # GitHub Copilot
+multiagent-setup new MyProject --provider gemini     # Google Gemini CLI
 multiagent-setup new MyProject --provider all        # all providers at once
 ```
 
@@ -36,7 +37,7 @@ Then start working:
 
 ```bash
 cd MyProject
-claude          # or: nessy / codex / qwen-code (terminal agents)
+claude          # or: nessy / codex / qwen-code / gemini (terminal agents)
                 # or open in Cursor / Windsurf / VS Code (IDE agents)
 /orchestrator Implement user authentication with JWT
 ```
@@ -73,8 +74,9 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | **cursor** | [Cursor](https://cursor.com) IDE | Rules placed in `.cursor/rules/` (MDC format) |
 | **windsurf** | [Windsurf](https://windsurf.com) IDE | Rules placed in `.windsurf/rules/` (Wave 8+) |
 | **copilot** | GitHub Copilot | Reads `.github/copilot-instructions.md` |
+| **gemini** | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) by Google — creates `GEMINI.md` |
 
-Use `--provider all` to scaffold all terminal-agent providers (claude + nessy + codex + qwen + cursor + windsurf + copilot).
+Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini).
 
 ---
 
@@ -184,7 +186,7 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|all]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|all]
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
 multiagent-setup hook <name>
