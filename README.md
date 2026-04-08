@@ -86,8 +86,8 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 |----------|---------------|----------|-------|
 | **claude** | `claude` | Terminal-first, most capable | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — default |
 | **nessy** | `nessy` | Claude users with a different alias | [Nessy CLI](https://nessy.ai) — Claude-compatible |
-| **codex** | `codex` | OpenAI API key holders | [OpenAI Codex CLI](https://github.com/openai/codex) |
-| **qwen** | `qwen-code` | Open-source model users | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
+| **codex** | `codex` | OpenAI API key holders | [OpenAI Codex CLI](https://github.com/openai/codex) — creates `AGENTS.md` |
+| **qwen** | `qwen-code` | Open-source model users | [Qwen Code](https://github.com/QwenLM/qwen-code) — creates `QWEN.md` |
 | **gemini** | `gemini` | Google API key holders | [Gemini CLI](https://github.com/google-gemini/gemini-cli) — creates `GEMINI.md` |
 | **cursor** | [Cursor](https://cursor.com) IDE | IDE-first workflows | Rules in `.cursor/rules/` (MDC format) |
 | **windsurf** | [Windsurf](https://windsurf.com) IDE | IDE-first + Codeium users | Rules in `.windsurf/rules/` (Wave 8+) |
