@@ -45,10 +45,15 @@ ls ../TestProject   # inspect generated workspace
    - `.<name>/settings.json` — hook configuration
    - `.<name>/commands/orchestrator.md` — orchestrator skill (adapt from Codex/Qwen)
 2. Register the template files as `EmbeddedResource` in `MultiagentSetup.csproj`
-3. Add the provider to `validProviders` in `Program.cs`
+3. Add the provider to `validProviders` in `Program.cs` (both `HandleNew` and `HandleAddProvider`)
 4. Handle directory creation in `SetupCommand.CreateDirectories`
 5. Handle template extraction in `SetupCommand.ResolveOutputPath`
 6. Add pre-flight check in `SetupCommand.CheckTools`
+7. Handle directory creation in `AddProviderCommand.CreateProviderDirectories`
+8. Handle template extraction in `AddProviderCommand.ResolveProviderOutputPath`
+9. Add provider detection in `UpdateCommand.DetectProviders`
+10. Handle template extraction in `UpdateCommand.ResolveOutputPath`
+11. Update zsh and PowerShell completions in `Templates/tools/`
 
 ### Templates
 
