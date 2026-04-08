@@ -117,6 +117,9 @@ $ARGUMENTS
         Console.WriteLine();
         Console.WriteLine("Check for new roles periodically:");
         Console.WriteLine("  multiagent-setup sync-roles --pull");
+        Console.WriteLine();
+        Console.WriteLine("Note: sync-roles targets ~/.claude/commands/ (Claude, Nessy, Gemini).");
+        Console.WriteLine("Codex and Qwen workspaces: copy roles manually to .codex/skills/ or .qwen/commands/.");
         return 0;
     }
 
