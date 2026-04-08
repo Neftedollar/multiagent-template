@@ -30,6 +30,7 @@ public sealed class HooksCommand(string hookName)
         (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *"),
         (new(@"git\s+push\s+.*--force.*\s+(main|master)",    RegexOptions.IgnoreCase), "force push to main/master"),
         (new(@"git\s+push\s+-f\s+.*\s+(main|master)",        RegexOptions.IgnoreCase), "force push to main/master"),
+        (new(@"git\s+push\s+(--force|-f)\s*$",               RegexOptions.IgnoreCase), "force push (no branch specified — affects tracked branch)"),
         (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main"),
         (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd"),
         (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE"),
@@ -143,6 +144,9 @@ public sealed class HooksCommand(string hookName)
                 if (pyFmt == "ruff") await ProcessHelper.RunAsync("ruff",  ["format", filePath], allowFailure: true, captureOutput: true);
                 else if (pyFmt == "black") await ProcessHelper.RunAsync("black", ["-q", filePath], allowFailure: true, captureOutput: true);
                 break;
+            case ".cs":
+                await ProcessHelper.RunAsync("dotnet", ["format", "--include", filePath],
+                    allowFailure: true, captureOutput: true); break;
             case ".go":
                 await ProcessHelper.RunAsync("gofmt",   ["-w",  filePath], allowFailure: true, captureOutput: true); break;
             case ".rs":
