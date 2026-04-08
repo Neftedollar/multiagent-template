@@ -39,9 +39,8 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo", "all"];
-    if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo, all");
+    if (provider != "all" && ProviderRegistry.Find(provider) is null)
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
@@ -54,11 +53,9 @@ async Task<int> HandleAddProvider(string[] a)
 
     bool force = a.Contains("--force");
 
-    string[] validProviders = ["nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo"];
-
     if (provider == "all")
     {
-        foreach (var p in validProviders)
+        foreach (var p in ProviderRegistry.ValidForAdd.Where(n => n != "all"))
         {
             var r = await new AddProviderCommand(p, force).ExecuteAsync();
             if (r != 0) return r;
@@ -66,8 +63,8 @@ async Task<int> HandleAddProvider(string[] a)
         return 0;
     }
 
-    if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo, all");
+    if (provider == "claude" || ProviderRegistry.Find(provider) is null)
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForAdd)}");
 
     return await new AddProviderCommand(provider, force).ExecuteAsync();
 }
@@ -97,15 +94,16 @@ async Task<int> HandleSyncRoles(string[] a)
 static int PrintUsage(string? error = null)
 {
     if (error is not null) Console.Error.WriteLine($"Error: {error}\n");
+    var allNames  = string.Join(", ", ProviderRegistry.ValidForNew);
+    var addNames  = string.Join(", ", ProviderRegistry.ValidForAdd);
     Console.WriteLine("Usage: multiagent-setup <command> [options]");
     Console.WriteLine();
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
-    Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen,");
-    Console.WriteLine("                                               cursor, windsurf, copilot, gemini,");
-    Console.WriteLine("                                               cline, roo, aider, continue, all");
+    Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
+    Console.WriteLine($"                                       {allNames}");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
-    Console.WriteLine("    <name>: nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, roo, aider, continue, all");
+    Console.WriteLine($"    <name>: {addNames}");
     Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");

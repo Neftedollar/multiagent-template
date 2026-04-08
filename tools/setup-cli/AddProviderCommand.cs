@@ -48,56 +48,22 @@ public sealed class AddProviderCommand(string provider, bool force = false)
         Console.WriteLine($"Provider '{provider}' added!");
         Console.WriteLine();
         Console.WriteLine("Next steps:");
-        if (provider is "nessy")
-            Console.WriteLine($"  nessy         → /orchestrator <task>");
-        else if (provider is "codex")
-            Console.WriteLine($"  codex         → /orchestrator <task>");
-        else if (provider is "qwen")
-            Console.WriteLine($"  qwen-code     → /orchestrator <task>");
-        else if (provider is "cursor")
-            Console.WriteLine($"  cursor        → open {cwd}, rules load automatically");
-        else if (provider is "windsurf")
-            Console.WriteLine($"  windsurf      → open {cwd}, rules load automatically");
-        else if (provider is "copilot")
-            Console.WriteLine($"  copilot       → open {cwd} in VS Code, reads .github/copilot-instructions.md");
-        else if (provider is "gemini")
-            Console.WriteLine($"  gemini        → /orchestrator <task>");
-        else if (provider is "cline")
-            Console.WriteLine($"  cline         → open {cwd} in VS Code with Cline extension, .clinerules loads automatically");
-        else if (provider is "aider")
-            Console.WriteLine($"  aider         → run 'aider' from {cwd}, CLAUDE.md loaded automatically");
-        else if (provider is "continue")
-            Console.WriteLine($"  continue      → open {cwd} in VS Code/JetBrains, rules load from .continue/config.yaml");
-        else if (provider is "roo")
-            Console.WriteLine($"  roo           → open {cwd} in VS Code with Roo Code extension, .roo/rules/ loads automatically");
+        var def = ProviderRegistry.Find(provider);
+        if (def is not null)
+            Console.WriteLine(def.NextStepTemplate.Replace("{cwd}", cwd));
         Console.WriteLine();
         return 0;
     }
 
     private static void CreateProviderDirectories(string root, string[] providers)
     {
-        if (providers.Contains("nessy"))
+        foreach (var name in providers)
         {
-            Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
-            Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
+            var def = ProviderRegistry.Find(name);
+            if (def is null) continue;
+            foreach (var dir in def.Directories)
+                Directory.CreateDirectory(Path.Combine(root, dir.Replace('/', Path.DirectorySeparatorChar)));
         }
-        if (providers.Contains("codex"))
-            Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
-        if (providers.Contains("qwen"))
-            Directory.CreateDirectory(Path.Combine(root, ".qwen"));
-        if (providers.Contains("cursor"))
-            Directory.CreateDirectory(Path.Combine(root, ".cursor", "rules"));
-        if (providers.Contains("windsurf"))
-            Directory.CreateDirectory(Path.Combine(root, ".windsurf", "rules"));
-        if (providers.Contains("copilot"))
-            Directory.CreateDirectory(Path.Combine(root, ".github"));
-        if (providers.Contains("gemini"))
-            Directory.CreateDirectory(Path.Combine(root, ".gemini"));
-        if (providers.Contains("continue"))
-            Directory.CreateDirectory(Path.Combine(root, ".continue"));
-        if (providers.Contains("roo"))
-            Directory.CreateDirectory(Path.Combine(root, ".roo", "rules"));
-        // cline and aider write to workspace root — no subdirectory needed
     }
 
     private static Dictionary<string, string> BuildVarsFromWorkspace(string root, string projectName)
@@ -175,38 +141,17 @@ public sealed class AddProviderCommand(string provider, bool force = false)
 
     private static string? ResolveProviderOutputPath(string resourceName, string[] providers)
     {
-        // Only provider-specific templates, not shared (CLAUDE.md, docs/, tools/)
-        if (resourceName.StartsWith("providers/codex/"))
-            return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
+        // Provider-prefixed templates (registry-driven; nessy has null prefix handled below)
+        foreach (var def in ProviderRegistry.All)
+        {
+            if (def.TemplatePrefix is null) continue;
+            if (resourceName.StartsWith(def.TemplatePrefix))
+                return providers.Contains(def.Name)
+                    ? resourceName[def.TemplatePrefix.Length..]
+                    : null;
+        }
 
-        if (resourceName.StartsWith("providers/qwen/"))
-            return providers.Contains("qwen") ? resourceName["providers/qwen/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/cursor/"))
-            return providers.Contains("cursor") ? resourceName["providers/cursor/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/windsurf/"))
-            return providers.Contains("windsurf") ? resourceName["providers/windsurf/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/copilot/"))
-            return providers.Contains("copilot") ? resourceName["providers/copilot/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/gemini/"))
-            return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/cline/"))
-            return providers.Contains("cline") ? resourceName["providers/cline/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/aider/"))
-            return providers.Contains("aider") ? resourceName["providers/aider/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/continue/"))
-            return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
-
-        if (resourceName.StartsWith("providers/roo/"))
-            return providers.Contains("roo") ? resourceName["providers/roo/".Length..] : null;
-
-        // nessy reuses .claude/ — extract only if there's no .claude/ already
+        // nessy reuses .claude/ — emit if nessy is being added
         if (resourceName.StartsWith(".claude/") && providers.Contains("nessy"))
             return resourceName;
 

@@ -6,6 +6,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.23.0] — 2026-04-09
+
+### Changed
+- **Internal: provider registry** — replaced growing `if/else` chains in `SetupCommand`, `AddProviderCommand`, and `UpdateCommand` with a single `ProviderRegistry` table (`ProviderRegistry.cs`). Adding a new provider now requires only one registry entry + template files. No user-facing behavior change; all 57 tests pass.
+
+---
+
 ## [1.22.0] — 2026-04-09
 
 ### Fixed
