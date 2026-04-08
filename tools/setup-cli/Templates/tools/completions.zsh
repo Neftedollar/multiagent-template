@@ -51,6 +51,7 @@ _multiagent_setup() {
     'cline:Cline extension for VS Code'
     'aider:Aider AI pair programmer'
     'continue:Continue.dev VS Code/JetBrains extension'
+    'roo:Roo Code VS Code extension'
     'all:All providers at once'
   )
   hooks=(

@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.20.0] — 2026-04-09
+
+### Added
+- **Roo Code provider** (`--provider roo` / `add-provider roo`) — generates `.roo/rules/workspace.md` for the Roo Code VS Code extension; rules load automatically per project from `.roo/rules/` directory (distinct format from Cline's `.clinerules`)
+- Roo Code included in `--provider all`
+- Shell completions (zsh + PowerShell) updated for `roo`
+
+---
+
 ## [1.19.0] — 2026-04-09
 
 ### Added

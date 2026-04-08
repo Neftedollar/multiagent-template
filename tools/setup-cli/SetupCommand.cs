@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue" }
+            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo" }
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -92,6 +92,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine($"       aider         → run 'aider' from {targetDir}, CLAUDE.md loaded automatically");
         if (providers.Contains("continue"))
             Console.WriteLine($"       continue      → open {targetDir} in VS Code/JetBrains, rules load from .continue/config.yaml");
+        if (providers.Contains("roo"))
+            Console.WriteLine($"       roo           → open {targetDir} in VS Code with Roo Code extension, .roo/rules/ loads automatically");
         Console.WriteLine();
         return 0;
     }
@@ -104,7 +106,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ok &= Require("git", macOs: "brew install git",      win: "winget install Git.Git");
         ok &= Require("jq",  macOs: "brew install jq",       win: "winget install jqlang.jq");
         ok &= Require("gh",  macOs: "brew install gh",        win: "winget install GitHub.cli");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue" } : new[] { provider };
+        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "continue", "roo" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
         if (providers.Contains("nessy"))
@@ -127,6 +129,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Suggest("aider",      "https://aider.chat");
         if (providers.Contains("continue"))
             Console.WriteLine("  INFO: continue — VS Code/JetBrains extension, install from https://continue.dev");
+        if (providers.Contains("roo"))
+            Console.WriteLine("  INFO: roo — Roo Code VS Code extension, install from marketplace");
         Console.WriteLine();
         return ok;
     }
@@ -204,6 +208,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Directory.CreateDirectory(Path.Combine(root, ".gemini"));
         if (providers.Contains("continue"))
             Directory.CreateDirectory(Path.Combine(root, ".continue"));
+        if (providers.Contains("roo"))
+            Directory.CreateDirectory(Path.Combine(root, ".roo", "rules"));
         // cline and aider write files to workspace root — no subdirectory needed
     }
 
@@ -288,6 +294,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
         if (resourceName.StartsWith("providers/continue/"))
             return providers.Contains("continue") ? resourceName["providers/continue/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/roo/"))
+            return providers.Contains("roo") ? resourceName["providers/roo/".Length..] : null;
 
         // Shared (CLAUDE.md, docs/, tools/)
         return resourceName;
