@@ -48,6 +48,8 @@ multiagent-setup new MyProject --provider qwen        # Qwen Code
 multiagent-setup new MyProject --provider cursor      # Cursor IDE
 multiagent-setup new MyProject --provider windsurf    # Windsurf IDE
 multiagent-setup new MyProject --provider copilot     # GitHub Copilot
+multiagent-setup new MyProject --provider cline       # Cline / Roo Code (VS Code)
+multiagent-setup new MyProject --provider aider       # Aider AI pair programmer
 multiagent-setup new MyProject --provider all         # все провайдеры сразу
 
 # Добавить провайдер в существующий воркспейс
@@ -83,8 +85,10 @@ GitHub org определяется автоматически из `gh auth`. �
 | **cursor** | [Cursor](https://cursor.com) IDE | Правила в `.cursor/rules/` (MDC-формат) |
 | **windsurf** | [Windsurf](https://windsurf.com) IDE | Правила в `.windsurf/rules/` (Wave 8+) |
 | **copilot** | GitHub Copilot | Читает `.github/copilot-instructions.md` |
+| **cline** | [Cline](https://github.com/cline/cline) / Roo Code | Создаёт `.clinerules` в корне проекта |
+| **aider** | [Aider](https://aider.chat) | Создаёт `.aider.conf.yml` — автозагружает CLAUDE.md |
 
-`--provider all` устанавливает все 8 провайдеров одновременно.
+`--provider all` устанавливает все 10 провайдеров одновременно.
 
 ---
 
