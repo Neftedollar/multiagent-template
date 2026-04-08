@@ -36,9 +36,9 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    string[] validProviders = ["claude", "codex", "qwen", "all"];
+    string[] validProviders = ["claude", "nessy", "gemini", "codex", "qwen", "all"];
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, codex, qwen, all");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, gemini, codex, qwen, all");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
