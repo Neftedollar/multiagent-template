@@ -1,6 +1,6 @@
 # multiagent-template — Full Reference for LLMs
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents that autonomously drives software from backlog to merged PR across 11 coding agent providers.
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents that autonomously drives software from backlog to merged PR across 12 AI coding agent providers.
 
 This file is the comprehensive reference. See also: [llms.txt](llms.txt) for the concise index.
 
@@ -305,15 +305,13 @@ When creating a workspace, these variables are substituted into all template fil
 
 ## How to Add a New Provider
 
-1. Create `tools/setup-cli/Templates/providers/<name>/` directory
-2. Add provider-specific config files (context file, hook config, commands directory)
-3. Add `EmbeddedResource` entries in `MultiagentSetup.csproj`
-4. Update `SetupCommand.cs`:
-   - `CreateDirectories()` — create provider-specific directories
-   - `ResolveOutputPath()` — route embedded resources to correct paths
-   - `CheckTools()` — add pre-flight check for provider binary
-5. Update `Program.cs` — add to `validProviders` array
-6. Open a PR following the pattern of existing providers
+As of v1.23.0, all provider routing is table-driven via `ProviderRegistry.cs`. Adding a 13th provider requires only three changes:
+
+1. Add one `ProviderDef` entry in `tools/setup-cli/ProviderRegistry.cs` — name, template prefix, directories, detection hint, tool check, install hint, next-step template, and whether it's included in `--provider all`
+2. Create `tools/setup-cli/Templates/providers/<name>/` directory with provider config files
+3. Add `<EmbeddedResource>` entries in `MultiagentSetup.csproj` for each template file
+
+No changes needed to `SetupCommand.cs`, `AddProviderCommand.cs`, `UpdateCommand.cs`, or `Program.cs` — they all loop over `ProviderRegistry.All`. See `CONTRIBUTING.md` for a full walkthrough.
 
 ## License
 

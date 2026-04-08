@@ -53,19 +53,24 @@ Your job: review and merge. Roughly 5 minutes of actual human time.
 
 The orchestrator picks roles dynamically from `docs/role-capabilities.md` — it doesn't hardcode assignments. If no standard role fits the task, it creates an ad-hoc role on the fly.
 
-## 8 Providers, One Tool
+## 12 Providers, One Tool
 
 The workspace isn't locked to Claude. The same pipeline structure scaffolds for:
 
-| Provider | How to use |
-|----------|-----------|
-| claude | `--provider claude` (default) |
-| OpenAI Codex | `--provider codex` |
-| Gemini CLI | `--provider gemini` |
-| Qwen Code | `--provider qwen` |
-| Cursor IDE | `--provider cursor` |
-| Windsurf IDE | `--provider windsurf` |
-| GitHub Copilot | `--provider copilot` |
+| Provider | How to use | Type |
+|----------|-----------|------|
+| Claude | `--provider claude` (default) | Terminal |
+| Nessy | `--provider nessy` | Terminal (Claude alias) |
+| OpenAI Codex | `--provider codex` | Terminal |
+| Gemini CLI | `--provider gemini` | Terminal |
+| Qwen Code | `--provider qwen` | Terminal |
+| Cursor IDE | `--provider cursor` | IDE |
+| Windsurf IDE | `--provider windsurf` | IDE |
+| GitHub Copilot | `--provider copilot` | IDE |
+| Cline | `--provider cline` | VS Code extension |
+| Aider | `--provider aider` | Terminal / IDE |
+| Continue.dev | `--provider continue` | VS Code / JetBrains |
+| Roo Code | `--provider roo` | VS Code extension |
 
 ```bash
 # All providers at once
@@ -75,7 +80,7 @@ multiagent-setup new MyProject --provider all
 multiagent-setup add-provider cursor
 ```
 
-The rules and pipeline are placed in the right location for each provider (`.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md`, etc.).
+The rules and pipeline are placed in the right location for each provider (`.cursor/rules/`, `.windsurf/rules/`, `.roo/rules/`, `.clinerules`, `GEMINI.md`, etc.).
 
 ## Safety Hooks Baked In
 

@@ -1,6 +1,14 @@
 # multiagent-template
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 11 coding agent providers.
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 12 AI coding agent providers.
+
+## The Problem
+
+Single-agent code generation fails at scale: context collapse, no accountability, inconsistent quality. One agent can't architect, develop, review, and ship autonomously without degrading.
+
+## The Solution
+
+A structured workspace where specialized agents (architect, developer, reviewer, DevOps) operate in a gated five-step pipeline — `PLAN → BUILD → TEST → VERIFY → SHIP` — with defined roles and handoff points. Each step has an approval gate; failures auto-retry before escalating to the human.
 
 ## Project
 
@@ -69,13 +77,14 @@ multiagent-setup update [--force]
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual]
 multiagent-setup hook <name>
+multiagent-setup doctor
 ```
 
 ## Source Structure
 
 - `tools/setup-cli/` — .NET CLI source (C#, .NET 10)
 - `tools/setup-cli/Templates/` — embedded workspace templates
-- `tools/setup-cli/Templates/providers/` — provider-specific configs (gemini, codex, qwen, cursor, windsurf, copilot)
+- `tools/setup-cli/Templates/providers/` — provider-specific configs (codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo)
 - `tools/setup-cli/Templates/.claude/` — Claude/Nessy config templates
 - `tools/setup-cli/Templates/docs/` — process.md, role-capabilities.md, workflow specs
 

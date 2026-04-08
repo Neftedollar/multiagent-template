@@ -1,6 +1,6 @@
 # multiagent-template
 
-Scaffold a multi-agent AI workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — autonomously drives software from backlog to merged PR. You set direction; the agents handle execution.
+**Autonomous multi-agent code generation and PR automation for 12 AI coding assistants.** Scaffold a workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — drives software from backlog to merged PR without hand-holding. You set direction; the agents handle execution.
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![Build](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml/badge.svg)](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml)
@@ -286,6 +286,15 @@ Run `multiagent-setup update` from inside your workspace. Your customised contex
 
 **Where can I see what agents were spawned in a session?**  
 The `log-agent` hook writes to `.claude/agent-log.jsonl` — one JSON line per agent launch with timestamp, type, model, and prompt preview.
+
+**Is this production-ready?**  
+Yes. The tool has a stable API (breaking changes only in major version bumps). It's used for autonomous overnight runs and SaaS development sessions. The `doctor` command checks your workspace for common config issues.
+
+**Can the orchestrator run in CI without a local machine?**  
+Yes. A GitHub Actions workflow (`orchestrator.yml`) is scaffolded for claude/nessy workspaces. It triggers on issue labels and runs the orchestrator headlessly via `claude -p`. See [examples/](examples/) for autonomous session patterns.
+
+**Does the pipeline need internet access?**  
+Only for git push/PR creation steps and any web research the agent does. All local code analysis, formatting, and linting runs offline.
 
 ---
 
