@@ -245,7 +245,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                                         ? @"$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
                                         : "$HOME/.dotnet/tools/multiagent-setup",
-        ["{{GITHUB_PROJECT_URL}}"]  = projectUrl ?? "",
+        ["{{GITHUB_PROJECT_URL}}"]  = projectUrl is not null ? $"Project board: {projectUrl}" : "",
     };
 
     private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
