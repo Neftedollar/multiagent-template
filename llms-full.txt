@@ -65,7 +65,7 @@ Syncs the latest agent role files from [agency-agents](https://github.com/msitar
 ### `add-provider` — Add provider to existing workspace
 
 ```bash
-multiagent-setup add-provider <provider> [--workspace-dir <path>] [--force]
+multiagent-setup add-provider <provider> [--force]
 ```
 
 Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch.
