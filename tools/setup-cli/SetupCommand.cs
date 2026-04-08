@@ -383,10 +383,11 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     private static async Task OfferCompletionsWindowsAsync(string workspaceRoot)
     {
-        var profile = Environment.GetEnvironmentVariable("PROFILE")
-            ?? Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "PowerShell", "Microsoft.PowerShell_profile.ps1");
+        // $PROFILE is a PowerShell-internal variable, not exported to child processes.
+        // Always derive the path from SpecialFolder.MyDocuments.
+        var profile = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "PowerShell", "Microsoft.PowerShell_profile.ps1");
 
         if (!string.IsNullOrEmpty(profile) && File.Exists(profile))
         {

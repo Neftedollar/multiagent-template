@@ -115,6 +115,9 @@ public sealed class UpdateCommand(bool force = false)
         var githubOrg  = orgMatch.Success  ? orgMatch.Groups[1].Value  : Environment.UserName;
         var githubRepo = repoMatch.Success ? repoMatch.Groups[1].Value : projectName;
 
+        if (!orgMatch.Success)
+            Console.WriteLine($"  WARN: could not read GitHub org from CLAUDE.md — using '{githubOrg}' (edit provider files if wrong)");
+
         var graphName = $"{projectName.ToLower()}-ops";
         return new()
         {
