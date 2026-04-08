@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="480" viewBox="0 0 720 480">
+  <defs>
+    <style>
+      text { font-family: 'Cascadia Code', 'Fira Code', 'SF Mono', Consolas, monospace; font-size: 13px; }
+      .prompt { fill: #58a6ff; }
+      .cmd    { fill: #e6edf3; }
+      .ok     { fill: #3fb950; }
+      .warn   { fill: #d29922; }
+      .muted  { fill: #8b949e; }
+      .head   { fill: #79c0ff; font-weight: bold; }
+      .step   { fill: #c9d1d9; }
+      .done   { fill: #56d364; font-weight: bold; }
+      .next   { fill: #a5d6ff; }
+      .dim    { fill: #6e7681; }
+
+      /* Fade-in animation helper */
+      .l0  { animation: fi 0.3s 0.1s  both; }
+      .l1  { animation: fi 0.3s 0.5s  both; }
+      .l2  { animation: fi 0.3s 0.9s  both; }
+      .l3  { animation: fi 0.3s 1.2s  both; }
+      .l4  { animation: fi 0.3s 1.5s  both; }
+      .l5  { animation: fi 0.3s 1.8s  both; }
+      .l6  { animation: fi 0.3s 2.1s  both; }
+      .l7  { animation: fi 0.3s 2.4s  both; }
+      .l8  { animation: fi 0.3s 2.7s  both; }
+      .l9  { animation: fi 0.3s 3.0s  both; }
+      .l10 { animation: fi 0.3s 3.3s  both; }
+      .l11 { animation: fi 0.3s 3.6s  both; }
+      .l12 { animation: fi 0.3s 3.9s  both; }
+      .l13 { animation: fi 0.3s 4.2s  both; }
+      .l14 { animation: fi 0.3s 4.5s  both; }
+      .l15 { animation: fi 0.3s 4.8s  both; }
+      .l16 { animation: fi 0.3s 5.1s  both; }
+      .l17 { animation: fi 0.3s 5.4s  both; }
+      .l18 { animation: fi 0.3s 5.7s  both; }
+      .l19 { animation: fi 0.3s 6.0s  both; }
+      .l20 { animation: fi 0.3s 6.3s  both; }
+      .l21 { animation: fi 0.3s 6.6s  both; }
+      .l22 { animation: fi 0.3s 6.9s  both; }
+      .l23 { animation: fi 0.3s 7.2s  both; }
+      .l24 { animation: fi 0.3s 7.5s  both; }
+      .l25 { animation: fi 0.3s 7.8s  both; }
+      .l26 { animation: fi 0.3s 8.1s  both; }
+      .l27 { animation: fi 0.3s 8.4s  both; }
+      .l28 { animation: fi 0.3s 8.7s  both; }
+      .l29 { animation: fi 0.3s 9.0s  both; }
+      .l30 { animation: fi 0.3s 9.3s  both; }
+      .l31 { animation: fi 0.3s 9.6s  both; }
+      .l32 { animation: fi 0.3s 9.9s  both; }
+
+      @keyframes fi {
+        from { opacity: 0; transform: translateY(2px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Cursor blink */
+      .cursor { animation: blink 1s step-end 0.5s infinite; fill: #58a6ff; }
+      @keyframes blink { 50% { opacity: 0; } }
+    </style>
+  </defs>
+
+  <!-- Terminal window background -->
+  <rect width="720" height="480" rx="10" fill="#0d1117"/>
+
+  <!-- Title bar -->
+  <rect width="720" height="36" rx="10" fill="#161b22"/>
+  <rect width="720" height="10" y="26" fill="#161b22"/>
+  <!-- Traffic lights -->
+  <circle cx="20" cy="18" r="6" fill="#ff5f57"/>
+  <circle cx="40" cy="18" r="6" fill="#febc2e"/>
+  <circle cx="60" cy="18" r="6" fill="#28c840"/>
+  <!-- Title -->
+  <text x="360" y="23" text-anchor="middle" fill="#8b949e" font-size="12" font-family="sans-serif">multiagent-setup</text>
+
+  <!-- Terminal content -->
+  <g transform="translate(20, 60)">
+
+    <!-- Line 0: prompt + command -->
+    <g class="l0">
+      <text x="0" y="0" class="prompt">~ $</text>
+      <text x="28" y="0" class="cmd">multiagent-setup new MyApp --provider claude</text>
+    </g>
+
+    <!-- Line 1: blank -->
+
+    <!-- Line 2: header -->
+    <g class="l1">
+      <text x="0" y="22" class="head">multiagent-setup v1.10.0</text>
+    </g>
+    <g class="l2">
+      <text x="0" y="38" class="muted">  Project:  </text>
+      <text x="80" y="38" class="step">MyApp</text>
+    </g>
+    <g class="l3">
+      <text x="0" y="54" class="muted">  Provider: </text>
+      <text x="80" y="54" class="step">claude</text>
+    </g>
+
+    <!-- Line: preflight -->
+    <g class="l4">
+      <text x="0" y="78" class="muted">Pre-flight checks...</text>
+    </g>
+    <g class="l5">
+      <text x="0" y="94" class="ok">  ✓ git</text>
+    </g>
+    <g class="l6">
+      <text x="0" y="110" class="ok">  ✓ gh</text>
+    </g>
+    <g class="l7">
+      <text x="0" y="126" class="ok">  ✓ jq</text>
+    </g>
+    <g class="l8">
+      <text x="0" y="142" class="ok">  ✓ claude</text>
+    </g>
+
+    <!-- Creating workspace -->
+    <g class="l9">
+      <text x="0" y="166" class="muted">Creating workspace...</text>
+    </g>
+    <g class="l10">
+      <text x="0" y="182" class="muted">  Project:    </text>
+      <text x="94" y="182" class="step">MyApp</text>
+    </g>
+    <g class="l11">
+      <text x="0" y="198" class="muted">  GitHub org: </text>
+      <text x="94" y="198" class="step">myuser</text>
+    </g>
+    <g class="l12">
+      <text x="0" y="214" class="muted">  Target:     </text>
+      <text x="94" y="214" class="step">/home/myuser/MyApp</text>
+    </g>
+
+    <!-- OK statuses -->
+    <g class="l13">
+      <text x="0" y="238" class="ok">  ✓ templates extracted</text>
+    </g>
+    <g class="l14">
+      <text x="0" y="254" class="ok">  ✓ permissions set</text>
+    </g>
+    <g class="l15">
+      <text x="0" y="270" class="muted">  Cloning agency-agents...</text>
+    </g>
+    <g class="l16">
+      <text x="0" y="286" class="ok">  ✓ 24 roles synced to ~/.claude/commands/</text>
+    </g>
+    <g class="l17">
+      <text x="0" y="302" class="ok">  ✓ git initialized</text>
+    </g>
+
+    <!-- Done -->
+    <g class="l18">
+      <text x="0" y="326" class="done">Done! Workspace created at: /home/myuser/MyApp</text>
+    </g>
+
+    <!-- Next steps -->
+    <g class="l19">
+      <text x="0" y="350" class="dim">Next steps:</text>
+    </g>
+    <g class="l20">
+      <text x="0" y="366" class="dim">  1. </text>
+      <text x="28" y="366" class="next">cd MyApp</text>
+    </g>
+    <g class="l21">
+      <text x="0" y="382" class="dim">  2. Clone your code repo into code/MyApp</text>
+    </g>
+    <g class="l22">
+      <text x="0" y="398" class="dim">  5. Start working: </text>
+      <text x="130" y="398" class="next">claude</text>
+      <text x="175" y="398" class="dim"> then </text>
+      <text x="210" y="398" class="next">/orchestrator</text>
+      <text x="310" y="398" class="dim"> &lt;task&gt;</text>
+    </g>
+
+    <!-- New prompt with cursor -->
+    <g class="l23">
+      <text x="0" y="422" class="prompt">~ $</text>
+      <rect class="cursor" x="28" y="410" width="8" height="14"/>
+    </g>
+
+  </g>
+</svg>
