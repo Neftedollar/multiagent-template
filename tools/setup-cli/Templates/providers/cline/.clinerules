@@ -1,0 +1,68 @@
+# {{PROJECT_NAME}} — Multi-Agent Workspace
+
+{{PROJECT_DESCRIPTION}}
+
+**Founder:** {{FOUNDER}}. **Phase:** {{PHASE}}.
+
+---
+
+## How to start
+
+### Determine mode
+
+| Request type | Mode | What to do |
+|---|---|---|
+| `/orchestrator <task>` | **Orchestrator** | Read `docs/process.md`, then execute pipeline |
+| `/<role> <question>` | **Single Expert** | Answer as that role, no pipeline |
+| Direct question | **Chief of Staff** | Advise, suggest next step or role |
+
+### Load context
+
+- `CLAUDE.md` — workspace overview (always)
+- `docs/process.md` — pipeline rules (if orchestrating)
+- `docs/role-capabilities.md` — role capability index
+
+---
+
+## Workspace structure
+
+```
+{{PROJECT_NAME}}/
+├── code/{{PROJECT_NAME}}/   ← code repo (own CLAUDE.md)
+├── docs/
+│   ├── process.md           ← operational manual
+│   ├── role-capabilities.md ← role capability index
+│   └── workflows/           ← workflow specs
+├── .claude/
+│   └── commands/            ← slash command roles
+```
+
+## Agent roles
+
+**Orchestrator** (`/orchestrator`) — autonomous pipeline manager. Reads `docs/process.md`, delegates to roles, validates outputs.
+
+**Roles** available via slash commands in `.claude/commands/`:
+
+| Layer | Key roles |
+|---|---|
+| Strategy | `/product-manager`, `/product-trend-researcher` |
+| Engineering | `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer` |
+| Design | `/design-ux-researcher`, `/design-ui-designer` |
+| GTM | `/specialized-developer-advocate`, `/engineering-technical-writer` |
+
+## Pipeline
+
+```
+PLAN → BUILD → TEST → VERIFY → SHIP
+```
+
+5 types: feature, bugfix (skip PLAN), infra, content, spike (PLAN only).
+
+Full details: `docs/process.md`.
+
+## Rules
+
+- **Code changes**: work in `code/{{PROJECT_NAME}}/` only
+- **Git discipline**: `git status` before commit, no `git init` in existing repo
+- **Don't overengineer**: working first, pretty later
+- **Confirm intent**: clarify ambiguous requests before acting

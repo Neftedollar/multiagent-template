@@ -48,6 +48,8 @@ _multiagent_setup() {
     'cursor:Cursor IDE'
     'windsurf:Windsurf IDE by Codeium'
     'copilot:GitHub Copilot in VS Code'
+    'cline:Cline extension for VS Code'
+    'aider:Aider AI pair programmer'
     'all:All providers at once'
   )
   hooks=(
