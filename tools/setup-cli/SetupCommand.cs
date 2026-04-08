@@ -296,14 +296,23 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static async Task GitInitAsync(string root)
     {
         Console.WriteLine("Initializing git...");
-        await ProcessHelper.RunAsync("git", ["init", "-q"], workingDir: root, captureOutput: true);
+
+        var (initCode, _, initErr) = await ProcessHelper.RunAsync(
+            "git", ["init", "-q"], workingDir: root, captureOutput: true);
+        if (initCode != 0) throw new InvalidOperationException($"git init failed: {initErr}");
+
         await File.WriteAllTextAsync(
             Path.Combine(root, ".gitignore"),
             "code/\n*.png\n.DS_Store\n.claude/settings.local.json\n");
-        await ProcessHelper.RunAsync("git", ["add", "-A"], workingDir: root, captureOutput: true);
-        await ProcessHelper.RunAsync("git",
-            ["commit", "-q", "-m", "init: multi-agent workspace from template"],
+
+        var (addCode, _, addErr) = await ProcessHelper.RunAsync(
+            "git", ["add", "-A"], workingDir: root, captureOutput: true);
+        if (addCode != 0) throw new InvalidOperationException($"git add failed: {addErr}");
+
+        var (commitCode, _, commitErr) = await ProcessHelper.RunAsync(
+            "git", ["commit", "-q", "-m", "init: multi-agent workspace from template"],
             workingDir: root, captureOutput: true);
+        if (commitCode != 0) throw new InvalidOperationException($"git commit failed: {commitErr}");
     }
 
     // ── Zsh completions ───────────────────────────────────────────────────────
