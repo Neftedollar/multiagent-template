@@ -50,6 +50,7 @@ _multiagent_setup() {
     'copilot:GitHub Copilot in VS Code'
     'cline:Cline extension for VS Code'
     'aider:Aider AI pair programmer'
+    'continue:Continue.dev VS Code/JetBrains extension'
     'all:All providers at once'
   )
   hooks=(

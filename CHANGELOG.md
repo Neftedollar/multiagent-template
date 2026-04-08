@@ -6,6 +6,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.18.0] — 2026-04-09
+
+### Added
+- **Continue.dev provider** (`--provider continue` / `add-provider continue`) — generates `.continue/config.yaml` with custom `/orchestrator` and `/expert` slash commands and workspace rules; works with VS Code and JetBrains via the Continue extension
+
+---
+
 ## [1.17.0] — 2026-04-09
 
 ### Added
