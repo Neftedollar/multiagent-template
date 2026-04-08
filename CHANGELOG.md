@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.15.1] — 2026-04-09
+
+### Fixed
+- `update`: Cursor `.mdc` files were being written as binary — `IsTextResource` was missing `.mdc` extension in `UpdateCommand`
+
+### Changed
+- `IsTextResource` extracted to shared `TemplateResources` helper — removes duplication across `SetupCommand`, `AddProviderCommand`, `UpdateCommand`
+
+---
+
 ## [1.15.0] — 2026-04-09
 
 ### Fixed
@@ -176,7 +186,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.1...HEAD
+[1.15.1]: https://github.com/Neftedollar/multiagent-template/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...v1.13.0
