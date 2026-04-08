@@ -236,6 +236,7 @@ multiagent-setup update [--force]                    # update workspace template
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
 multiagent-setup hook <name>
+multiagent-setup doctor                              # check workspace for common config issues
 multiagent-setup -v | --version
 ```
 

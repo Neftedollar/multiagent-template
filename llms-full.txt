@@ -103,6 +103,14 @@ Runs a compiled safety hook. All hooks are baked into the binary (no shell scrip
 - `stop-guard` — on session end, reminds to run tests and update knowledge graph
 - `research-reminder` — after web search, reminds to persist findings in O'Brien memory
 
+### `doctor` — Workspace health check
+
+```bash
+multiagent-setup doctor
+```
+
+Checks the current workspace for common configuration issues: missing required files, undetected providers, hook configuration problems, and missing binaries. Run after `update` or when something seems wrong.
+
 ## Supported Providers
 
 ### Terminal agents (CLI-based)
