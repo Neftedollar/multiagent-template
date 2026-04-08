@@ -53,9 +53,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  OK: permissions set");
         }
 
-        foreach (var p in providers)
-            await SetupAgencyRolesAsync(targetDir, p);
-        
+        if (providers.Any(p => p is "claude" or "nessy"))
+            await SetupAgencyRolesAsync(targetDir);
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
 
@@ -273,10 +272,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
     // ── Agency-agents + role sync ─────────────────────────────────────────────
 
-    private static async Task SetupAgencyRolesAsync(string workspaceRoot, string provider = "claude")
+    private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir, provider).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────
