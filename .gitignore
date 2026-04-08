@@ -3,4 +3,8 @@ code/
 .DS_Store
 .claude/settings.local.json
 .claude/agent-log.jsonl
+.claude/scheduled_tasks.lock
 tools/agency-agents/
+agency-agents/
+hook/
+my-mcps/
