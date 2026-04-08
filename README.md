@@ -110,19 +110,23 @@ Each step ends with a gate: `APPROVED` — proceed; `NEEDS WORK` — agent retri
 
 ```
 MyProject/
+├── CLAUDE.md / AGENTS.md / GEMINI.md / QWEN.md  <- workspace context (per provider)
 ├── code/                    <- product repo (git-ignored)
 ├── docs/
 │   ├── process.md           <- operational manual (pipeline source of truth)
 │   ├── role-capabilities.md <- role index for orchestrator
 │   └── workflows/           <- pipeline specs (WORKFLOW-*.md)
-├── .claude/                 <- Claude / Nessy config
+├── .claude/                 <- Claude / Nessy / Gemini config
 │   ├── commands/            <- slash-command roles (synced from agency-agents)
 │   ├── hooks/lint.json      <- auto-lint formatter config
 │   ├── mcp.json             <- MCP server config
 │   └── settings.json        <- hook configuration
-├── .gemini/                 <- Gemini CLI config (--provider gemini)
+├── .gemini/                 <- Gemini CLI extra config
 │   └── settings.json
 ├── .codex/                  <- Codex config (--provider codex)
+│   └── skills/              <- Codex skills (orchestrator pre-loaded)
+├── .qwen/                   <- Qwen Code config (--provider qwen)
+│   └── commands/            <- Qwen commands (orchestrator pre-loaded)
 └── tools/
     ├── completions.zsh      <- zsh completions
     └── completions.ps1      <- PowerShell completions
