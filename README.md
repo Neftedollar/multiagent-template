@@ -22,17 +22,22 @@ Already have git, gh, jq, and .NET 10 installed?
 
 ```bash
 dotnet tool install -g multiagent-setup
-multiagent-setup new MyProject                      # Claude (default)
-multiagent-setup new MyProject --provider codex     # OpenAI Codex
-multiagent-setup new MyProject --provider qwen      # Qwen Code
-multiagent-setup new MyProject --provider all       # all providers at once
+multiagent-setup new MyProject                       # Claude (default)
+multiagent-setup new MyProject --provider nessy      # Nessy CLI (Claude alias)
+multiagent-setup new MyProject --provider codex      # OpenAI Codex
+multiagent-setup new MyProject --provider qwen       # Qwen Code
+multiagent-setup new MyProject --provider cursor     # Cursor IDE
+multiagent-setup new MyProject --provider windsurf   # Windsurf IDE
+multiagent-setup new MyProject --provider copilot    # GitHub Copilot
+multiagent-setup new MyProject --provider all        # all providers at once
 ```
 
 Then start working:
 
 ```bash
 cd MyProject
-claude          # or: codex / qwen-code
+claude          # or: nessy / codex / qwen-code (terminal agents)
+                # or open in Cursor / Windsurf / VS Code (IDE agents)
 /orchestrator Implement user authentication with JWT
 ```
 
@@ -59,13 +64,17 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 
 ## Supported Providers
 
-| Provider | Binary | Notes |
-|----------|--------|-------|
+| Provider | Binary / Tool | Notes |
+|----------|---------------|-------|
 | **claude** | `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — default |
+| **nessy** | `nessy` | [Nessy CLI](https://nessy.ai) — Claude-compatible alias |
 | **codex** | `codex` | [OpenAI Codex CLI](https://github.com/openai/codex) |
 | **qwen** | `qwen-code` | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
+| **cursor** | [Cursor](https://cursor.com) IDE | Rules placed in `.cursor/rules/` (MDC format) |
+| **windsurf** | [Windsurf](https://windsurf.com) IDE | Rules placed in `.windsurf/rules/` (Wave 8+) |
+| **copilot** | GitHub Copilot | Reads `.github/copilot-instructions.md` |
 
-> **Coming in v1.9.0:** Gemini CLI and Nessy provider support, plus `add-provider` to extend existing workspaces.
+Use `--provider all` to scaffold all terminal-agent providers (claude + nessy + codex + qwen + cursor + windsurf + copilot).
 
 ---
 
@@ -175,7 +184,7 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|codex|qwen|all]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|all]
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
 multiagent-setup hook <name>
