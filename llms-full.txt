@@ -66,9 +66,10 @@ Syncs the latest agent role files from [agency-agents](https://github.com/msitar
 
 ```bash
 multiagent-setup add-provider <provider> [--force]
+multiagent-setup add-provider all [--force]
 ```
 
-Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch.
+Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini).
 
 ### `update` — Update workspace templates to latest version
 
