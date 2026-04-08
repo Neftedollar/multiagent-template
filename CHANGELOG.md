@@ -6,6 +6,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.11.0] — 2026-04-08
+
+### Added
+- `AGENTS.md` workspace context template for OpenAI Codex CLI — parallel to `CLAUDE.md`, `GEMINI.md`, `QWEN.md`
+- README: "What you get in 5 minutes" summary block in Quick Start
+- README: `> Recommended:` bootstrap callout, "Best for" column in provider table, existing-project clone example
+- `docs/marketing/` — dev.to article draft, HN launch post, Twitter/X thread outline
+- `docs/demo.svg` — animated terminal demo SVG embedded in README
+- CI build status badge in README
+- Corrected `add-provider` CLI syntax in `llms.txt` and `llms-full.txt`
+
+---
+
 ## [1.10.0] — 2026-04-08
 
 ### Added
@@ -125,7 +138,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.7.0...v1.8.0
