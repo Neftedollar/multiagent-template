@@ -47,7 +47,9 @@
     <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
 
     <!-- Provider: Qwen -->
+    <EmbeddedResource Include="Templates/providers/qwen/QWEN.md" LogicalName="providers/qwen/QWEN.md" />
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
+    <EmbeddedResource Include="Templates/providers/qwen/.qwen/commands/orchestrator.md" LogicalName="providers/qwen/.qwen/commands/orchestrator.md" />
 
     <!-- Provider: Gemini -->
     <EmbeddedResource Include="Templates/providers/gemini/.gemini/settings.json" LogicalName="providers/gemini/.gemini/settings.json" />

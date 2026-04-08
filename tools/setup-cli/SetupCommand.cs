@@ -78,7 +78,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (providers.Contains("codex"))
             Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
         if (providers.Contains("qwen"))
-            Console.WriteLine($"  5. Start working: qwen-code");
+            Console.WriteLine($"  5. Start working: qwen-code then /orchestrator <task>");
         if (providers.Contains("gemini"))
             Console.WriteLine($"  5. Start working: gemini then /orchestrator <task>");
         Console.WriteLine();
@@ -173,7 +173,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (providers.Contains("codex"))
             Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
         if (providers.Contains("qwen"))
-            Directory.CreateDirectory(Path.Combine(root, ".qwen"));
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".qwen", "commands"));
+        }
         if (providers.Contains("gemini"))
         {
             Directory.CreateDirectory(Path.Combine(root, ".gemini"));
