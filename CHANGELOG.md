@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.12.0] — 2026-04-08
+
+### Fixed
+- `add-provider`: `GITHUB_ORG` and `GITHUB_REPO` now parsed from existing `CLAUDE.md` instead of defaulting to `Environment.UserName` — provider files now contain the correct GitHub org
+- `new`: `GitInitAsync` now checks exit codes for `git init`, `git add`, and `git commit`; errors are surfaced to the user instead of silently ignored
+- `add-provider`: workspace detection now requires both `CLAUDE.md` and `docs/process.md` to avoid false-positive matches
+
+---
+
 ## [1.11.0] — 2026-04-08
 
 ### Added
@@ -138,7 +147,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.8.0...v1.9.0
