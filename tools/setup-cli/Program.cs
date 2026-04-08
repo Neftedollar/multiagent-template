@@ -13,6 +13,7 @@ if (args[0] is "-v" or "--version")
 return args[0] switch
 {
     "new"           => await HandleNew(args[1..]),
+    "add-provider"  => await HandleAddProvider(args[1..]),
     "sync-roles"    => await HandleSyncRoles(args[1..]),
     "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
     "hook"          => await HandleHook(args[1..]),
@@ -36,11 +37,26 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "all"];
+    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "all"];
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, all");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
+}
+
+async Task<int> HandleAddProvider(string[] a)
+{
+    var provider = a.ElementAtOrDefault(0);
+    if (provider is null || provider.StartsWith('-'))
+        return PrintUsage(error: "provider name is required");
+
+    bool force = a.Contains("--force");
+
+    string[] validProviders = ["nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini"];
+    if (!validProviders.Contains(provider))
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini");
+
+    return await new AddProviderCommand(provider, force).ExecuteAsync();
 }
 
 async Task<int> HandleHook(string[] a)
@@ -52,17 +68,11 @@ async Task<int> HandleHook(string[] a)
 
 async Task<int> HandleSyncRoles(string[] a)
 {
-    var action     = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
-    string? agDir  = null;
-    string  provider = "claude";
-    
+    var action = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "";
+    string? agDir = null;
     for (int i = 0; i < a.Length - 1; i++)
-    {
         if (a[i] == "--agency-dir") agDir = a[i + 1];
-        if (a[i] == "--provider" && i + 1 < a.Length) provider = a[++i];
-    }
-    
-    return await new SyncRolesCommand(action, agDir, provider).ExecuteAsync();
+    return await new SyncRolesCommand(action, agDir).ExecuteAsync();
 }
 
 static int PrintUsage(string? error = null)
@@ -72,9 +82,11 @@ static int PrintUsage(string? error = null)
     Console.WriteLine();
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
-    Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen, cursor, windsurf, copilot, all");
+    Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen,");
+    Console.WriteLine("                                               cursor, windsurf, copilot, gemini, all");
+    Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
+    Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
-    Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
     Console.WriteLine("    --docker                          Use local Docker (default, interactive)");

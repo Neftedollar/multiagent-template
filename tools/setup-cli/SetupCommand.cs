@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot" }
+            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini" }
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -84,6 +84,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine($"       windsurf      → open {targetDir}, rules load automatically");
         if (providers.Contains("copilot"))
             Console.WriteLine($"       copilot       → open {targetDir} in VS Code, reads .github/copilot-instructions.md");
+        if (providers.Contains("gemini"))
+            Console.WriteLine($"       gemini        → /orchestrator <task>");
         Console.WriteLine();
         return 0;
     }
@@ -96,7 +98,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ok &= Require("git", macOs: "brew install git",      win: "winget install Git.Git");
         ok &= Require("jq",  macOs: "brew install jq",       win: "winget install jqlang.jq");
         ok &= Require("gh",  macOs: "brew install gh",        win: "winget install GitHub.cli");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot" } : new[] { provider };
+        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
         if (providers.Contains("nessy"))
@@ -111,6 +113,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  INFO: windsurf — IDE tool, install from https://windsurf.com");
         if (providers.Contains("copilot"))
             Console.WriteLine("  INFO: copilot — GitHub Copilot, install VS Code extension");
+        if (providers.Contains("gemini"))
+            Suggest("gemini",     "https://ai.google.dev/gemini-api/docs/gemini-cli");
         Console.WriteLine();
         return ok;
     }
@@ -183,6 +187,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Directory.CreateDirectory(Path.Combine(root, ".windsurf", "rules"));
         if (providers.Contains("copilot"))
             Directory.CreateDirectory(Path.Combine(root, ".github"));
+        if (providers.Contains("gemini"))
+            Directory.CreateDirectory(Path.Combine(root, ".gemini"));
     }
 
     // ── Template extraction ───────────────────────────────────────────────────
@@ -250,6 +256,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
 
         if (resourceName.StartsWith("providers/copilot/"))
             return providers.Contains("copilot") ? resourceName["providers/copilot/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/gemini/"))
+            return providers.Contains("gemini") ? resourceName["providers/gemini/".Length..] : null;
 
         // Shared (CLAUDE.md, docs/, tools/)
         return resourceName;
