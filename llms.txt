@@ -1,6 +1,6 @@
 # multiagent-template
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 8 coding agent providers.
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 10 coding agent providers.
 
 ## Project
 
@@ -33,6 +33,8 @@ multiagent-setup new MyProject
 - **Cursor** (`cursor`) — Cursor IDE; rules injected via `.cursor/rules/` (MDC format)
 - **Windsurf** (`windsurf`) — Windsurf IDE by Codeium; rules via `.windsurf/rules/`
 - **Copilot** (`copilot`) — GitHub Copilot in VS Code; instructions via `.github/copilot-instructions.md`
+- **Cline** (`cline`) — Cline and Roo Code VS Code extension; rules via `.clinerules`
+- **Aider** (`aider`) — Aider AI pair programmer; config via `.aider.conf.yml` (auto-reads CLAUDE.md)
 
 Use `--provider all` to scaffold all providers at once, `add-provider <name>` (or `add-provider all`) to add providers to an existing workspace, or `update` to pull the latest templates into an existing workspace.
 
