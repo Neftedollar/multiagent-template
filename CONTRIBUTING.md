@@ -40,20 +40,41 @@ ls ../TestProject   # inspect generated workspace
 
 ### Adding a new provider
 
-1. Create `tools/setup-cli/Templates/providers/<name>/` with:
-   - `<NAME>.md` — workspace context file (adapt from `CLAUDE.md`)
-   - `.<name>/settings.json` — hook configuration
-   - `.<name>/commands/orchestrator.md` — orchestrator skill (adapt from Codex/Qwen)
-2. Register the template files as `EmbeddedResource` in `MultiagentSetup.csproj`
-3. Add the provider to `validProviders` in `Program.cs` (both `HandleNew` and `HandleAddProvider`)
-4. Handle directory creation in `SetupCommand.CreateDirectories`
-5. Handle template extraction in `SetupCommand.ResolveOutputPath`
-6. Add pre-flight check in `SetupCommand.CheckTools`
-7. Handle directory creation in `AddProviderCommand.CreateProviderDirectories`
-8. Handle template extraction in `AddProviderCommand.ResolveProviderOutputPath`
-9. Add provider detection in `UpdateCommand.DetectProviders`
-10. Handle template extraction in `UpdateCommand.ResolveOutputPath`
-11. Update zsh and PowerShell completions in `Templates/tools/`
+As of v1.23.0 all routing is table-driven. Adding a 13th provider is three steps:
+
+1. **Add a `ProviderDef` entry** in `tools/setup-cli/ProviderRegistry.cs`:
+   ```csharp
+   new ProviderDef(
+       Name:             "myprovider",
+       TemplatePrefix:   "providers/myprovider/",
+       Directories:      [".myprovider/rules"],
+       Detection:        DetectionHint.ByDir(".myprovider/rules"),
+       ToolCheck:        ToolCheckMode.Suggest,
+       BinaryName:       "myprovider",
+       InstallHint:      "https://example.com/install",
+       NextStepTemplate: "  Open MyProvider in {cwd}",
+       IncludedInAll:    true
+   ),
+   ```
+   Fields:
+   - `TemplatePrefix` — embedded resource prefix that maps to output path (e.g. `"providers/myprovider/"` → strips prefix, writes remainder to workspace root)
+   - `Directories` — subdirectories to create at workspace creation time (can be `[]`)
+   - `Detection` — `DetectionHint.ByFile("path")`, `ByDir("path")`, or `Never` (for the `update` command)
+   - `ToolCheck` — `Suggest` (warns if binary not on PATH), `Info` (prints info line), or `None`
+   - `IncludedInAll` — whether `--provider all` includes this provider (`false` for aliases like nessy)
+
+2. **Create template files** in `tools/setup-cli/Templates/providers/myprovider/`:
+   - Adapt context/rules files from an existing similar provider (e.g. Roo Code or Cline)
+   - Format depends on the agent: MDC rules, YAML config, plain Markdown, TOML, etc.
+
+3. **Register as `EmbeddedResource`** in `MultiagentSetup.csproj`:
+   ```xml
+   <!-- Provider: MyProvider -->
+   <EmbeddedResource Include="Templates/providers/myprovider/.myprovider/rules/workspace.md"
+                     LogicalName="providers/myprovider/.myprovider/rules/workspace.md" />
+   ```
+
+That's it — `SetupCommand`, `AddProviderCommand`, `UpdateCommand`, `Program.cs`, and the completions scripts all pick up the new provider automatically via `ProviderRegistry.All`.
 
 ### Templates
 
