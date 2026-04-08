@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# LLM crawlers — see llms.txt for structured project context
+# https://llmstxt.org/
+Sitemap: https://neftedollar.com/multiagent-template/sitemap.xml
