@@ -53,6 +53,12 @@ claude          # or: nessy / codex / qwen-code / gemini (terminal agents)
 /orchestrator Implement user authentication with JWT
 ```
 
+**What you get in 5 minutes:**
+- A workspace where agents run `PLAN → BUILD → TEST → VERIFY → SHIP` autonomously
+- 20+ specialist roles installed in `~/.claude/commands/` — orchestrator, architect, developer, reviewer, DevOps, designer, and more
+- Safety hooks active: dangerous commands blocked, commits enforced as conventional, files auto-linted on save
+- One human touchpoint: review and merge the PR when the pipeline finishes
+
 ---
 
 ## Why multiagent-template?
