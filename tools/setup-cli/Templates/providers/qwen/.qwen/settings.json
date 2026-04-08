@@ -1,3 +1,50 @@
 {
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_bash_command|execute_bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook block-dangerous"
+          },
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook enforce-commit-msg"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "write_file|replace_in_file|create_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook auto-lint"
+          }
+        ]
+      },
+      {
+        "matcher": "web_search|web_fetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook research-reminder"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOOK_EXEC}} hook stop-guard"
+          }
+        ]
+      }
+    ]
+  },
   "mcpServers": {}
 }

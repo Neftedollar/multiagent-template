@@ -70,7 +70,7 @@ if (-not (Has "dotnet")) {
     } else {
         $script = "$env:TEMP\dotnet-install.ps1"
         Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile $script -UseBasicParsing
-        & $script -Channel LTS
+        & $script -Channel 10.0
         $env:PATH += ";$env:LOCALAPPDATA\Microsoft\dotnet"
     }
 }

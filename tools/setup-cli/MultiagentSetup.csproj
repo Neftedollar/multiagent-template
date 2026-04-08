@@ -7,10 +7,10 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.8.0</Version>
-    <Description>Scaffold a multi-agent Claude Code workspace from template</Description>
+    <Version>1.9.0</Version>
+    <Description>Scaffold a multi-agent AI workspace with a full team of specialized agents, safety hooks, and a PLAN→BUILD→TEST→VERIFY→SHIP pipeline. Supports Claude, Gemini, Codex, Qwen, and Nessy.</Description>
     <Authors>Roman Melnikov</Authors>
-    <PackageTags>claude;ai;multiagent;workspace</PackageTags>
+    <PackageTags>claude;gemini;codex;qwen;ai;multiagent;workspace;agents;orchestrator;developer-tools</PackageTags>
     <AssemblyName>MultiagentSetup</AssemblyName>
     <RootNamespace>MultiagentSetup</RootNamespace>
   </PropertyGroup>
@@ -41,12 +41,15 @@
     <EmbeddedResource Include="Templates/.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json" />
 
     <!-- Provider: Codex -->
+    <EmbeddedResource Include="Templates/providers/codex/AGENTS.md" LogicalName="providers/codex/AGENTS.md" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/hooks.json" LogicalName="providers/codex/.codex/hooks.json" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
 
     <!-- Provider: Qwen -->
+    <EmbeddedResource Include="Templates/providers/qwen/QWEN.md" LogicalName="providers/qwen/QWEN.md" />
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
+    <EmbeddedResource Include="Templates/providers/qwen/.qwen/commands/orchestrator.md" LogicalName="providers/qwen/.qwen/commands/orchestrator.md" />
 
     <!-- Provider: Gemini -->
     <EmbeddedResource Include="Templates/providers/gemini/.gemini/settings.json" LogicalName="providers/gemini/.gemini/settings.json" />

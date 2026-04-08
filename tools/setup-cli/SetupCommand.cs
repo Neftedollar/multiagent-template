@@ -53,7 +53,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine("  OK: permissions set");
         }
 
-        if (providers.Contains("claude") || providers.Contains("nessy"))
+        if (providers.Contains("claude") || providers.Contains("nessy") || providers.Contains("gemini"))
             await SetupAgencyRolesAsync(targetDir);
         await GitInitAsync(targetDir);
         Console.WriteLine("  OK: git initialized");
@@ -78,7 +78,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (providers.Contains("codex"))
             Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
         if (providers.Contains("qwen"))
-            Console.WriteLine($"  5. Start working: qwen-code");
+            Console.WriteLine($"  5. Start working: qwen-code then /orchestrator <task>");
         if (providers.Contains("gemini"))
             Console.WriteLine($"  5. Start working: gemini then /orchestrator <task>");
         Console.WriteLine();
@@ -173,7 +173,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (providers.Contains("codex"))
             Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
         if (providers.Contains("qwen"))
-            Directory.CreateDirectory(Path.Combine(root, ".qwen"));
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".qwen", "commands"));
+        }
         if (providers.Contains("gemini"))
         {
             Directory.CreateDirectory(Path.Combine(root, ".gemini"));
@@ -231,7 +233,8 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
-            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null; // nessy intentionally reuses claude templates
+            // nessy reuses claude config; gemini also reads from .claude/commands/ for slash commands
+            return (providers.Contains("claude") || providers.Contains("nessy") || providers.Contains("gemini")) ? resourceName : null;
 
         if (resourceName.StartsWith("providers/codex/"))
             return providers.Contains("codex") ? resourceName["providers/codex/".Length..] : null;
