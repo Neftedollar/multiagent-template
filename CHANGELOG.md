@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.21.0] — 2026-04-09
+
+### Fixed
+- `update` command now detects and re-extracts templates for **Cline**, **Aider**, **Continue.dev**, and **Roo Code** providers (previously silently skipped)
+- `update` command now re-extracts `.github/workflows/orchestrator.yml` for claude/nessy workspaces
+
+---
+
 ## [1.20.0] — 2026-04-09
 
 ### Added
