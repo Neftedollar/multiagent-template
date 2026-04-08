@@ -8,6 +8,10 @@ Scaffold a multi-agent AI workspace where a team of specialized agents — orche
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Neftedollar/multiagent-template?style=social)](https://github.com/Neftedollar/multiagent-template)
 
+<p align="center">
+  <img src="docs/demo.svg" alt="multiagent-setup demo" width="700"/>
+</p>
+
 ---
 
 ## Why multiagent-template?
