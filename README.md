@@ -39,6 +39,8 @@ multiagent-setup new MyProject --provider cursor     # Cursor IDE
 multiagent-setup new MyProject --provider windsurf   # Windsurf IDE
 multiagent-setup new MyProject --provider copilot    # GitHub Copilot
 multiagent-setup new MyProject --provider gemini     # Google Gemini CLI
+multiagent-setup new MyProject --provider cline      # Cline / Roo Code (VS Code)
+multiagent-setup new MyProject --provider aider      # Aider AI pair programmer
 multiagent-setup new MyProject --provider all        # all providers at once
 
 # Add a provider to an existing workspace (no need to recreate)
@@ -99,8 +101,10 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | **cursor** | [Cursor](https://cursor.com) IDE | IDE-first workflows | Rules in `.cursor/rules/` (MDC format) |
 | **windsurf** | [Windsurf](https://windsurf.com) IDE | IDE-first + Codeium users | Rules in `.windsurf/rules/` (Wave 8+) |
 | **copilot** | GitHub Copilot | VS Code + GitHub users | Reads `.github/copilot-instructions.md` |
+| **cline** | [Cline](https://github.com/cline/cline) / Roo Code | VS Code extension users | Creates `.clinerules` in project root |
+| **aider** | [Aider](https://aider.chat) | Terminal pair programming | Creates `.aider.conf.yml` — auto-reads CLAUDE.md |
 
-Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini).
+Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider).
 
 ---
 
@@ -219,7 +223,7 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|all]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|all]
 multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
 multiagent-setup update [--force]                    # update workspace templates to latest version
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
