@@ -149,6 +149,9 @@ MyProject/
 │   ├── hooks/lint.json      <- auto-lint formatter config
 │   ├── mcp.json             <- MCP server config
 │   └── settings.json        <- hook configuration
+├── .github/
+│   └── workflows/
+│       └── orchestrator.yml <- run orchestrator in CI (claude/nessy providers)
 ├── .codex/                  <- Codex config (--provider codex)
 │   └── skills/              <- orchestrator skill pre-loaded
 └── tools/
