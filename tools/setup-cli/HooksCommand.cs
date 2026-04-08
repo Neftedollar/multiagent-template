@@ -97,9 +97,14 @@ public sealed class HooksCommand(string hookName)
 
     private static string ExtractCommitMessage(string cmd)
     {
-        var m = Regex.Match(cmd, @"-m\s+""([^""]+)""");
+        // -m "..." or --message "..."
+        var m = Regex.Match(cmd, @"(?:-m|--message)[= ]+""([^""]+)""");
         if (m.Success) return m.Groups[1].Value;
-        m = Regex.Match(cmd, @"-m\s+'([^']+)'");
+        // -m '...' or --message '...'
+        m = Regex.Match(cmd, @"(?:-m|--message)[= ]+'([^']+)'");
+        if (m.Success) return m.Groups[1].Value;
+        // --message=value (no quotes)
+        m = Regex.Match(cmd, @"--message=(\S+)");
         if (m.Success) return m.Groups[1].Value;
         // heredoc with literal \n
         return cmd.Replace("\\n", "\n")
