@@ -142,7 +142,7 @@ $ARGUMENTS
         if (skipped > 0) Console.WriteLine($"Skipped {skipped} (project-level override exists)");
         Console.WriteLine();
         Console.WriteLine("Check for new roles periodically:");
-        Console.WriteLine($"  multiagent-setup sync-roles --pull --provider {provider}");
+        Console.WriteLine("  multiagent-setup sync-roles --pull");
         return 0;
     }
 

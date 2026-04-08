@@ -36,9 +36,9 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    string[] validProviders = ["claude", "codex", "qwen", "all"];
+    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "all"];
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, codex, qwen, all");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, all");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
@@ -72,7 +72,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine();
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
-    Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, all");
+    Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen, cursor, windsurf, copilot, all");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
     Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");

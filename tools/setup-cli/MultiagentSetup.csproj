@@ -8,9 +8,9 @@
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
     <Version>1.9.0</Version>
-    <Description>Scaffold a multi-agent AI workspace (Claude Code, Nessy CLI, Codex, Qwen)</Description>
+    <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Codex, Qwen, Cursor, Windsurf, GitHub Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
-    <PackageTags>claude;ai;multiagent;workspace;nessy</PackageTags>
+    <PackageTags>claude;nessy;codex;qwen;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
     <AssemblyName>MultiagentSetup</AssemblyName>
     <RootNamespace>MultiagentSetup</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -52,6 +52,17 @@
 
     <!-- Provider: Qwen -->
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
+
+    <!-- Provider: Cursor -->
+    <EmbeddedResource Include="Templates/providers/cursor/.cursor/rules/workspace.mdc" LogicalName="providers/cursor/.cursor/rules/workspace.mdc" />
+    <EmbeddedResource Include="Templates/providers/cursor/.cursor/rules/orchestrator.mdc" LogicalName="providers/cursor/.cursor/rules/orchestrator.mdc" />
+
+    <!-- Provider: Windsurf -->
+    <EmbeddedResource Include="Templates/providers/windsurf/.windsurf/rules/workspace.md" LogicalName="providers/windsurf/.windsurf/rules/workspace.md" />
+    <EmbeddedResource Include="Templates/providers/windsurf/.windsurf/rules/orchestrator.md" LogicalName="providers/windsurf/.windsurf/rules/orchestrator.md" />
+
+    <!-- Provider: GitHub Copilot -->
+    <EmbeddedResource Include="Templates/providers/copilot/.github/copilot-instructions.md" LogicalName="providers/copilot/.github/copilot-instructions.md" />
 
     <!-- Tool scripts -->
     <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />

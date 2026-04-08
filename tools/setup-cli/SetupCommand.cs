@@ -38,7 +38,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine();
 
         var providers = provider == "all"
-            ? new[] { "claude", "codex", "qwen" }
+            ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot" }
             : new[] { provider };
 
         CreateDirectories(targetDir, providers);
@@ -77,6 +77,12 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Console.WriteLine($"       codex         → /orchestrator <task>");
         if (providers.Contains("qwen"))
             Console.WriteLine($"       qwen-code     → /orchestrator <task>");
+        if (providers.Contains("cursor"))
+            Console.WriteLine($"       cursor        → open {targetDir}, rules load automatically");
+        if (providers.Contains("windsurf"))
+            Console.WriteLine($"       windsurf      → open {targetDir}, rules load automatically");
+        if (providers.Contains("copilot"))
+            Console.WriteLine($"       copilot       → open {targetDir} in VS Code, reads .github/copilot-instructions.md");
         Console.WriteLine();
         return 0;
     }
@@ -89,13 +95,19 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ok &= Require("git", macOs: "brew install git",      win: "winget install Git.Git");
         ok &= Require("jq",  macOs: "brew install jq",       win: "winget install jqlang.jq");
         ok &= Require("gh",  macOs: "brew install gh",        win: "winget install GitHub.cli");
-        var providers = provider == "all" ? new[] { "claude", "codex", "qwen" } : new[] { provider };
+        var providers = provider == "all" ? new[] { "claude", "codex", "qwen", "cursor", "windsurf", "copilot" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
         if (providers.Contains("codex"))
             Suggest("codex",      "https://github.com/openai/codex");
         if (providers.Contains("qwen"))
             Suggest("qwen-code",  "https://github.com/QwenLM/qwen-code");
+        if (providers.Contains("cursor"))
+            Console.WriteLine("  INFO: cursor — IDE tool, install from https://cursor.com");
+        if (providers.Contains("windsurf"))
+            Console.WriteLine("  INFO: windsurf — IDE tool, install from https://windsurf.com");
+        if (providers.Contains("copilot"))
+            Console.WriteLine("  INFO: copilot — GitHub Copilot, install VS Code extension");
         Console.WriteLine();
         return ok;
     }
@@ -162,6 +174,12 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
         if (providers.Contains("qwen"))
             Directory.CreateDirectory(Path.Combine(root, ".qwen"));
+        if (providers.Contains("cursor"))
+            Directory.CreateDirectory(Path.Combine(root, ".cursor", "rules"));
+        if (providers.Contains("windsurf"))
+            Directory.CreateDirectory(Path.Combine(root, ".windsurf", "rules"));
+        if (providers.Contains("copilot"))
+            Directory.CreateDirectory(Path.Combine(root, ".github"));
     }
 
     // ── Template extraction ───────────────────────────────────────────────────
@@ -221,12 +239,22 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (resourceName.StartsWith("providers/qwen/"))
             return providers.Contains("qwen")  ? resourceName["providers/qwen/".Length..]  : null;
 
+        if (resourceName.StartsWith("providers/cursor/"))
+            return providers.Contains("cursor") ? resourceName["providers/cursor/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/windsurf/"))
+            return providers.Contains("windsurf") ? resourceName["providers/windsurf/".Length..] : null;
+
+        if (resourceName.StartsWith("providers/copilot/"))
+            return providers.Contains("copilot") ? resourceName["providers/copilot/".Length..] : null;
+
         // Shared (CLAUDE.md, docs/, tools/)
         return resourceName;
     }
 
     private static bool IsTextResource(string name) =>
         name.EndsWith(".md")   ||
+        name.EndsWith(".mdc")  ||
         name.EndsWith(".json") ||
         name.EndsWith(".toml") ||
         name.EndsWith(".sh")   ||

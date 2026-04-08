@@ -79,6 +79,43 @@ for _agent_cmd in claude nessy gemini; do
 done
 unset _agent_cmd
 
+# --- multiagent-setup CLI ---
+_multiagent_setup() {
+  local -a subcommands providers hooks
+  subcommands=(
+    'new:Create a new multi-agent workspace'
+    'sync-roles:Sync agent roles to ~/.claude/commands/'
+    'install-mcps:Install age-mcp and o-brien MCP servers'
+    'hook:Run a hook (cross-platform)'
+  )
+  providers=(
+    'claude:Claude Code by Anthropic (default)'
+    'codex:OpenAI Codex CLI'
+    'qwen:Qwen Code by Alibaba'
+    'cursor:Cursor IDE'
+    'windsurf:Windsurf IDE by Codeium'
+    'copilot:GitHub Copilot in VS Code'
+    'all:All providers at once'
+  )
+  hooks=(
+    'block-dangerous' 'enforce-commit-msg' 'auto-lint'
+    'log-agent' 'stop-guard' 'research-reminder'
+  )
+
+  case $CURRENT in
+    2) _describe 'subcommand' subcommands ;;
+    *) case ${words[2]} in
+      new)
+        case ${words[CURRENT-1]} in
+          --provider) _describe 'provider' providers ;;
+          *) _arguments '--provider[Provider to scaffold]:provider:->p' && _describe 'provider' providers ;;
+        esac ;;
+      hook) _describe 'hook' hooks ;;
+    esac ;;
+  esac
+}
+compdef _multiagent_setup multiagent-setup
+
 # --- orchestrator pipeline types ---
 _orchestrator_pipelines() {
   local -a pipelines
