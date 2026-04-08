@@ -139,7 +139,7 @@ public sealed class AddProviderCommand(string provider, bool force = false)
 
             using var stream = asm.GetManifestResourceStream(resourceName)!;
 
-            if (IsTextResource(resourceName))
+            if (TemplateResources.IsTextResource(resourceName))
             {
                 using var reader = new StreamReader(stream, Encoding.UTF8);
                 var content = reader.ReadToEnd();
@@ -183,12 +183,4 @@ public sealed class AddProviderCommand(string provider, bool force = false)
         return null;
     }
 
-    private static bool IsTextResource(string name) =>
-        name.EndsWith(".md")   ||
-        name.EndsWith(".json") ||
-        name.EndsWith(".toml") ||
-        name.EndsWith(".sh")   ||
-        name.EndsWith(".zsh")  ||
-        name.EndsWith(".ps1")  ||
-        name.EndsWith(".mdc");
 }
