@@ -5,6 +5,10 @@ Scaffold a multi-agent AI workspace where a team of specialized agents — orche
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+<p align="center">
+  <img src="docs/demo.svg" alt="multiagent-setup demo" width="720"/>
+</p>
+
 ---
 
 ## Quick Start
