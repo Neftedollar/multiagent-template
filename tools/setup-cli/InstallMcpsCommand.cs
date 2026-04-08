@@ -79,8 +79,8 @@ public sealed class InstallMcpsCommand
         Console.WriteLine("  my-mcps installed!");
         Console.WriteLine("================================");
         Console.WriteLine();
-        Console.WriteLine($"  age-mcp connection: {ageConn}");
-        Console.WriteLine($"  o-brien connection: {obrienDbUrl}");
+        Console.WriteLine($"  age-mcp connection: {RedactPassword(ageConn)}");
+        Console.WriteLine($"  o-brien connection: {RedactPassword(obrienDbUrl)}");
         Console.WriteLine();
         Console.WriteLine("  Start a Claude Code session — both MCPs are ready.");
         Console.WriteLine();
@@ -124,6 +124,16 @@ public sealed class InstallMcpsCommand
 
         await SetupDockerAsync();
         return (AgeConnDocker, ObrienDbUrlDocker);
+    }
+
+    /// Redact the password from a PostgreSQL connection string for safe display.
+    private static string RedactPassword(string connStr)
+    {
+        // Handles both URI form (postgresql://user:pass@host/db) and key=value form (Password=xxx;...)
+        var uri = System.Text.RegularExpressions.Regex.Replace(
+            connStr, @"(?<=://[^:@]*:)[^@]+(?=@)", "***");
+        return System.Text.RegularExpressions.Regex.Replace(
+            uri, @"(?i)(?<=password\s*=\s*)[^;]+", "***");
     }
 
     private static string Prompt(string label, string defaultValue)
@@ -242,8 +252,10 @@ public sealed class InstallMcpsCommand
             Console.WriteLine("  ..  Starting existing o-brien container...");
             await ProcessHelper.RunAsync("docker", ["start", ObrienContainer],
                 captureOutput: true, allowFailure: false);
-            await WaitForPortAsync(ObrienPort);
-            Console.WriteLine($"  OK: o-brien database running on :{ObrienPort}");
+            var startOk = await WaitForPortAsync(ObrienPort);
+            Console.WriteLine(startOk
+                ? $"  OK: o-brien database running on :{ObrienPort}"
+                : $"  WARN: o-brien postgres not reachable on :{ObrienPort} yet");
         }
         else
         {

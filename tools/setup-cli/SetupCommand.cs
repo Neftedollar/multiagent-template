@@ -21,6 +21,12 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         var org = await ResolveOrgAsync();
         if (org is null) return 1;
 
+        if (projectName.Contains('/') || projectName.Contains('\\') || projectName.Contains(".."))
+        {
+            Console.Error.WriteLine("Error: project name must not contain path separators or '..'");
+            return 1;
+        }
+
         var targetDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), projectName));
         if (Directory.Exists(targetDir))
         {
@@ -209,7 +215,11 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
             var outputRel = ResolveOutputPath(resourceName, providers);
             if (outputRel is null) continue;
 
-            var outputPath = Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar));
+            var outputPath = Path.GetFullPath(Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar)));
+            // Guard against path traversal via crafted resource names
+            if (!outputPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal) &&
+                outputPath != root)
+                continue;
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
             using var stream = asm.GetManifestResourceStream(resourceName)!;
