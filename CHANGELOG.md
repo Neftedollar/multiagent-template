@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.16.0] — 2026-04-09
+
+### Added
+- `doctor` command — workspace health checker: validates required files (`CLAUDE.md`, `docs/process.md`, `role-capabilities.md`, `.claude/`), agent roles, hook configuration, required tools (`git`, `gh`, `dotnet`), and at least one AI agent CLI on PATH; exits 0 on warnings-only, 1 on errors
+- `doctor` added to shell completions (zsh + PowerShell)
+
+### Fixed
+- `sync-roles`: default action changed from empty string to `--pull` (was silently a no-op)
+
+---
+
 ## [1.15.3] — 2026-04-09
 
 ### Fixed

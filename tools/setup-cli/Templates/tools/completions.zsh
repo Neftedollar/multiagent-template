@@ -37,6 +37,7 @@ _multiagent_setup() {
     'sync-roles:Sync agent roles to ~/.claude/commands/'
     'install-mcps:Install age-mcp and o-brien MCP servers'
     'hook:Run a built-in hook (cross-platform)'
+    'doctor:Check workspace health — tools, files, hooks, roles'
   )
   providers=(
     'claude:Claude Code by Anthropic (default)'
@@ -75,6 +76,7 @@ _multiagent_setup() {
         compadd -- --docker --manual --age-conn --obrien-conn --target ;;
       hook)
         _describe 'hook' hooks ;;
+      doctor) ;; # no args
     esac ;;
   esac
 }

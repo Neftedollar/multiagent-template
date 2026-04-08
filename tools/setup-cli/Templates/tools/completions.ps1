@@ -17,6 +17,7 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
             [pscustomobject]@{ name = 'sync-roles';   desc = 'Sync agent roles to .claude/commands/ (project-local)' }
             [pscustomobject]@{ name = 'install-mcps'; desc = 'Install age-mcp and o-brien MCP servers' }
             [pscustomobject]@{ name = 'hook';         desc = 'Run a built-in hook (cross-platform)' }
+            [pscustomobject]@{ name = 'doctor';       desc = 'Check workspace health — tools, files, hooks, roles' }
         ) | Where-Object { $_.name -like "$wordToComplete*" } | ForEach-Object {
             [System.Management.Automation.CompletionResult]::new($_.name, $_.name, 'ParameterValue', $_.desc)
         }
