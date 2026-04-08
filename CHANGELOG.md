@@ -6,20 +6,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-## [Unreleased] — v1.9.0
+## [1.10.0] — 2026-04-08
+
+### Added
+- `QWEN.md` workspace context template for Qwen Code — parallel to `GEMINI.md`
+- `.qwen/settings.json` sets `contextFileName: QWEN.md`
+- README: Gemini CLI row in providers table, Quick Start, and CLI reference
+
+---
+
+## [1.9.0] — 2026-04-08
 
 ### Added
 - **Cursor** provider (`--provider cursor`) — `.cursor/rules/workspace.mdc` (alwaysApply) + `orchestrator.mdc`
 - **Windsurf** provider (`--provider windsurf`) — `.windsurf/rules/workspace.md` + `orchestrator.md`
 - **GitHub Copilot** provider (`--provider copilot`) — `.github/copilot-instructions.md`
-- **Gemini CLI** provider (`--provider gemini`) — `.claude/` config reused, `GEMINI.md` context
+- **Gemini CLI** provider (`--provider gemini`) — `.gemini/settings.json` + `GEMINI.md` context
 - **Nessy** provider (`--provider nessy`) — Claude alias, `.claude/` config reused
-- `add-provider` subcommand — add a new provider to an existing workspace
+- `add-provider` subcommand — add a new provider to an existing workspace without recreating
 - `sync-roles` multi-provider: auto-detects `.qwen/commands/` and `.codex/skills/` in workspace
-- `AGENTS.md` template for Codex — correct context file (previously used `CLAUDE.md`)
-- `QWEN.md` template for Qwen — correct context file
-- Qwen orchestrator slash command in `.qwen/commands/`
-- `.csx` scripts replace platform-specific `.sh`/`.ps1` hooks
 - MIT `LICENSE` file
 - `CODE_OF_CONDUCT.md` (Contributor Covenant)
 - `CONTRIBUTING.md` — setup instructions, how to add a new provider
@@ -27,16 +32,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - `llms-full.txt` — comprehensive LLM reference (CLI, providers, pipeline, workspace)
 - `examples/saas-starter.md` and `examples/open-source-maintainer.md`
 - Animated terminal demo SVG (`docs/demo.svg`)
-- Cross-platform build CI (GitHub Actions)
+- Cross-platform build CI (GitHub Actions) — publishes to NuGet on tag push
 - GitHub issue/PR templates
 - `SECURITY.md`
-- `--provider all` now includes cursor, windsurf, copilot (8 providers total)
-- Zsh + PowerShell completions updated with `--provider` values
+- `--provider all` now includes cursor, windsurf, copilot, gemini (8 providers total)
+- Zsh + PowerShell completions updated with all providers and `add-provider` subcommand
 
 ### Fixed
-- bootstrap.sh/ps1: `.NET 10` channel instead of `LTS` (was installing .NET 8)
-- completions scripts: removed stale `.sh` wrapper references
-- sync-roles: defaults to `--pull` when called without an action flag
+- `bootstrap.sh`/`bootstrap.ps1`: install `.NET 10` (channel `10.0`) instead of LTS
+- `sync-roles`: defaults to `--pull` when called without an action flag
 
 ---
 
@@ -121,7 +125,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/Neftedollar/multiagent-template/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Neftedollar/multiagent-template/compare/v1.5.0...v1.6.0
