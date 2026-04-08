@@ -1,0 +1,316 @@
+# multiagent-template — Full Reference for LLMs
+
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents that autonomously drives software from backlog to merged PR across 8 coding agent providers.
+
+This file is the comprehensive reference. See also: [llms.txt](llms.txt) for the concise index.
+
+## Project
+
+- **GitHub**: https://github.com/Neftedollar/multiagent-template
+- **NuGet**: https://www.nuget.org/packages/multiagent-setup
+- **Landing page**: https://neftedollar.com/multiagent-template/
+- **License**: MIT
+
+## What It Does
+
+`multiagent-setup` is a .NET 10 dotnet global tool that scaffolds a **multi-agent workspace** directory for your software project. The workspace contains:
+
+1. A context file (CLAUDE.md / AGENTS.md / GEMINI.md / etc.) that tells the AI its role and the pipeline rules
+2. A set of slash-command role files (`/orchestrator`, `/engineering-backend-architect`, etc.)
+3. Hook configurations for safety (blocking dangerous commands, enforcing commit conventions, auto-linting)
+4. A docs/ directory with the operational pipeline manual, role capabilities index, and workflow specs
+5. Tooling scripts (completions, sync-roles, install-mcps)
+
+The workspace wraps your existing code repo: `code/MyProject/` is the code (gitignored), everything else is the AI coordination layer.
+
+## Install
+
+```bash
+# Prerequisites: git, gh, jq, .NET 10 SDK
+
+# Bootstrap (macOS/Linux) — installs all prerequisites + scaffolds workspace
+curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
+
+# Bootstrap (Windows PowerShell)
+irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
+.\bootstrap.ps1 MyProject
+
+# Install tool only (prerequisites already installed)
+dotnet tool install -g multiagent-setup
+```
+
+## CLI Commands
+
+### `new` — Create workspace
+
+```bash
+multiagent-setup new <project-name> [github-org] [--provider <name>]
+```
+
+Creates a workspace directory at `./project-name/`. Clones agency-agents and syncs roles globally to `~/.claude/commands/`. Initializes a git repo in the workspace.
+
+Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `all`
+
+### `sync-roles` — Update agent roles
+
+```bash
+multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+```
+
+Syncs the latest agent role files from [agency-agents](https://github.com/msitarzewski/agency-agents) to:
+- `~/.claude/commands/` — Claude, Nessy, Gemini, Cursor, Windsurf, Copilot
+- `./.qwen/commands/` — auto-detected if Qwen workspace is present
+- `./.codex/skills/` — auto-detected if Codex workspace is present
+
+### `add-provider` — Add provider to existing workspace
+
+```bash
+multiagent-setup add-provider <provider> [--force]
+multiagent-setup add-provider all [--force]
+```
+
+Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini).
+
+### `update` — Update workspace templates to latest version
+
+```bash
+multiagent-setup update [--force]
+```
+
+Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files.
+
+### `install-mcps` — Install optional memory infrastructure
+
+```bash
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+```
+
+Installs optional MCP servers:
+- **AGE graph** — PostgreSQL + Apache AGE knowledge base for modules, pipelines, role bindings, security findings, code insights
+- **O'Brien** — pgvector semantic memory for cross-session context, task locking, crash recovery
+
+### `hook` — Cross-platform hook runner
+
+```bash
+multiagent-setup hook <name>
+```
+
+Runs a compiled safety hook. All hooks are baked into the binary (no shell scripts needed):
+- `block-dangerous` — blocks `rm -rf /`, `push --force main`, `DROP TABLE`, and 20+ other destructive patterns
+- `enforce-commit-msg` — enforces conventional commits (`feat:`, `fix:`, `chore:`, etc.)
+- `auto-lint` — runs formatter on changed file (prettier, ruff, gofmt, rustfmt, etc.)
+- `log-agent` — logs sub-agent launches to `.claude/agent-log.jsonl`
+- `stop-guard` — on session end, reminds to run tests and update knowledge graph
+- `research-reminder` — after web search, reminds to persist findings in O'Brien memory
+
+## Supported Providers
+
+### Terminal agents (CLI-based)
+
+| Provider | Binary | Config | Commands | Context file |
+|----------|--------|--------|----------|--------------|
+| `claude` | `claude` | `.claude/settings.json` | `.claude/commands/` | `CLAUDE.md` |
+| `nessy` | `nessy` | `.claude/settings.json` | `.claude/commands/` | `CLAUDE.md` (copy with name renamed) |
+| `gemini` | `gemini` | n/a | `.claude/commands/` | `GEMINI.md` |
+| `codex` | `codex` | `.codex/config.toml` + `.codex/hooks.json` | `.codex/skills/` | `AGENTS.md` |
+| `qwen` | `qwen-code` | `.qwen/settings.json` | `.qwen/commands/` | `QWEN.md` |
+
+### IDE agents
+
+| Provider | IDE | Config | Context file |
+|----------|-----|--------|--------------|
+| `cursor` | Cursor | `.cursor/rules/workspace.mdc` (alwaysApply: true) | `.cursor/rules/workspace.mdc` |
+| `windsurf` | Windsurf | `.windsurf/rules/workspace.md` | `.windsurf/rules/workspace.md` |
+| `copilot` | VS Code + GitHub Copilot | `.github/copilot-instructions.md` | `.github/copilot-instructions.md` |
+
+## Pipeline System
+
+### Pipeline types
+
+| Type | Steps | When to use |
+|------|-------|-------------|
+| `feature` | PLAN → BUILD → TEST → VERIFY → SHIP | New functionality |
+| `bugfix` | BUILD → TEST → VERIFY → SHIP | Bug fixes (skip planning) |
+| `infra` | PLAN → BUILD → VERIFY → SHIP | Infrastructure (no test step) |
+| `content` | PLAN → BUILD → VERIFY(human) → SHIP | Docs, marketing (human must approve) |
+| `spike` | PLAN | Research only, no implementation |
+
+### Gate system
+
+Each pipeline step ends with a gate: `APPROVED` or `NEEDS WORK (reason)`.
+
+On `NEEDS WORK`:
+1. Retry the same role (up to 3×)
+2. If still failing → hand off to helper role (2 retries)
+3. If still failing → escalate to human
+
+### Escalation triggers (always require human):
+- Public-facing content approval
+- Architecture decisions that break existing APIs
+- Infrastructure decisions with cost impact
+- 5+ consecutive failures on a single step
+
+## Agent Roles
+
+Roles are slash commands sourced from [agency-agents](https://github.com/msitarzewski/agency-agents) by @msitarzewski. The orchestrator selects roles dynamically via `docs/role-capabilities.md` — no hardcoded assignments.
+
+### Role layers
+
+| Layer | Roles |
+|-------|-------|
+| Strategy | `/product-manager`, `/product-trend-researcher` |
+| Management | `/orchestrator`, `/testing-reality-checker`, `/specialized-workflow-architect` |
+| Engineering | `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer`, `/engineering-devops-automator`, `/engineering-security-engineer` |
+| AI/ML | `/engineering-ai-engineer` |
+| Design | `/design-ux-researcher`, `/design-ui-designer` |
+| GTM | `/specialized-developer-advocate`, `/engineering-technical-writer`, `/marketing-content-creator` |
+
+### Orchestrator — the core role
+
+The orchestrator (`/orchestrator`) is the autonomous pipeline manager. Key rules:
+- **Never writes code** — always delegates to specialist roles
+- Selects roles dynamically from `docs/role-capabilities.md` + graph
+- Creates branches, commits, and PRs (never merges directly)
+- Escalates to human only per defined criteria
+- In Autonomous mode (`claude -p "/orchestrator ..."`), picks tasks from the GitHub Project backlog
+
+### Model tiers
+
+| Tier | When | Example models |
+|------|------|---------------|
+| Strategic | PM, Architects, Security, Orchestrator | Claude Opus, GPT-4o, Gemini 1.5 Pro |
+| Execution | Developers, DevOps, Tech Writer, Designer | Claude Sonnet, GPT-4o-mini |
+| Validation | Code Reviewer, Reality Checker | Claude Opus |
+| Routine | Data gathering, formatting, lookups | Claude Haiku |
+
+## Workspace Structure
+
+```
+MyProject/                     ← workspace root (git repo)
+├── CLAUDE.md                  ← workspace context (read by AI on every session)
+├── AGENTS.md                  ← Codex equivalent of CLAUDE.md
+├── GEMINI.md                  ← Gemini equivalent of CLAUDE.md
+├── QWEN.md                    ← Qwen equivalent of CLAUDE.md
+├── code/                      ← product repos (git-ignored)
+│   └── MyProject/             ← your actual code repo (clone here)
+├── docs/
+│   ├── process.md             ← operational manual (pipeline source of truth)
+│   ├── role-capabilities.md   ← role capability index for orchestrator routing
+│   └── workflows/             ← pipeline specs (WORKFLOW-*.md + REGISTRY.md)
+├── .claude/
+│   ├── commands/              ← slash-command role files (synced from agency-agents)
+│   ├── hooks/lint.json        ← auto-lint formatter config
+│   ├── mcp.json               ← MCP server config (AGE + O'Brien)
+│   └── settings.json          ← hook configuration
+├── .codex/
+│   ├── config.toml            ← Codex feature flags
+│   ├── hooks.json             ← Codex hook configuration
+│   └── skills/                ← orchestrator skill pre-loaded
+├── .qwen/
+│   ├── settings.json          ← Qwen hook configuration
+│   └── commands/              ← role files for Qwen
+├── .cursor/
+│   └── rules/
+│       ├── workspace.mdc      ← workspace context (alwaysApply: true)
+│       └── orchestrator.mdc   ← orchestrator role (alwaysApply: false)
+├── .windsurf/
+│   └── rules/
+│       ├── workspace.md       ← workspace context
+│       └── orchestrator.md    ← orchestrator role
+├── .github/
+│   └── copilot-instructions.md ← GitHub Copilot auto-injected context
+└── tools/
+    ├── completions.zsh        ← zsh completions for multiagent-setup + claude
+    └── completions.ps1        ← PowerShell completions
+```
+
+## Optional Infrastructure
+
+### AGE Graph (PostgreSQL + Apache AGE)
+
+Stores project knowledge as a property graph:
+- `Module` nodes — code modules with paths, dependencies
+- `SecurityFinding` nodes — findings with status, recommendation, category
+- `CodeInsight` nodes — tech debt, patterns, architectural decisions
+- `Pipeline`, `Step`, `Role` nodes — process graph for orchestrator routing
+
+Connected via [age-mcp](https://github.com/Neftedollar/age-mcp) MCP server.
+
+### O'Brien Semantic Memory (pgvector)
+
+Cross-session context store. Used for:
+- Task locking (prevents duplicate work across sessions)
+- Crash recovery (resume interrupted pipelines)
+- Research persistence (store web search findings)
+- Role creation log (track ad-hoc roles)
+
+Connected via the `obrien-mcp` MCP server.
+
+## Usage Examples
+
+### CEO Mode (human-directed)
+
+```bash
+cd MyProject
+claude
+/orchestrator Implement user authentication with JWT.
+Use existing User model. Target: feature branch, reviewed PR.
+```
+
+The orchestrator reads `docs/process.md`, selects the `feature` pipeline, assigns roles, and delivers a reviewed PR. Human sees only the final PR.
+
+### Single Expert Mode
+
+```bash
+/engineering-security-engineer Review the authentication implementation in PR #42 for common vulnerabilities.
+```
+
+Directly invokes one role without a pipeline. Useful for targeted questions.
+
+### Autonomous Mode (unattended)
+
+```bash
+claude -p "/orchestrator Pick the highest-priority task from the GitHub Project backlog and implement it."
+```
+
+The orchestrator reads the GitHub Project, picks a task, executes the full pipeline, and creates a PR. No human interaction required.
+
+### Loop Mode (recurring)
+
+```bash
+/loop 20m /orchestrator Check backlog, implement highest-priority task, report.
+```
+
+Fires every 20 minutes. The orchestrator picks tasks, implements them, and creates PRs until the backlog is empty.
+
+## Template Variables
+
+When creating a workspace, these variables are substituted into all template files:
+
+| Variable | Value |
+|----------|-------|
+| `{{PROJECT_NAME}}` | Project name (from CLI argument) |
+| `{{PROJECT_DESCRIPTION}}` | `${PROJECT_NAME} project workspace` |
+| `{{FOUNDER}}` | Current OS username |
+| `{{PHASE}}` | `early development` |
+| `{{GITHUB_ORG}}` | Resolved GitHub username or provided org |
+| `{{GITHUB_REPO}}` | Same as project name |
+| `{{GRAPH_NAME}}` | `${project-name}-ops` (lowercase) |
+| `{{DATE}}` | Today's date (yyyy-MM-dd) |
+| `{{HOOK_EXEC}}` | Path to multiagent-setup binary |
+
+## How to Add a New Provider
+
+1. Create `tools/setup-cli/Templates/providers/<name>/` directory
+2. Add provider-specific config files (context file, hook config, commands directory)
+3. Add `EmbeddedResource` entries in `MultiagentSetup.csproj`
+4. Update `SetupCommand.cs`:
+   - `CreateDirectories()` — create provider-specific directories
+   - `ResolveOutputPath()` — route embedded resources to correct paths
+   - `CheckTools()` — add pre-flight check for provider binary
+5. Update `Program.cs` — add to `validProviders` array
+6. Open a PR following the pattern of existing providers
+
+## License
+
+MIT — free for commercial and personal use.
