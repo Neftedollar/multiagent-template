@@ -70,6 +70,14 @@ multiagent-setup add-provider <provider> [--force]
 
 Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch.
 
+### `update` — Update workspace templates to latest version
+
+```bash
+multiagent-setup update [--force]
+```
+
+Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files.
+
 ### `install-mcps` — Install optional memory infrastructure
 
 ```bash
