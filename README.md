@@ -44,6 +44,7 @@ multiagent-setup new MyProject --provider all        # all providers at once
 # Add a provider to an existing workspace (no need to recreate)
 multiagent-setup add-provider cursor
 multiagent-setup add-provider gemini --force   # overwrite existing files
+multiagent-setup add-provider all              # add all providers at once
 
 # Update an existing workspace to the latest templates
 multiagent-setup update          # skip already-customised files
