@@ -1,201 +1,232 @@
 # multiagent-template
 
-Шаблон рабочего пространства, в котором команда AI-агентов на базе [Claude Code](https://docs.anthropic.com/en/docs/claude-code) автономно выполняет задачи по разработке — от планирования до деплоя — с минимальным участием человека.
+Scaffold a multi-agent AI workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — autonomously drives software from backlog to merged PR. You set direction; the agents handle execution.
 
-> **Поддержка AI-агентов**: Шаблон работает с Claude Code, а также может использоваться с другими AI-агентами (Nessy CLI, Codex, Qwen) через параметр `--provider`.
+[![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Идея
+---
 
-Один человек (CEO) ставит задачи. Всё остальное делает команда AI-агентов, каждый из которых играет конкретную роль: продакт-менеджер, архитектор, разработчик, ревьюер, DevOps, дизайнер, AI-инженер, техписатель и т.д.
+## Quick Start
 
-Центральное звено — **Оркестратор**: автономный агент, который получает задачу, разбивает её на шаги, подбирает роли, запускает пайплайн и доводит до готового PR. Человек подключается только в точках эскалации: публичный контент, breaking changes, инфрарешения с затратами, или 5+ провалов подряд.
+```bash
+# One-liner bootstrap (macOS / Linux — installs all deps + creates workspace)
+curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
 
-## Пайплайн
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
+.\bootstrap.ps1 MyProject
+```
+
+Already have git, gh, jq, and .NET 10 installed?
+
+```bash
+dotnet tool install -g multiagent-setup
+multiagent-setup new MyProject                       # Claude (default)
+multiagent-setup new MyProject --provider nessy      # Nessy CLI (Claude alias)
+multiagent-setup new MyProject --provider codex      # OpenAI Codex
+multiagent-setup new MyProject --provider qwen       # Qwen Code
+multiagent-setup new MyProject --provider cursor     # Cursor IDE
+multiagent-setup new MyProject --provider windsurf   # Windsurf IDE
+multiagent-setup new MyProject --provider copilot    # GitHub Copilot
+multiagent-setup new MyProject --provider all        # all providers at once
+```
+
+Then start working:
+
+```bash
+cd MyProject
+claude          # or: nessy / codex / qwen-code (terminal agents)
+                # or open in Cursor / Windsurf / VS Code (IDE agents)
+/orchestrator Implement user authentication with JWT
+```
+
+---
+
+## Why multiagent-template?
+
+**The problem**: Asking a single AI agent to be architect, developer, reviewer, and DevOps all at once leads to context collapse, no accountability, and inconsistent quality.
+
+**The solution**: A structured workspace where each agent plays a defined role in a gated pipeline:
 
 ```
 PLAN → BUILD → TEST → VERIFY → SHIP
 ```
 
-Пять типов пайплайнов: `feature`, `bugfix`, `infra`, `content`, `spike`. Каждый шаг заканчивается гейтом: `APPROVED` — идём дальше, `NEEDS WORK` — агент исправляет (до 3 попыток → helper → 2 попытки → эскалация на CEO).
+- **Orchestrator** coordinates — never writes code itself
+- **Architects** design before developers build
+- **Reviewers** validate independently after each step
+- **Safety hooks** prevent dangerous commands, enforce commit conventions, auto-lint
 
-## Быстрый старт
+Each step has an approval gate. Failures retry (3×) → helper role (2×) → human escalation. The human only sees escalations, not every step.
 
-### Чистая машина (macOS / Linux)
+---
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
-```
+## Supported Providers
 
-Устанавливает git, jq, gh, .NET SDK, Claude Code — и создаёт воркспейс.
+| Provider | Binary / Tool | Notes |
+|----------|---------------|-------|
+| **claude** | `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — default |
+| **nessy** | `nessy` | [Nessy CLI](https://nessy.ai) — Claude-compatible alias |
+| **codex** | `codex` | [OpenAI Codex CLI](https://github.com/openai/codex) |
+| **qwen** | `qwen-code` | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
+| **cursor** | [Cursor](https://cursor.com) IDE | Rules placed in `.cursor/rules/` (MDC format) |
+| **windsurf** | [Windsurf](https://windsurf.com) IDE | Rules placed in `.windsurf/rules/` (Wave 8+) |
+| **copilot** | GitHub Copilot | Reads `.github/copilot-instructions.md` |
 
-### Чистая машина (Windows)
+Use `--provider all` to scaffold all terminal-agent providers (claude + nessy + codex + qwen + cursor + windsurf + copilot).
 
-```powershell
-irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
-.\bootstrap.ps1 MyProject
-```
+---
 
-Устанавливает все зависимости через `winget` и создаёт воркспейс.
+## How It Works
 
-### Если зависимости уже есть
+One human (CEO) gives tasks. The **Orchestrator** agent breaks them into steps, picks the right specialist role, runs the pipeline, and delivers a PR. Human escalation is required only for: public content, breaking API changes, infra decisions with cost impact, or 5+ consecutive failures.
 
-```bash
-# macOS / Linux
-./setup.sh MyProject          # установит .NET если нет, затем запустит тул
+### Pipeline types
 
-# Windows
-.\setup.ps1 MyProject
+| Type | Steps | When |
+|------|-------|------|
+| `feature` | PLAN → BUILD → TEST → VERIFY → SHIP | New functionality |
+| `bugfix` | BUILD → TEST → VERIFY → SHIP | Skip planning |
+| `infra` | PLAN → BUILD → VERIFY → SHIP | No test step |
+| `content` | PLAN → BUILD → VERIFY(CEO) | Docs / marketing |
+| `spike` | PLAN | Research only |
 
-# Или напрямую:
-dotnet tool install -g multiagent-setup
-multiagent-setup MyProject
-```
+### Modes
 
-GitHub org берётся автоматически из `gh auth` — если не авторизован, запустит `gh auth login`.  
-Явно задать org: `multiagent-setup MyProject my-org`
+| Mode | How to trigger | Description |
+|------|----------------|-------------|
+| **CEO Mode** | `/orchestrator <task>` | Human gives task, orchestrator executes |
+| **Single Expert** | `/<role> <question>` | Direct expert call, no pipeline |
+| **Autonomous** | `claude -p "/orchestrator ..."` | Orchestrator self-selects tasks from backlog |
 
-### Начать работу
+---
 
-```bash
-cd MyProject
-# (опционально) установить MCP-серверы
-./tools/install-mcps.sh       # macOS / Linux
-.\tools\install-mcps.ps1      # Windows
-
-claude
-/orchestrator Реализовать авторизацию по OAuth2
-```
-
-## Структура воркспейса
+## Workspace Structure
 
 ```
 MyProject/
-├── code/                    ← репозиторий продукта (в .gitignore)
+├── CLAUDE.md                <- workspace context (read by AI on every session)
+├── code/                    <- product repo (git-ignored)
 ├── docs/
-│   ├── process.md           ← операционный мануал (источник истины)
-│   ├── role-capabilities.md ← индекс ролей для оркестратора
-│   └── workflows/           ← спецификации пайплайнов (WORKFLOW-*.md)
+│   ├── process.md           <- operational manual (pipeline source of truth)
+│   ├── role-capabilities.md <- role index for dynamic orchestrator routing
+│   └── workflows/           <- pipeline specs (WORKFLOW-*.md)
 ├── .claude/
-│   ├── commands/            ← слэш-команды (роли агентов)
-│   ├── hooks/lint.json      ← конфиг форматтеров для auto-lint
-│   ├── mcp.json             ← MCP-конфигурация
-│   └── settings.json        ← конфигурация хуков
+│   ├── commands/            <- slash-command roles (synced from agency-agents)
+│   ├── hooks/lint.json      <- auto-lint formatter config
+│   ├── mcp.json             <- MCP server config
+│   └── settings.json        <- hook configuration
+├── .codex/                  <- Codex config (--provider codex)
+│   └── skills/              <- orchestrator skill pre-loaded
 └── tools/
-    ├── sync-roles.sh / .ps1    ← синхронизация ролей из agency-agents
-    ├── install-mcps.sh / .ps1  ← установка MCP-серверов
-    ├── completions.zsh          ← zsh-автодополнения
-    └── completions.ps1          ← PowerShell-автодополнения
+    ├── completions.zsh      <- zsh completions
+    └── completions.ps1      <- PowerShell completions
 ```
 
-## Режимы работы
+---
 
-| Режим | Запуск | Описание |
-|-------|--------|----------|
-| **CEO Mode** | `/orchestrator <задача>` | Человек даёт задачу, оркестратор выполняет |
-| **Single Expert** | `/<роль> <вопрос>` | Прямой вызов эксперта без пайплайна |
-| **Autonomous** | `claude -p "/orchestrator ..."` | Оркестратор сам берёт задачи из бэклога |
+## Hook System
 
-## Инфраструктура
+All hooks are compiled into the `multiagent-setup` binary — no shell scripts, no platform quirks.
 
-### AGE Graph
+| Hook | Trigger | Action |
+|------|---------|--------|
+| `block-dangerous` | PreToolUse (Bash) | Blocks `rm -rf /`, `push --force main`, `DROP TABLE`, etc. |
+| `enforce-commit-msg` | PreToolUse (Bash) | Enforces conventional commits (`feat:`, `fix:`, etc.) |
+| `auto-lint` | PostToolUse (Edit/Write) | Runs formatter on changed file (prettier, ruff, gofmt, rustfmt…) |
+| `log-agent` | PreToolUse (Agent) | Logs sub-agent launches to `.claude/agent-log.jsonl` |
+| `stop-guard` | Stop | Reminds to run tests and update knowledge graph |
+| `research-reminder` | PostToolUse (WebSearch) | Reminds to persist research in O'Brien memory |
 
-Графовая база знаний на PostgreSQL + [Apache AGE](https://age.apache.org/), подключается к Claude Code через [age-mcp](https://github.com/Neftedollar/age-mcp) (F#/.NET, dotnet global tool).
+---
 
-Хранит: модули и зависимости, пайплайны и шаги, привязки ролей, security findings, code insights. Оркестратор запрашивает граф на каждом шаге пайплайна и обновляет его по завершении задачи — база знаний растёт с каждой итерацией.
+## Agent Roles
 
-### O'Brien
+20+ specialist roles from [agency-agents](https://github.com/msitarzewski/agency-agents), installed at workspace creation time.
 
-Семантическое хранилище агентов на pgvector — для координации и памяти. Устанавливается как dotnet global tool (`OBrienMcp`).
-
-Используется для: блокировки задач (оптимистичный lock), тегирования прогресса (`code-done` → `pr-created` → `completed-work`), хранения результатов исследований, crash recovery (lock старше 24ч → `stale-work`).
-
-### Установка MCP-серверов
-
-```bash
-# macOS / Linux
-./tools/install-mcps.sh
-
-# Windows
-.\tools\install-mcps.ps1
-```
-
-Скрипт спрашивает: поднять локальный Docker или указать готовые строки подключения (удалённый сервер, существующая БД). Затем устанавливает `AgeMcp` и `OBrienMcp` из NuGet и прописывает оба сервера в MCP-конфиг Claude Code.
-
-## Хуки
-
-`.claude/settings.json` подключает набор хуков, реализованных внутри `multiagent-setup` (без отдельных `.sh` файлов — работают кросс-платформенно):
-
-| Хук | Триггер | Действие |
-|-----|---------|----------|
-| `block-dangerous` | PreToolUse (Bash) | Блокирует `rm -rf /`, `push --force main`, `DROP TABLE` и т.д. |
-| `enforce-commit-msg` | PreToolUse (Bash) | Требует conventional commits (`feat:`, `fix:` и т.д.) |
-| `auto-lint` | PostToolUse (Edit/Write) | Запускает форматтер для изменённого файла |
-| `log-agent` | PreToolUse (Agent) | Логирует запуск субагентов в `.claude/agent-log.jsonl` |
-| `stop-guard` | Stop | Напоминает запустить тесты и обновить O'Brien + age-mcp |
-| `research-reminder` | PostToolUse (WebSearch/WebFetch) | Напоминает сохранить результаты исследований в O'Brien и граф |
-
-Хук вызывается напрямую: `$HOME/.dotnet/tools/multiagent-setup hook <name>` (macOS/Linux) или `$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe hook <name>` (Windows/PowerShell). Путь подставляется автоматически при создании воркспейса.
-
-## Роли
-
-Роли подключаются как слэш-команды из [agency-agents](https://github.com/msitarzewski/agency-agents) — устанавливаются глобально в `~/.claude/commands/` при создании воркспейса.
-
-| Слой | Роли |
-|------|------|
-| Стратегия | `/product-manager`, `/product-trend-researcher` |
-| Управление | `/orchestrator`, `/testing-reality-checker`, `/specialized-workflow-architect` |
-| Инженерия | `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer`, `/engineering-devops-automator`, `/engineering-security-engineer` |
+| Layer | Roles |
+|-------|-------|
+| Strategy | `/product-manager`, `/product-trend-researcher` |
+| Management | `/orchestrator`, `/testing-reality-checker`, `/specialized-workflow-architect` |
+| Engineering | `/engineering-software-architect`, `/engineering-backend-architect`, `/engineering-frontend-developer`, `/engineering-code-reviewer`, `/engineering-devops-automator`, `/engineering-security-engineer` |
 | AI / ML | `/engineering-ai-engineer` |
-| Дизайн | `/design-ux-researcher`, `/design-ui-designer` |
+| Design | `/design-ux-researcher`, `/design-ui-designer` |
 | GTM | `/specialized-developer-advocate`, `/engineering-technical-writer`, `/marketing-content-creator` |
 
-Оркестратор подбирает роли **динамически** по сигналам задачи (файлы, ключевые слова, лейблы) через индекс `docs/role-capabilities.md`. Задачи с LLM/RAG/embedding автоматически роутятся на AI-инженера; задачи с UI — на UX + дизайнера перед архитектором. Если ни одна роль не подходит — создаётся ad-hoc роль на лету.
+The orchestrator routes dynamically via `docs/role-capabilities.md` — no hardcoded assignments. If no role fits, it creates an ad-hoc role on the fly.
 
-## Модели по уровням
+---
 
-| Уровень | Модель | Роли |
-|---------|--------|------|
-| Стратегический | opus | PM, архитекторы, безопасность, оркестратор |
-| Исполнительный | sonnet | Разработчики, DevOps, техписатель, дизайн |
-| Валидация | opus | Ревьюер, Reality Checker |
-| Рутина | haiku | Сбор данных, форматирование |
+## Infrastructure (Optional)
 
-## multiagent-setup (dotnet tool)
+### AGE Graph
+Graph knowledge base on PostgreSQL + [Apache AGE](https://age.apache.org/), connected via [age-mcp](https://github.com/Neftedollar/age-mcp). Stores modules, pipelines, role bindings, security findings, code insights. Grows with every task.
 
-Кросс-платформенный CLI, который покрывает весь жизненный цикл воркспейса. Все шаблонные файлы встроены в бинарник — никаких внешних зависимостей кроме .NET.
+### O'Brien
+Semantic memory on pgvector — cross-session context, task locking, crash recovery.
 
 ```bash
-# Установить / обновить
-dotnet tool install -g multiagent-setup
-dotnet tool update  -g multiagent-setup
-
-# Создать воркспейс
-multiagent-setup new <project-name> [github-org]
-multiagent-setup <project-name>          # сокращение
-
-# Синхронизировать роли из agency-agents в ~/.claude/commands/
-multiagent-setup sync-roles              # clone + pull
-multiagent-setup sync-roles --pull       # только pull
-
-# Установить MCP-серверы (age-mcp, O'Brien)
-multiagent-setup install-mcps            # интерактивный Docker-режим
-multiagent-setup install-mcps --manual   # ввести строки подключения вручную
-
-# Запустить хук (вызывается из settings.json автоматически)
-multiagent-setup hook <name>
+multiagent-setup install-mcps             # interactive Docker setup
+multiagent-setup install-mcps --manual    # enter connection strings manually
 ```
 
-Шаблоны: [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/)
-Исходник: [`tools/setup-cli/`](tools/setup-cli/)
+---
 
-## Требования
+## Examples
 
-| Инструмент | macOS/Linux | Windows |
-|------------|-------------|---------|
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `npm i -g @anthropic-ai/claude-code` | то же |
-| [GitHub CLI](https://cli.github.com/) | `brew install gh` / apt | `winget install GitHub.cli` |
+See [`examples/`](examples/) for concrete workflows:
+- [SaaS Starter](examples/saas-starter.md) — foundation, auth, billing, autonomous sessions
+- [Open Source Maintainer](examples/open-source-maintainer.md) — bug triage, PR reviews, releases
+
+---
+
+## CLI Reference
+
+```bash
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|all]
+multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+multiagent-setup hook <name>
+multiagent-setup -v | --version
+```
+
+---
+
+## Requirements
+
+| Tool | macOS/Linux | Windows |
+|------|-------------|---------|
+| [.NET SDK](https://dotnet.microsoft.com/download) 10+ | `brew install dotnet` | `winget install Microsoft.DotNet.SDK.10` |
+| [GitHub CLI](https://cli.github.com/) | `brew install gh` | `winget install GitHub.cli` |
 | git, jq | brew / apt | `winget install Git.Git jqlang.jq` |
-| [.NET SDK](https://dotnet.microsoft.com/download) 9+ | `brew install dotnet` / скрипт | `winget install Microsoft.DotNet.SDK.9` |
-| Docker | опционально, для AGE/O'Brien | `winget install Docker.DockerDesktop` |
+| Agent CLI | see provider table above | same |
+| Docker | optional, for AGE/O'Brien | `winget install Docker.DockerDesktop` |
 
-`bootstrap.sh` / `bootstrap.ps1` устанавливают всё автоматически на чистой машине.
+`bootstrap.sh` / `bootstrap.ps1` install everything automatically on a clean machine.
+
+---
+
+## Contributing
+
+Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Each provider gets its own directory under `providers/`. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to add a new provider.
+
+---
+
+## FAQ
+
+**Does this work with projects that already have code?**  
+Yes. The workspace wraps your existing repo: `multiagent-setup new MyProject` creates the workspace, then clone your repo into `code/MyProject/`.
+
+**How do I use multiple providers?**  
+Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once.
+
+**What does the orchestrator do when I'm not watching?**  
+In CEO Mode it waits for your next task. In Autonomous mode (`claude -p`), it picks tasks from the GitHub Project backlog and escalates only for defined edge cases.
+
+**Can I add custom roles?**  
+Yes. Create a `.md` file in `.claude/commands/` with a `name:` frontmatter field. The orchestrator uses it automatically, and can also create ad-hoc roles on the fly.
+
+---
+
+[Русская версия](README_RU.md) | [Landing page](https://neftedollar.com/multiagent-template/)
