@@ -66,7 +66,7 @@ Write-Host "  OK: gh"
 if (-not (Has "dotnet")) {
     Write-Host "  ..  Installing .NET SDK..."
     if ($hasWinget) {
-        Install-WinGet "Microsoft.DotNet.SDK.9" ".NET SDK"
+        Install-WinGet "Microsoft.DotNet.SDK.10" ".NET SDK"
     } else {
         $script = "$env:TEMP\dotnet-install.ps1"
         Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile $script -UseBasicParsing

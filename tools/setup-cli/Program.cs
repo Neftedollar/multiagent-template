@@ -66,8 +66,8 @@ static int PrintUsage(string? error = null)
     Console.WriteLine();
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
-    Console.WriteLine("    --provider <name>                 Provider: claude (default), codex, qwen, all");
-    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
+    Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, gemini, codex, qwen, all");
+    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to .claude/commands/ (project-local)");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
     Console.WriteLine("    --docker                          Use local Docker (default, interactive)");

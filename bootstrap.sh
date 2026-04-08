@@ -79,7 +79,7 @@ if ! has dotnet; then
   if [ "$OS" = "Darwin" ]; then
     brew install dotnet
   else
-    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0
     export PATH="$HOME/.dotnet:$PATH"
   fi
 fi
