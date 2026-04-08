@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#79c0ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Top accent line -->
+  <rect width="1200" height="4" fill="url(#accent)"/>
+
+  <!-- Left side decorative terminal lines -->
+  <rect x="0" y="0" width="4" height="630" fill="url(#accent)" opacity="0.4"/>
+
+  <!-- Title -->
+  <text x="80" y="200" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="64" font-weight="bold" fill="#e6edf3">multiagent-setup</text>
+
+  <!-- Tagline -->
+  <text x="80" y="270" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="28" fill="#8b949e">Scaffold an autonomous AI engineering team</text>
+  <text x="80" y="310" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="28" fill="#8b949e">in one command</text>
+
+  <!-- Pipeline -->
+  <text x="80" y="390" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="24" fill="#58a6ff">PLAN → BUILD → TEST → VERIFY → SHIP</text>
+
+  <!-- Providers row -->
+  <text x="80" y="460" font-family="sans-serif" font-size="18" fill="#6e7681">Supports:</text>
+
+  <!-- Provider pills -->
+  <rect x="170" y="442" width="90" height="30" rx="6" fill="#21262d"/>
+  <text x="215" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">claude</text>
+
+  <rect x="272" y="442" width="80" height="30" rx="6" fill="#21262d"/>
+  <text x="312" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">gemini</text>
+
+  <rect x="364" y="442" width="74" height="30" rx="6" fill="#21262d"/>
+  <text x="401" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">codex</text>
+
+  <rect x="450" y="442" width="66" height="30" rx="6" fill="#21262d"/>
+  <text x="483" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">qwen</text>
+
+  <rect x="528" y="442" width="80" height="30" rx="6" fill="#21262d"/>
+  <text x="568" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">cursor</text>
+
+  <rect x="620" y="442" width="96" height="30" rx="6" fill="#21262d"/>
+  <text x="668" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">windsurf</text>
+
+  <rect x="728" y="442" width="84" height="30" rx="6" fill="#21262d"/>
+  <text x="770" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">copilot</text>
+
+  <rect x="824" y="442" width="72" height="30" rx="6" fill="#21262d"/>
+  <text x="860" y="462" text-anchor="middle" font-family="monospace" font-size="14" fill="#79c0ff">nessy</text>
+
+  <!-- Install command box -->
+  <rect x="80" y="510" width="740" height="60" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="104" y="546" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="16" fill="#6e7681">$</text>
+  <text x="124" y="546" font-family="'Cascadia Code', 'SF Mono', Consolas, monospace" font-size="16" fill="#e6edf3">dotnet tool install -g multiagent-setup</text>
+
+  <!-- GitHub URL (bottom right) -->
+  <text x="1120" y="590" text-anchor="end" font-family="sans-serif" font-size="16" fill="#6e7681">github.com/Neftedollar/multiagent-template</text>
+</svg>
