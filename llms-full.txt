@@ -1,6 +1,6 @@
 # multiagent-template — Full Reference for LLMs
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents that autonomously drives software from backlog to merged PR across 10 coding agent providers.
+> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents that autonomously drives software from backlog to merged PR across 11 coding agent providers.
 
 This file is the comprehensive reference. See also: [llms.txt](llms.txt) for the concise index.
 
@@ -69,7 +69,7 @@ multiagent-setup add-provider <provider> [--force]
 multiagent-setup add-provider all [--force]
 ```
 
-Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider).
+Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue).
 
 ### `update` — Update workspace templates to latest version
 

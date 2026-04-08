@@ -50,6 +50,7 @@ multiagent-setup new MyProject --provider windsurf    # Windsurf IDE
 multiagent-setup new MyProject --provider copilot     # GitHub Copilot
 multiagent-setup new MyProject --provider cline       # Cline / Roo Code (VS Code)
 multiagent-setup new MyProject --provider aider       # Aider AI pair programmer
+multiagent-setup new MyProject --provider continue    # Continue.dev (VS Code / JetBrains)
 multiagent-setup new MyProject --provider all         # все провайдеры сразу
 
 # Добавить провайдер в существующий воркспейс
@@ -87,8 +88,9 @@ GitHub org определяется автоматически из `gh auth`. �
 | **copilot** | GitHub Copilot | Читает `.github/copilot-instructions.md` |
 | **cline** | [Cline](https://github.com/cline/cline) / Roo Code | Создаёт `.clinerules` в корне проекта |
 | **aider** | [Aider](https://aider.chat) | Создаёт `.aider.conf.yml` — автозагружает CLAUDE.md |
+| **continue** | [Continue.dev](https://continue.dev) | VS Code / JetBrains; `.continue/config.yaml` с командой `/orchestrator` |
 
-`--provider all` устанавливает все 10 провайдеров одновременно.
+`--provider all` устанавливает все 11 провайдеров одновременно.
 
 ---
 
