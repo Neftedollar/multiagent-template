@@ -67,7 +67,11 @@ public sealed class DoctorCommand
         var foundAgents = agents.Where(ProcessHelper.IsOnPath).ToArray();
         bool hasIdeProviders = Directory.Exists(Path.Combine(cwd, ".cursor", "rules"))
             || Directory.Exists(Path.Combine(cwd, ".windsurf", "rules"))
-            || File.Exists(Path.Combine(cwd, ".github", "copilot-instructions.md"));
+            || File.Exists(Path.Combine(cwd, ".github", "copilot-instructions.md"))
+            || File.Exists(Path.Combine(cwd, ".clinerules"))
+            || File.Exists(Path.Combine(cwd, ".aider.conf.yml"))
+            || Directory.Exists(Path.Combine(cwd, ".continue"))
+            || Directory.Exists(Path.Combine(cwd, ".roo", "rules"));
 
         if (foundAgents.Length == 0 && !hasIdeProviders)
         {
@@ -77,7 +81,7 @@ public sealed class DoctorCommand
         foreach (var a in foundAgents)
             Console.WriteLine($"  OK   {a}");
         if (hasIdeProviders)
-            Console.WriteLine("  OK   IDE provider (cursor/windsurf/copilot) detected");
+            Console.WriteLine("  OK   IDE/extension provider (cursor/windsurf/copilot/cline/aider/continue/roo) detected");
         Console.WriteLine();
 
         // ── Optional infrastructure ───────────────────────────────────────────
