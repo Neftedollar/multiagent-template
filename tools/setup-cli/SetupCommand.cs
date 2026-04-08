@@ -188,6 +188,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         {
             Directory.CreateDirectory(Path.Combine(root, ".claude", "commands"));
             Directory.CreateDirectory(Path.Combine(root, ".claude", "hooks"));
+            Directory.CreateDirectory(Path.Combine(root, ".github", "workflows"));
         }
         if (providers.Contains("codex"))
             Directory.CreateDirectory(Path.Combine(root, ".codex", "skills"));
@@ -255,6 +256,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static string? ResolveOutputPath(string resourceName, string[] providers)
     {
         if (resourceName.StartsWith(".claude/"))
+            return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
+
+        // GitHub Actions workflow — scaffold for claude/nessy (or any provider that has a code pipeline)
+        if (resourceName == ".github/workflows/orchestrator.yml")
             return (providers.Contains("claude") || providers.Contains("nessy")) ? resourceName : null;
 
         if (resourceName.StartsWith("providers/codex/"))

@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.18.0</Version>
+    <Version>1.19.0</Version>
     <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Aider, Cline, Continue, Cursor, Windsurf, Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;nessy;gemini;codex;qwen;aider;cline;continue;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
@@ -44,6 +44,9 @@
 
     <!-- Hooks -->
     <EmbeddedResource Include="Templates/.claude/hooks/lint.json" LogicalName=".claude/hooks/lint.json" />
+
+    <!-- GitHub Actions workflow -->
+    <EmbeddedResource Include="Templates/.github/workflows/orchestrator.yml" LogicalName=".github/workflows/orchestrator.yml" />
 
     <!-- Provider: Codex -->
     <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />

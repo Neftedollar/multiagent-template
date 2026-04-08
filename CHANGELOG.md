@@ -6,6 +6,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.19.0] — 2026-04-09
+
+### Added
+- **GitHub Actions workflow** (`.github/workflows/orchestrator.yml`) scaffolded for claude/nessy workspaces — run the autonomous orchestrator in CI via `workflow_dispatch`, issue label trigger (`orchestrator`), or scheduled cron; uses environment variables for all GitHub context data to prevent injection (CWE-78)
+
+---
+
 ## [1.18.0] — 2026-04-09
 
 ### Added
