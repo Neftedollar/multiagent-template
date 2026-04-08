@@ -14,8 +14,10 @@ Scaffold a multi-agent AI workspace where a team of specialized agents — orche
 
 ## Quick Start
 
+> **Recommended: one-liner bootstrap.** Installs all deps (git, gh, jq, .NET 10, agent CLI) and creates the workspace in one shot.
+
 ```bash
-# One-liner bootstrap (macOS / Linux — installs all deps + creates workspace)
+# macOS / Linux
 curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
 
 # Windows (PowerShell)
@@ -23,7 +25,7 @@ irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/boots
 .\bootstrap.ps1 MyProject
 ```
 
-Already have git, gh, jq, and .NET 10 installed?
+Already have git, gh, jq, and .NET 10 installed? (You don't need to know .NET — it's just the packaging mechanism.)
 
 ```bash
 dotnet tool install -g multiagent-setup
@@ -74,16 +76,16 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 
 ## Supported Providers
 
-| Provider | Binary / Tool | Notes |
-|----------|---------------|-------|
-| **claude** | `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — default |
-| **nessy** | `nessy` | [Nessy CLI](https://nessy.ai) — Claude-compatible alias |
-| **codex** | `codex` | [OpenAI Codex CLI](https://github.com/openai/codex) |
-| **qwen** | `qwen-code` | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
-| **cursor** | [Cursor](https://cursor.com) IDE | Rules placed in `.cursor/rules/` (MDC format) |
-| **windsurf** | [Windsurf](https://windsurf.com) IDE | Rules placed in `.windsurf/rules/` (Wave 8+) |
-| **copilot** | GitHub Copilot | Reads `.github/copilot-instructions.md` |
-| **gemini** | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) by Google — creates `GEMINI.md` |
+| Provider | Binary / Tool | Best for | Notes |
+|----------|---------------|----------|-------|
+| **claude** | `claude` | Terminal-first, most capable | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — default |
+| **nessy** | `nessy` | Claude users with a different alias | [Nessy CLI](https://nessy.ai) — Claude-compatible |
+| **codex** | `codex` | OpenAI API key holders | [OpenAI Codex CLI](https://github.com/openai/codex) |
+| **qwen** | `qwen-code` | Open-source model users | [Qwen Code](https://github.com/QwenLM/qwen-code) by Alibaba |
+| **gemini** | `gemini` | Google API key holders | [Gemini CLI](https://github.com/google-gemini/gemini-cli) — creates `GEMINI.md` |
+| **cursor** | [Cursor](https://cursor.com) IDE | IDE-first workflows | Rules in `.cursor/rules/` (MDC format) |
+| **windsurf** | [Windsurf](https://windsurf.com) IDE | IDE-first + Codeium users | Rules in `.windsurf/rules/` (Wave 8+) |
+| **copilot** | GitHub Copilot | VS Code + GitHub users | Reads `.github/copilot-instructions.md` |
 
 Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini).
 
@@ -133,6 +135,15 @@ MyProject/
 └── tools/
     ├── completions.zsh      <- zsh completions
     └── completions.ps1      <- PowerShell completions
+```
+
+**Bringing in an existing codebase:**
+
+```bash
+multiagent-setup new MyProject
+cd MyProject
+git clone https://github.com/my-org/my-repo code/MyProject
+# Edit CLAUDE.md to describe the project → done
 ```
 
 ---
