@@ -12,9 +12,10 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
     if ($tokens.Count -eq 0 -or ($tokens.Count -eq 1 -and -not $sub.StartsWith('-') -and $wordToComplete)) {
         @(
             [pscustomobject]@{ name = 'new';          desc = 'Create a new multi-agent workspace' }
-            [pscustomobject]@{ name = 'sync-roles';   desc = 'Sync agent roles to ~/.claude/commands/' }
+            [pscustomobject]@{ name = 'add-provider'; desc = 'Add a provider to an existing workspace' }
+            [pscustomobject]@{ name = 'sync-roles';   desc = 'Sync agent roles to .claude/commands/ (project-local)' }
             [pscustomobject]@{ name = 'install-mcps'; desc = 'Install age-mcp and o-brien MCP servers' }
-            [pscustomobject]@{ name = 'hook';         desc = 'Run a Claude Code hook (cross-platform)' }
+            [pscustomobject]@{ name = 'hook';         desc = 'Run a built-in hook (cross-platform)' }
         ) | Where-Object { $_.name -like "$wordToComplete*" } | ForEach-Object {
             [System.Management.Automation.CompletionResult]::new($_.name, $_.name, 'ParameterValue', $_.desc)
         }
@@ -23,8 +24,30 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
 
     # Complete flags per subcommand
     switch ($sub) {
+        'new' {
+            if ($tokens.Count -le 2) {
+                @('--provider') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
+                }
+            } elseif ($tokens[-2] -eq '--provider') {
+                @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'all') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+                }
+            }
+        }
+        'add-provider' {
+            if ($tokens.Count -eq 1 -or ($tokens.Count -eq 2 -and $wordToComplete)) {
+                @('claude', 'nessy', 'gemini', 'codex', 'qwen', 'all') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+                }
+            } else {
+                @('--force') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
+                }
+            }
+        }
         'sync-roles' {
-            @('--clone', '--pull', '--agency-dir') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+            @('--clone', '--pull', '--agency-dir', '--workspace-root') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
                 [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
             }
         }
