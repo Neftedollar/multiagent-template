@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" style="border-radius:8px;">
+  <defs>
+    <style>
+      .terminal { font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; font-size: 13px; }
+      .bg { fill: #0d1117; }
+      .bar { fill: #161b22; }
+      .dot-r { fill: #ff5f57; }
+      .dot-y { fill: #febc2e; }
+      .dot-g { fill: #28c840; }
+      .prompt { fill: #58a6ff; }
+      .cmd { fill: #e6edf3; }
+      .ok { fill: #3fb950; }
+      .warn { fill: #d29922; }
+      .dim { fill: #8b949e; }
+      .accent { fill: #79c0ff; }
+      .step { fill: #bc8cff; }
+      .cursor { fill: #58a6ff; }
+
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+      .cursor { animation: blink 1s step-end infinite; }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .l0  { animation: fadeIn 0.3s ease 0.2s  both; }
+      .l1  { animation: fadeIn 0.3s ease 0.8s  both; }
+      .l2  { animation: fadeIn 0.3s ease 1.0s  both; }
+      .l3  { animation: fadeIn 0.3s ease 1.2s  both; }
+      .l4  { animation: fadeIn 0.3s ease 1.4s  both; }
+      .l5  { animation: fadeIn 0.3s ease 1.6s  both; }
+      .l6  { animation: fadeIn 0.3s ease 2.2s  both; }
+      .l7  { animation: fadeIn 0.3s ease 2.5s  both; }
+      .l8  { animation: fadeIn 0.3s ease 2.8s  both; }
+      .l9  { animation: fadeIn 0.3s ease 3.1s  both; }
+      .l10 { animation: fadeIn 0.3s ease 3.4s  both; }
+      .l11 { animation: fadeIn 0.3s ease 3.7s  both; }
+      .l12 { animation: fadeIn 0.3s ease 4.0s  both; }
+      .l13 { animation: fadeIn 0.3s ease 4.3s  both; }
+      .l14 { animation: fadeIn 0.3s ease 4.6s  both; }
+      .l15 { animation: fadeIn 0.3s ease 5.0s  both; }
+      .l16 { animation: fadeIn 0.3s ease 5.3s  both; }
+      .l17 { animation: fadeIn 0.3s ease 5.6s  both; }
+      .l18 { animation: fadeIn 0.3s ease 5.9s  both; }
+      .l19 { animation: fadeIn 0.3s ease 6.4s  both; }
+      .l20 { animation: fadeIn 0.3s ease 6.7s  both; }
+      .l21 { animation: fadeIn 0.3s ease 7.0s  both; }
+      .l22 { animation: fadeIn 0.3s ease 7.3s  both; }
+      .l23 { animation: fadeIn 0.3s ease 7.6s  both; }
+      .l24 { animation: fadeIn 0.3s ease 8.0s  both; }
+      .l25 { animation: fadeIn 0.3s ease 8.3s  both; }
+      .l26 { animation: fadeIn 0.3s ease 8.6s  both; }
+      .l27 { animation: fadeIn 0.3s ease 9.0s  both; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" class="bg"/>
+
+  <!-- Title bar -->
+  <rect width="800" height="36" class="bar"/>
+  <circle cx="16" cy="18" r="6" class="dot-r"/>
+  <circle cx="34" cy="18" r="6" class="dot-y"/>
+  <circle cx="52" cy="18" r="6" class="dot-g"/>
+  <text x="400" y="23" text-anchor="middle" class="terminal dim" font-size="12">zsh — 80×30</text>
+
+  <!-- Terminal content -->
+  <g class="terminal" transform="translate(20, 60)">
+
+    <!-- Command line -->
+    <text class="l0">
+      <tspan class="prompt">❯ </tspan>
+      <tspan class="cmd">multiagent-setup new MyProject</tspan>
+    </text>
+
+    <!-- Version + config -->
+    <text y="22" class="l1 dim">multiagent-setup v1.9.0</text>
+    <text y="38" class="l2">
+      <tspan class="dim">  Project:  </tspan><tspan class="accent">MyProject</tspan>
+    </text>
+    <text y="54" class="l3">
+      <tspan class="dim">  Provider: </tspan><tspan class="accent">claude</tspan>
+    </text>
+
+    <!-- Pre-flight -->
+    <text y="76" class="l4 dim">Pre-flight checks...</text>
+    <text y="92" class="l5">
+      <tspan class="ok">  ✓ git</tspan>
+    </text>
+    <text y="108" class="l6">
+      <tspan class="ok">  ✓ gh  </tspan>
+      <tspan class="ok">  ✓ jq</tspan>
+    </text>
+    <text y="124" class="l7">
+      <tspan class="ok">  ✓ claude</tspan>
+    </text>
+
+    <!-- Creating -->
+    <text y="146" class="l8 dim">Creating workspace...</text>
+    <text y="162" class="l9">
+      <tspan class="dim">  GitHub org:  </tspan><tspan class="accent">my-org</tspan>
+    </text>
+    <text y="178" class="l10">
+      <tspan class="dim">  Target:      </tspan><tspan class="accent">~/MyProject</tspan>
+    </text>
+
+    <!-- Steps -->
+    <text y="200" class="l11">
+      <tspan class="ok">  ✓ templates extracted</tspan>
+    </text>
+    <text y="216" class="l12">
+      <tspan class="ok">  ✓ permissions set</tspan>
+    </text>
+
+    <!-- Cloning agency-agents -->
+    <text y="232" class="l13 dim">Cloning agency-agents...</text>
+    <text y="248" class="l14">
+      <tspan class="ok">  ✓ agency-agents cloned</tspan>
+    </text>
+
+    <!-- Syncing roles -->
+    <text y="264" class="l15 dim">Pulling latest roles...</text>
+    <text y="280" class="l16">
+      <tspan class="ok">  ✓ 32 roles synced to .claude/commands/</tspan>
+    </text>
+
+    <!-- GitHub Project -->
+    <text y="296" class="l17 dim">Creating GitHub Project board 'MyProject-backlog'...</text>
+    <text y="312" class="l18">
+      <tspan class="ok">  ✓ GitHub Project created: </tspan>
+      <tspan class="accent">github.com/orgs/my-org/projects/12</tspan>
+    </text>
+
+    <!-- Git init -->
+    <text y="328" class="l19 dim">Initializing git...</text>
+    <text y="344" class="l20">
+      <tspan class="ok">  ✓ git initialized</tspan>
+    </text>
+
+    <!-- Done -->
+    <text y="366" class="l21">
+      <tspan class="ok" font-weight="bold">Done! Workspace created at: ~/MyProject</tspan>
+    </text>
+
+    <!-- Next steps -->
+    <text y="388" class="l22 dim">Next steps:</text>
+    <text y="404" class="l23 dim">  1. cd MyProject</text>
+    <text y="420" class="l24 dim">  2. Clone your code repo into code/MyProject</text>
+    <text y="436" class="l25">
+      <tspan class="dim">  3. </tspan>
+      <tspan class="prompt">claude</tspan>
+      <tspan class="dim"> then </tspan>
+      <tspan class="step">/orchestrator</tspan>
+      <tspan class="dim"> Build me a REST API</tspan>
+    </text>
+
+    <!-- Cursor -->
+    <text y="462" class="l27">
+      <tspan class="prompt">❯ </tspan>
+      <tspan class="cursor" font-weight="bold">█</tspan>
+    </text>
+
+  </g>
+</svg>
