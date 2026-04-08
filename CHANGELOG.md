@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.17.0] — 2026-04-09
+
+### Added
+- **Cline provider** (`--provider cline` / `add-provider cline`) — generates `.clinerules` for VS Code Cline and Roo Code extensions; rules load automatically per project
+- **Aider provider** (`--provider aider` / `add-provider aider`) — generates `.aider.conf.yml` (auto-reads `CLAUDE.md` + `docs/process.md`) and `AIDER.md`; includes conventional-commit prompt
+- Both providers included in `--provider all`
+- `TemplateResources.IsTextResource` extended with `.yml`, `.yaml`, and `.clinerules` support
+- Shell completions (zsh + PowerShell) updated for new providers
+
+---
+
 ## [1.16.0] — 2026-04-09
 
 ### Added

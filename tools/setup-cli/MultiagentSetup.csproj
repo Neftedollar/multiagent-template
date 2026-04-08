@@ -7,10 +7,10 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.16.0</Version>
-    <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot)</Description>
+    <Version>1.17.0</Version>
+    <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Aider, Cline, Cursor, Windsurf, Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
-    <PackageTags>claude;nessy;gemini;codex;qwen;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
+    <PackageTags>claude;nessy;gemini;codex;qwen;aider;cline;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>
     <AssemblyName>MultiagentSetup</AssemblyName>
     <RootNamespace>MultiagentSetup</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -69,6 +69,13 @@
     <!-- Provider: Gemini -->
     <EmbeddedResource Include="Templates/providers/gemini/.gemini/settings.json" LogicalName="providers/gemini/.gemini/settings.json" />
     <EmbeddedResource Include="Templates/providers/gemini/GEMINI.md" LogicalName="providers/gemini/GEMINI.md" />
+
+    <!-- Provider: Cline -->
+    <EmbeddedResource Include="Templates/providers/cline/.clinerules" LogicalName="providers/cline/.clinerules" />
+
+    <!-- Provider: Aider -->
+    <EmbeddedResource Include="Templates/providers/aider/.aider.conf.yml" LogicalName="providers/aider/.aider.conf.yml" />
+    <EmbeddedResource Include="Templates/providers/aider/AIDER.md" LogicalName="providers/aider/AIDER.md" />
 
     <!-- Tool scripts -->
     <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />

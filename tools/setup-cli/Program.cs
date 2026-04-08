@@ -39,9 +39,9 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "all"];
+    string[] validProviders = ["claude", "nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider", "all"];
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: claude, nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, all");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
 }
@@ -54,7 +54,7 @@ async Task<int> HandleAddProvider(string[] a)
 
     bool force = a.Contains("--force");
 
-    string[] validProviders = ["nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini"];
+    string[] validProviders = ["nessy", "codex", "qwen", "cursor", "windsurf", "copilot", "gemini", "cline", "aider"];
 
     if (provider == "all")
     {
@@ -67,7 +67,7 @@ async Task<int> HandleAddProvider(string[] a)
     }
 
     if (!validProviders.Contains(provider))
-        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, all");
 
     return await new AddProviderCommand(provider, force).ExecuteAsync();
 }
@@ -102,9 +102,10 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("Commands:");
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine("    --provider <name>                 Provider: claude (default), nessy, codex, qwen,");
-    Console.WriteLine("                                               cursor, windsurf, copilot, gemini, all");
+    Console.WriteLine("                                               cursor, windsurf, copilot, gemini,");
+    Console.WriteLine("                                               cline, aider, all");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
-    Console.WriteLine("    <name>: nessy, codex, qwen, cursor, windsurf, copilot, gemini, all");
+    Console.WriteLine("    <name>: nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, all");
     Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");

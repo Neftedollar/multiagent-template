@@ -1,0 +1,22 @@
+# Aider configuration for {{PROJECT_NAME}} multi-agent workspace
+# Full reference: https://aider.chat/docs/config/aider_conf.html
+
+## Always include workspace context in every session
+read:
+  - CLAUDE.md
+  - docs/process.md
+
+## Commit settings — workspace uses conventional commits
+auto-commits: false
+commit-prompt: |
+  Write a conventional commit message for the changes.
+  Format: <type>(<scope>): <description>
+  Types: feat, fix, chore, docs, refactor, test, style, perf, ci
+  Keep subject under 72 characters.
+
+## Disable auto-attribution (workspace team tracks authorship separately)
+attribute-author: false
+attribute-committer: false
+
+## Show diffs before applying (recommended for pipeline work)
+# auto-accept-architect: false
