@@ -13,6 +13,7 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
         @(
             [pscustomobject]@{ name = 'new';          desc = 'Create a new multi-agent workspace' }
             [pscustomobject]@{ name = 'add-provider'; desc = 'Add a provider to an existing workspace' }
+            [pscustomobject]@{ name = 'update';       desc = 'Update workspace templates to latest version' }
             [pscustomobject]@{ name = 'sync-roles';   desc = 'Sync agent roles to .claude/commands/ (project-local)' }
             [pscustomobject]@{ name = 'install-mcps'; desc = 'Install age-mcp and o-brien MCP servers' }
             [pscustomobject]@{ name = 'hook';         desc = 'Run a built-in hook (cross-platform)' }
@@ -48,6 +49,11 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
                 @('--force') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
                     [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
                 }
+            }
+        }
+        'update' {
+            @('--force') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
             }
         }
         'sync-roles' {

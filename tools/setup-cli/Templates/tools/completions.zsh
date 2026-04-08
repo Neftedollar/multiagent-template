@@ -33,6 +33,7 @@ _multiagent_setup() {
   subcommands=(
     'new:Create a new multi-agent workspace'
     'add-provider:Add a provider to an existing workspace'
+    'update:Update workspace templates to latest version'
     'sync-roles:Sync agent roles to ~/.claude/commands/'
     'install-mcps:Install age-mcp and o-brien MCP servers'
     'hook:Run a built-in hook (cross-platform)'
@@ -66,6 +67,8 @@ _multiagent_setup() {
           3) _describe 'provider' providers ;;
           *) compadd -- --force ;;
         esac ;;
+      update)
+        compadd -- --force ;;
       sync-roles)
         compadd -- --clone --pull --agency-dir ;;
       install-mcps)

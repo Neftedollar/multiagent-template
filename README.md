@@ -42,6 +42,10 @@ multiagent-setup new MyProject --provider all        # all providers at once
 # Add a provider to an existing workspace (no need to recreate)
 multiagent-setup add-provider cursor
 multiagent-setup add-provider gemini --force   # overwrite existing files
+
+# Update an existing workspace to the latest templates
+multiagent-setup update          # skip already-customised files
+multiagent-setup update --force  # overwrite everything (CLAUDE.md preserved)
 ```
 
 Then start working:
@@ -214,6 +218,7 @@ See [`examples/`](examples/) for concrete workflows:
 ```bash
 multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|all]
 multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
+multiagent-setup update [--force]                    # update workspace templates to latest version
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
 multiagent-setup hook <name>
