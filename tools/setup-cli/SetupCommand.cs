@@ -68,15 +68,15 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         Console.WriteLine($"  1. cd {targetDir}");
         Console.WriteLine($"  2. Clone your code repo into code/{projectName}");
         Console.WriteLine($"  3. (Optional) Install MCPs: multiagent-setup install-mcps");
+        if (providers.Contains("claude") || providers.Contains("nessy"))
+            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull");
+        Console.WriteLine($"  5. Start working:");
         if (providers.Contains("claude"))
-        {
-            Console.WriteLine($"  4. (Optional) Update roles: multiagent-setup sync-roles --pull --provider claude");
-            Console.WriteLine($"  5. Start working: claude then /orchestrator <task>");
-        }
+            Console.WriteLine($"       claude        → /orchestrator <task>");
         if (providers.Contains("codex"))
-            Console.WriteLine($"  5. Start working: codex then /orchestrator <task>");
+            Console.WriteLine($"       codex         → /orchestrator <task>");
         if (providers.Contains("qwen"))
-            Console.WriteLine($"  5. Start working: qwen-code");
+            Console.WriteLine($"       qwen-code     → /orchestrator <task>");
         Console.WriteLine();
         return 0;
     }
@@ -86,9 +86,9 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static bool CheckTools(string provider)
     {
         var ok = true;
-        ok &= Require("git");
-        ok &= Require("jq");
-        ok &= Require("gh");
+        ok &= Require("git", macOs: "brew install git",      win: "winget install Git.Git");
+        ok &= Require("jq",  macOs: "brew install jq",       win: "winget install jqlang.jq");
+        ok &= Require("gh",  macOs: "brew install gh",        win: "winget install GitHub.cli");
         var providers = provider == "all" ? new[] { "claude", "codex", "qwen" } : new[] { provider };
         if (providers.Contains("claude"))
             Suggest("claude",     "https://docs.anthropic.com/en/docs/claude-code");
@@ -100,10 +100,12 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         return ok;
     }
 
-    private static bool Require(string name)
+    private static bool Require(string name, string macOs = "", string win = "")
     {
         if (ProcessHelper.IsOnPath(name)) { Console.WriteLine($"  OK: {name}"); return true; }
-        Console.Error.WriteLine($"  FAIL: {name} not found — install it and re-run");
+        var hint = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? win : macOs;
+        var install = string.IsNullOrEmpty(hint) ? "install it and re-run" : $"{hint}";
+        Console.Error.WriteLine($"  FAIL: {name} not found — {install}");
         return false;
     }
 
