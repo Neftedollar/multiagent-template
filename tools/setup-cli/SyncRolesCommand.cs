@@ -23,6 +23,9 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride, s
 
         var currentAction = action;
 
+        if (currentAction != "--clone" && currentAction != "--pull")
+            currentAction = "--pull"; // default to pull when no action specified
+
         // ── Clone ─────────────────────────────────────────────────────────────
         if (currentAction == "--clone")
         {
