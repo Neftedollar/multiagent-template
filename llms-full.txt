@@ -59,6 +59,8 @@ Creates a workspace directory at `./project-name/`. Clones agency-agents and syn
 
 Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `cline`, `aider`, `continue`, `roo`, `all`
 
+Templates: `default` (generic), `saas` (SaaS product — user impact, feature flags, analytics, SLO gates), `oss` (Open Source — CHANGELOG, semver, backward-compat gates, contributor guidelines), `internal` (Internal tools — simplified pipeline, lighter gates, speed over ceremony)
+
 ### `sync-roles` — Update agent roles
 
 ```bash

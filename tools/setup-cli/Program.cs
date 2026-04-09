@@ -45,8 +45,9 @@ async Task<int> HandleNew(string[] a)
             org ??= a[i];
     }
 
-    if (template is not null && template != "default")
-        Console.WriteLine($"  INFO: template '{template}' not yet available — using 'default'. Track: https://github.com/Neftedollar/multiagent-template/issues/111");
+    template ??= "default";
+    if (template is not ("default" or "saas" or "oss" or "internal"))
+        return PrintUsage(error: $"Unknown template '{template}'. Valid: default, saas, oss, internal");
 
     // Interactive provider picker when not specified and stdin is a terminal
     if (provider is null && !Console.IsInputRedirected)
@@ -57,7 +58,7 @@ async Task<int> HandleNew(string[] a)
     if (provider != "all" && ProviderRegistry.Find(provider) is null)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
 
-    return await new SetupCommand(name, org, provider).ExecuteAsync();
+    return await new SetupCommand(name, org, provider, template).ExecuteAsync();
 }
 
 async Task<int> HandleInit(string[] a)
@@ -80,8 +81,9 @@ async Task<int> HandleInit(string[] a)
             dir ??= a[i];
     }
 
-    if (template is not null && template != "default")
-        Console.WriteLine($"  INFO: template '{template}' not yet available — using 'default'. Track: https://github.com/Neftedollar/multiagent-template/issues/111");
+    template ??= "default";
+    if (template is not ("default" or "saas" or "oss" or "internal"))
+        return PrintUsage(error: $"Unknown template '{template}'. Valid: default, saas, oss, internal");
 
     dir = Path.GetFullPath(dir ?? Directory.GetCurrentDirectory());
 
@@ -97,7 +99,7 @@ async Task<int> HandleInit(string[] a)
     if (provider != "all" && ProviderRegistry.Find(provider) is null)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
 
-    return await new InitCommand(dir, org, provider, force).ExecuteAsync();
+    return await new InitCommand(dir, org, provider, force, template).ExecuteAsync();
 }
 
 async Task<int> HandleRemoveProvider(string[] a)
@@ -189,12 +191,12 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
-    Console.WriteLine("    --template <name>                 Workspace template: default (only option currently)");
+    Console.WriteLine("    --template <name>                 Workspace template: default, saas, oss, internal");
     Console.WriteLine("  init [dir]                          Add workspace files to an existing git repo (does not touch your code)");
     Console.WriteLine("    dir                               Target directory — must already be a git repo (default: current)");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
-    Console.WriteLine("    --template <name>                 Workspace template: default (only option currently)");
+    Console.WriteLine("    --template <name>                 Workspace template: default, saas, oss, internal");
     Console.WriteLine("    --force                           Overwrite existing files");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
     Console.WriteLine($"    <name>: {addNames}");

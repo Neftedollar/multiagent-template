@@ -90,6 +90,11 @@
     <!-- Provider: Roo Code -->
     <EmbeddedResource Include="Templates/providers/roo/.roo/rules/workspace.md" LogicalName="providers/roo/.roo/rules/workspace.md" />
 
+    <!-- Template variants -->
+    <EmbeddedResource Include="Templates/variants/saas/docs/process.md" LogicalName="variant/saas/docs/process.md" />
+    <EmbeddedResource Include="Templates/variants/oss/docs/process.md" LogicalName="variant/oss/docs/process.md" />
+    <EmbeddedResource Include="Templates/variants/internal/docs/process.md" LogicalName="variant/internal/docs/process.md" />
+
     <!-- Tool scripts -->
     <EmbeddedResource Include="Templates/tools/sync-roles.sh" LogicalName="tools/sync-roles.sh" />
     <EmbeddedResource Include="Templates/tools/sync-roles.ps1" LogicalName="tools/sync-roles.ps1" />
