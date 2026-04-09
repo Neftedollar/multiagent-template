@@ -19,7 +19,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Fixed
 - **Cursor/Windsurf/Codex orchestrators** — fixed infra pipeline (missing TEST step), added VERIFY pre-SHIP checklist, Step 4b, ad-hoc role delegation.
-- **Qwen path** — `.qwen/commands/` corrected to `.qwen/agents/` (matches Qwen Code SubAgent format per `convert.sh`).
+- **Qwen** — added orchestrator and prompt-engineer templates at `.qwen/agents/` (correct Qwen Code SubAgent path per `convert.sh`; QWEN.md previously referenced a non-existent `.qwen/commands/` path).
 - **`docs/workflows/REGISTRY.md` template** — synced missing Reality Checker entry.
 
 ### Changed

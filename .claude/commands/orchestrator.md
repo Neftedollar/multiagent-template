@@ -231,11 +231,13 @@ Agent(
 
     Return:
     - APPROVED: unified summary of decisions, list of files changed, any minor conflicts resolved
-    - NEEDS CONSOLIDATION: list each conflict with both positions; do not resolve — escalate
+    - NEEDS CONSOLIDATION: list each conflict with both positions; do not resolve
   """
 )
 ```
 The consolidator's result is the gate output for the step. Only APPROVED advances the pipeline.
+
+**On `NEEDS CONSOLIDATION`:** This is a CEO escalation — do not retry automatically. Present both conflicting positions to the CEO and ask for a resolution decision. Once resolved, re-run the affected parallel agents with the resolution in their context.
 
 **Gate evaluation:**
 - Each step (or consolidation) produces APPROVED or NEEDS WORK (reason).
