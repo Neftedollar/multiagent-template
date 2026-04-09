@@ -164,10 +164,40 @@ Match task type to pipeline. **Every step is mandatory — no skipping.**
 ```
 If either box is unchecked — run that step now. SHIP is blocked until both pass.
 
+### Step 4b: Log Discovered Issues (do not skip)
+
+During any pipeline step, agents may surface issues **unrelated to the current task** — bugs, tech debt, security findings, config problems, broken tests, stale docs. **Do not ignore these.** Log every discovered issue before moving on.
+
+**What counts as a discovered issue:**
+- Bug in code not touched by this task (wrong behavior, crash, broken test)
+- Security finding (hardcoded secret, missing auth check, vulnerable dependency)
+- Tech debt that blocks future work (fragile logic, missing abstraction, test gap)
+- Broken config, stale documentation, outdated dependency
+- Performance problem noticed in passing (N+1, missing index)
+
+**How to log (in priority order, stop at first available):**
+
+| Tracking system | How |
+|-----------------|-----|
+| GitHub Issues | `gh issue create --title "<title>" --body "<details>" --label "bug"` |
+| GitLab Issues | `glab issue create --title "<title>" --description "<details>"` |
+| Jira | `jira issue create -p <project> -t Bug -s "<title>" -b "<details>"` |
+| O'Brien memory | `o-brien.store(content: "<details>", tags: ["discovered-issue", "<category>"])` |
+
+**When tracking system is unknown** — use O'Brien. Orchestrator does NOT stop to ask which system to use.
+
+**Logging rules:**
+- Log immediately when discovered — do not defer until end of task
+- One issue = one ticket (do not batch unrelated findings)
+- Include: file/location, what's wrong, discovery context (e.g., "found during BUILD step of issue #42")
+- Label clearly: `bug`, `security`, `tech-debt`, `docs`, `performance`
+- **Do not fix** the discovered issue inline unless it blocks the current task gate — just log and continue
+- If a finding is security-critical (secret exposed, auth bypass) — log AND flag to CEO immediately
+
 ### Step 5: Deliver Results
 - Git: create branch, commit, create PR (do not merge)
 - Update GitHub Project status
-- Report to CEO (informational, non-blocking)
+- Report to CEO (informational, non-blocking) — include count of any issues logged during this run
 - Evaluate turn budget before taking next task
 
 ## Model Assignments
