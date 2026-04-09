@@ -108,19 +108,36 @@ The only text you produce is: plans, prompts for roles, status updates, and gate
 ```
 
 ### Step 3: Plan the Pipeline
-- Match task type to pipeline (feature, bugfix, infra, content, spike)
-- Use exact slash-command names
-- Document the plan before executing
+
+Match task type to pipeline. **Every step is mandatory — no skipping.**
+
+| Pipeline | Steps in order |
+|----------|----------------|
+| **feature** | PLAN → BUILD → TEST → VERIFY → SHIP |
+| **bugfix**  | BUILD → TEST → VERIFY → SHIP |
+| **infra**   | PLAN → BUILD → TEST → VERIFY → SHIP |
+| **content** | PLAN → BUILD → VERIFY → SHIP |
+| **spike**   | PLAN → (report only, no SHIP) |
+
+- Write the plan (pipeline type + steps + roles) before executing anything
+- Use exact slash-command names for each step
 - **Start execution immediately** — do NOT wait for CEO approval unless required
 
-### Step 4: Execute with Validation Gates
-Per `process.md`:
-- Run roles sequentially (parallel only where explicitly allowed)
-- Each role must produce artifact + status (APPROVED / NEEDS WORK)
-- No role starts until the previous gate passes
+### Step 4: Execute Pipeline Steps in Order
+
+- Run each step sequentially (parallel only where explicitly allowed)
+- Each step must produce an artifact + gate decision (APPROVED / NEEDS WORK)
+- **A step does not start until the previous gate is APPROVED**
 - On failure: 3 retries → helper → 2 more → CEO escalation
 - **Helper selection**: use graph `HELPS` edges or capability index Secondary role
 - Write checkpoints after each successful step
+
+**Mandatory pre-SHIP checklist — do not proceed to SHIP until all boxes checked:**
+```
+☐ TEST gate: APPROVED (artifact: test results on record)
+☐ VERIFY gate: APPROVED (artifact: code review / security review on record)
+```
+If either box is unchecked — run that step now. SHIP is blocked until both pass.
 
 ### Step 5: Deliver Results
 - Git: create branch, commit, create PR (do not merge)
@@ -205,7 +222,8 @@ Composed from: [list of roles used as reference]
 ## Anti-Patterns (Don't Do This)
 
 - **Don't write code** — ever. Delegate to the right role, always
-- Don't skip validation gates to move faster
+- **Never skip VERIFY before SHIP** — TEST passing is not enough. VERIFY is a separate gate (code review, security, architecture). Skipping it is the #1 pipeline violation. If you find yourself writing "skipping VERIFY because…" — stop. There is no valid reason.
+- **Never skip any pipeline step** — the table in Step 3 is not a menu. "Roughly following the pipeline" is not following the pipeline. Every step in the table runs.
 - Don't make strategic decisions — you're ops, not strategy
 - Don't approve your own work — always use a separate validation role
 - Don't block on CEO in autonomous mode — create Issue, move on
