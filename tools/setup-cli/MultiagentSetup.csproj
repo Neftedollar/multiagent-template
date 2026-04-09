@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>multiagent-setup</ToolCommandName>
     <PackageId>multiagent-setup</PackageId>
-    <Version>1.28.0</Version>
+    <Version>1.29.0</Version>
     <Description>Scaffold a multi-agent AI workspace (Claude, Nessy, Gemini, Codex, Qwen, Aider, Cline, Roo Code, Continue, Cursor, Windsurf, Copilot)</Description>
     <Authors>Roman Melnikov</Authors>
     <PackageTags>claude;nessy;gemini;codex;qwen;aider;cline;roo;continue;cursor;windsurf;copilot;ai;multiagent;workspace;orchestrator;developer-tools;agents</PackageTags>

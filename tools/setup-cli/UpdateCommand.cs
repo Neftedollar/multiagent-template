@@ -103,9 +103,7 @@ public sealed class UpdateCommand(bool force = false)
             ["{{GITHUB_REPO}}"]         = githubRepo,
             ["{{GRAPH_NAME}}"]          = graphName,
             ["{{DATE}}"]                = DateTime.Today.ToString("yyyy-MM-dd"),
-            ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                                            ? @"$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
-                                            : "$HOME/.dotnet/tools/multiagent-setup",
+            ["{{HOOK_EXEC}}"]           = TemplateResources.ResolveHookExec(),
         };
     }
 

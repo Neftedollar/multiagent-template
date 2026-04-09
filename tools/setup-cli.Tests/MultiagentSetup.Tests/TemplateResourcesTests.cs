@@ -45,4 +45,21 @@ public class TemplateResourcesTests
         Assert.True(TemplateResources.IsTextResource("providers/cline/.clinerules"));
         Assert.False(TemplateResources.IsTextResource("myclinerules"));  // no leading dot
     }
+
+    // ── ResolveHookExec ───────────────────────────────────────────────────────
+
+    [Fact]
+    public void ResolveHookExec_ReturnsNonEmptyString()
+    {
+        var result = TemplateResources.ResolveHookExec();
+        Assert.False(string.IsNullOrWhiteSpace(result));
+    }
+
+    [Fact]
+    public void ResolveHookExec_ContainsMultiagentSetup()
+    {
+        // The resolved path should always reference the binary name
+        var result = TemplateResources.ResolveHookExec();
+        Assert.Contains("multiagent-setup", result, StringComparison.OrdinalIgnoreCase);
+    }
 }

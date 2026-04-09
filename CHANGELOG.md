@@ -6,6 +6,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.29.0] — 2026-04-09
+
+### Fixed
+- **`{{HOOK_EXEC}}` for Homebrew/binary installs** — hook commands in `.claude/settings.json` now resolve to the actual running binary path (`Process.MainModule.FileName`) instead of always assuming the dotnet global-tool path. Homebrew (`/opt/homebrew/bin/multiagent-setup`) and direct binary downloads now produce a working hook configuration. Falls back to `$HOME/.dotnet/tools/multiagent-setup` when the process name doesn't match.
+- Applied fix to all three commands that write settings: `new`, `add-provider`, `update`.
+- `TemplateResources.ResolveHookExec()` extracted as shared helper; 2 new tests added.
+
+### Changed
+- **`bootstrap.sh`** — on macOS with Homebrew present, installs `multiagent-setup` via tap (`brew install Neftedollar/multiagent-template/multiagent-setup`) instead of dotnet tool, skipping the .NET SDK requirement.
+
+Total tests: **127** (was 125).
+
+---
+
 ## [1.28.0] — 2026-04-09
 
 ### Added

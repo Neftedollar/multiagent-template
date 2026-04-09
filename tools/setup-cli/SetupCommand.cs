@@ -178,9 +178,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ["{{GITHUB_REPO}}"]         = project,
         ["{{GRAPH_NAME}}"]          = graph,
         ["{{DATE}}"]                = DateTime.Today.ToString("yyyy-MM-dd"),
-        ["{{HOOK_EXEC}}"]           = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                                        ? @"$env:USERPROFILE\.dotnet\tools\multiagent-setup.exe"
-                                        : "$HOME/.dotnet/tools/multiagent-setup",
+        ["{{HOOK_EXEC}}"]           = TemplateResources.ResolveHookExec(),
     };
 
     private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
