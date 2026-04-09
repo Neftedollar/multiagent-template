@@ -90,22 +90,32 @@ The only text you produce is: plans, prompts for roles, status updates, and gate
 - Determine scope: strategy, engineering, marketing, docs, or cross-functional?
 - Check relevant context: CLAUDE.md files, existing docs, GitHub issues
 
-### Step 2: Select Roles Dynamically
-**Do NOT use hardcoded role assignments.** Use graph + `docs/role-capabilities.md`:
+### Step 2: Select Roles Per Step
+
+**Do NOT use hardcoded role assignments. Roles are selected per pipeline step, not once for the whole task.**
+
+**Primary source: `docs/role-capabilities.md`** (always available)
 
 ```
-1. Extract signals: labels, files_to_change, keywords, domain
-2. Query graph for affected modules:
-   cypher_query("MATCH (m:Module) WHERE m.path CONTAINS $file_pattern RETURN m")
-3. Query graph for role relationships:
-   cypher_query("MATCH (s:Step {ident: $current_step})-[:PERFORMED_BY]->(r:Role) RETURN r")
-   cypher_query("MATCH (r:Role {ident: $role})-[:HELPS]->(helper:Role) RETURN helper")
-4. Cross-reference with docs/role-capabilities.md for roles NOT in graph
-5. Pick Primary + Secondary roles
-6. Decide composition: sequential (A → B), parallel (A + B), or composite
-7. IF no good match → create ad-hoc role (see "Ad-Hoc Role Creation")
-8. Assign model tier from Role node properties (tier, model fields)
+For each pipeline step:
+1. Extract signals from task: keywords, file patterns, domain, labels
+2. Look up default role for this step (role-capabilities.md → "Default role per pipeline step")
+3. Check signal tables for domain-specific role (role-capabilities.md → "Signals for role selection")
+4. Check conditional role tables for this step type (PLAN / TEST / VERIFY each have their own)
+5. Compose: default role + any matched conditional roles
+6. Decide execution: sequential (A → B) or parallel (A + B) within the step
+7. IF no role matches → create ad-hoc role (see "Ad-Hoc Role Creation")
 ```
+
+**Optional enrichment: graph** (skip if not configured)
+```
+# Affected modules
+cypher_query("MATCH (m:Module) WHERE m.path CONTAINS '<path>' RETURN m")
+# Role relationships
+cypher_query("MATCH (s:Step {ident: '<step>'})-[:PERFORMED_BY]->(r:Role) RETURN r")
+```
+
+**VERIFY minimum:** `/testing-reality-checker` + `/engineering-code-reviewer` — both always run, no exceptions.
 
 ### Step 3: Plan the Pipeline
 

@@ -64,6 +64,27 @@
 | Market research, competitors | `/product-trend-researcher` | `/product-manager` |
 | Process design | `/specialized-workflow-architect` | `/testing-workflow-optimizer` |
 
+### Agent Prompt Engineering
+| Capability | Primary | Secondary |
+|------------|---------|-----------|
+| System prompts, role definitions, slash commands, agentic pipeline design | `/engineering-agent-prompt-engineer` | `/engineering-ai-engineer` |
+
+---
+
+## Default role per pipeline step
+
+Use these when no specific signal matches. Always run the default role; conditional roles add to it.
+
+| Step   | Default role(s) | Notes |
+|--------|-----------------|-------|
+| PLAN   | `/product-manager` | + `/engineering-software-architect` if task involves code changes |
+| BUILD  | determined by domain mapping above | no single default — must match signals |
+| TEST   | `/testing-reality-checker` | checks that the feature works end-to-end as intended |
+| VERIFY | `/testing-reality-checker` + `/engineering-code-reviewer` | both always run — reality checker validates end-to-end correctness, code reviewer checks code quality + patterns; + conditional roles below based on what BUILD touched |
+| SHIP   | orchestrator (no agent role) | git branch, commit, PR creation — orchestrator does this directly |
+
+**VERIFY is never empty.** Minimum: `/testing-reality-checker` + `/engineering-code-reviewer`. Always both.
+
 ---
 
 ## Signals for role selection
