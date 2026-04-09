@@ -64,9 +64,15 @@ multiagent-setup new MyProject --provider continue   # Continue.dev (VS Code / J
 multiagent-setup new MyProject --provider roo        # Roo Code (VS Code)
 multiagent-setup new MyProject --provider all        # all providers at once
 
+# Choose a workspace template (saas, oss, internal, or default)
+multiagent-setup new MyProject --template saas       # SaaS product (user-impact gates, feature flags, SLO review)
+multiagent-setup new MyProject --template oss        # Open source (CHANGELOG, semver, backward-compat gates)
+multiagent-setup new MyProject --template internal   # Internal tools (lighter pipeline, no external gates)
+
 # Add workspace files to an existing git repo (does not touch your code)
 multiagent-setup init .                              # current directory
 multiagent-setup init ./my-repo                      # specific directory
+multiagent-setup init . --template saas              # with template
 
 # Add a provider to an existing workspace (no need to recreate)
 multiagent-setup add-provider cursor
@@ -323,6 +329,10 @@ multiagent-setup -v | --version
 
 Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Each provider gets its own directory under `providers/`. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to add a new provider.
 
+Questions and ideas → [Discussions](https://github.com/Neftedollar/multiagent-template/discussions).
+
+If this saves you time, a ⭐ star helps others find it.
+
 ---
 
 ## FAQ
@@ -359,14 +369,6 @@ Yes. A GitHub Actions workflow (`orchestrator.yml`) is scaffolded for claude/nes
 
 **Does the pipeline need internet access?**  
 Only for git push/PR creation steps and any web research the agent does. All local code analysis, formatting, and linting runs offline.
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Questions and ideas → [Discussions](https://github.com/Neftedollar/multiagent-template/discussions).
-
-If this saves you time, a ⭐ star helps others find it.
 
 ---
 

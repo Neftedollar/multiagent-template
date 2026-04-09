@@ -129,6 +129,9 @@ if (-not $installed) {
 
 # Build argument list based on mode
 if ($_Mode -eq "init") {
+    if ($GithubOrg) {
+        Write-Warning "GithubOrg ('$GithubOrg') is ignored in init mode — org is inferred from the repo's git remote."
+    }
     $argList = @("init", $_Target)
     if ($Provider) { $argList += "--provider"; $argList += $Provider }
 } else {

@@ -52,7 +52,7 @@ dotnet tool install -g multiagent-setup
 ### `new` — Create workspace
 
 ```bash
-multiagent-setup new <project-name> [github-org] [--provider <name>]
+multiagent-setup new <project-name> [github-org] [--provider <name>] [--template <name>]
 ```
 
 Creates a workspace directory at `./project-name/`. Clones agency-agents and syncs roles globally to `~/.claude/commands/`. Initializes a git repo in the workspace.
@@ -60,6 +60,14 @@ Creates a workspace directory at `./project-name/`. Clones agency-agents and syn
 Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `cline`, `aider`, `continue`, `roo`, `all`
 
 Templates: `default` (generic), `saas` (SaaS product — user impact, feature flags, analytics, SLO gates), `oss` (Open Source — CHANGELOG, semver, backward-compat gates, contributor guidelines), `internal` (Internal tools — simplified pipeline, lighter gates, speed over ceremony)
+
+### `init` — Add workspace to existing repo
+
+```bash
+multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]
+```
+
+Adds workspace files (CLAUDE.md, docs/, .claude/, hooks) to an existing git repository without creating a new directory or touching your code. `dir` defaults to the current directory. Must already be a git repository. `--force` overwrites existing files.
 
 ### `sync-roles` — Update agent roles
 
