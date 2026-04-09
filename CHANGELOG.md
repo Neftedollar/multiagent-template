@@ -6,6 +6,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.35.0] — 2026-04-09
+
+### Added
+- **Orchestrator: real Agent subagents (Claude Code)** — orchestrator now spawns `Agent(subagent_type: "general-purpose")` with the role file injected into the prompt instead of simulating roles inline. Each agent gets an isolated context with no session history.
+- **Orchestrator: model selection per step** — each agent spawn specifies `model`: `haiku` for data gathering/git ops/test runner, `sonnet` for implementation/analysis, `opus` for architecture/VERIFY/consolidation.
+- **Orchestrator: parallel consolidation** — after any parallel step, a mandatory consolidation agent (opus) reviews all parallel outputs for conflicts, duplicates, and coverage gaps before advancing the pipeline.
+- **Orchestrator: worktree isolation** — all BUILD agents that write code use `isolation: "worktree"` for branch isolation.
+- **`engineering-agent-prompt-engineer` role** added to provider templates: codex, cursor, windsurf, roo, qwen.
+- **Orchestrator** added to provider templates: roo (`.roo/rules/`), kiro (`.kiro/steering/`), qwen (`.qwen/agents/`).
+- **Step 4b: log discovered issues** — orchestrator now logs any bugs, security findings, tech debt, or broken config discovered during pipeline execution before continuing.
+
+### Fixed
+- **Cursor/Windsurf/Codex orchestrators** — fixed infra pipeline (missing TEST step), added VERIFY pre-SHIP checklist, Step 4b, ad-hoc role delegation.
+- **Qwen path** — `.qwen/commands/` corrected to `.qwen/agents/` (matches Qwen Code SubAgent format per `convert.sh`).
+- **`docs/workflows/REGISTRY.md` template** — synced missing Reality Checker entry.
+
+### Changed
+- **`.gitignore`** — added test workspace patterns (`Test*/`, `add-provider/`, `doctor/`, `init/`, `list-providers/`, `update/`) to prevent accidental commits of CLI test artifacts.
+
+---
+
 ## [1.34.0] — 2026-04-09
 
 ### Added
