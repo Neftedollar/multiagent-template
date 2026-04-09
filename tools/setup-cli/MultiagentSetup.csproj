@@ -57,19 +57,24 @@
     <EmbeddedResource Include="Templates/providers/codex/.codex/config.toml" LogicalName="providers/codex/.codex/config.toml" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/hooks.json" LogicalName="providers/codex/.codex/hooks.json" />
     <EmbeddedResource Include="Templates/providers/codex/.codex/skills/orchestrator.md" LogicalName="providers/codex/.codex/skills/orchestrator.md" />
+    <EmbeddedResource Include="Templates/providers/codex/.codex/skills/engineering-agent-prompt-engineer.md" LogicalName="providers/codex/.codex/skills/engineering-agent-prompt-engineer.md" />
     <EmbeddedResource Include="Templates/providers/codex/AGENTS.md" LogicalName="providers/codex/AGENTS.md" />
 
     <!-- Provider: Qwen -->
     <EmbeddedResource Include="Templates/providers/qwen/.qwen/settings.json" LogicalName="providers/qwen/.qwen/settings.json" />
+    <EmbeddedResource Include="Templates/providers/qwen/.qwen/agents/orchestrator.md" LogicalName="providers/qwen/.qwen/agents/orchestrator.md" />
+    <EmbeddedResource Include="Templates/providers/qwen/.qwen/agents/engineering-agent-prompt-engineer.md" LogicalName="providers/qwen/.qwen/agents/engineering-agent-prompt-engineer.md" />
     <EmbeddedResource Include="Templates/providers/qwen/QWEN.md" LogicalName="providers/qwen/QWEN.md" />
 
     <!-- Provider: Cursor -->
     <EmbeddedResource Include="Templates/providers/cursor/.cursor/rules/workspace.mdc" LogicalName="providers/cursor/.cursor/rules/workspace.mdc" />
     <EmbeddedResource Include="Templates/providers/cursor/.cursor/rules/orchestrator.mdc" LogicalName="providers/cursor/.cursor/rules/orchestrator.mdc" />
+    <EmbeddedResource Include="Templates/providers/cursor/.cursor/rules/engineering-agent-prompt-engineer.mdc" LogicalName="providers/cursor/.cursor/rules/engineering-agent-prompt-engineer.mdc" />
 
     <!-- Provider: Windsurf -->
     <EmbeddedResource Include="Templates/providers/windsurf/.windsurf/rules/workspace.md" LogicalName="providers/windsurf/.windsurf/rules/workspace.md" />
     <EmbeddedResource Include="Templates/providers/windsurf/.windsurf/rules/orchestrator.md" LogicalName="providers/windsurf/.windsurf/rules/orchestrator.md" />
+    <EmbeddedResource Include="Templates/providers/windsurf/.windsurf/rules/engineering-agent-prompt-engineer.md" LogicalName="providers/windsurf/.windsurf/rules/engineering-agent-prompt-engineer.md" />
 
     <!-- Provider: GitHub Copilot -->
     <EmbeddedResource Include="Templates/providers/copilot/.github/copilot-instructions.md" LogicalName="providers/copilot/.github/copilot-instructions.md" />
@@ -91,9 +96,12 @@
 
     <!-- Provider: Roo Code -->
     <EmbeddedResource Include="Templates/providers/roo/.roo/rules/workspace.md" LogicalName="providers/roo/.roo/rules/workspace.md" />
+    <EmbeddedResource Include="Templates/providers/roo/.roo/rules/orchestrator.md" LogicalName="providers/roo/.roo/rules/orchestrator.md" />
+    <EmbeddedResource Include="Templates/providers/roo/.roo/rules/engineering-agent-prompt-engineer.md" LogicalName="providers/roo/.roo/rules/engineering-agent-prompt-engineer.md" />
 
     <!-- Provider: Kiro (Amazon) -->
     <EmbeddedResource Include="Templates/providers/kiro/.kiro/steering/workspace.md" LogicalName="providers/kiro/.kiro/steering/workspace.md" />
+    <EmbeddedResource Include="Templates/providers/kiro/.kiro/steering/orchestrator.md" LogicalName="providers/kiro/.kiro/steering/orchestrator.md" />
 
     <!-- CI workflows for additional providers -->
     <EmbeddedResource Include="Templates/providers/gemini/.github/workflows/orchestrator-gemini.yml" LogicalName="providers/gemini/.github/workflows/orchestrator-gemini.yml" />

@@ -43,7 +43,7 @@
 │   └── workflows/           ← pipeline specs
 └── .qwen/
     ├── settings.json
-    └── commands/            ← role files (synced from agency-agents)
+    └── agents/              ← role files (synced from agency-agents)
 ```
 
 ## Team (AI agents)

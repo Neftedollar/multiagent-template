@@ -31,31 +31,51 @@ Take a task, break it into steps, assign to the right specialist roles, validate
 
 ### Step 2: Select Roles
 
-Use `docs/role-capabilities.md` — never hardcode assignments.
+Use `docs/role-capabilities.md` — **never hardcode role assignments**.
 
 1. Extract signals: labels, files, keywords, domain
-2. Pick Primary + Secondary roles
+2. Pick Primary + Secondary roles per pipeline step (not once for the whole task)
 3. Decide execution: sequential (A → B), parallel (A + B), or composite
-4. If no good match → create ad-hoc role (save to `docs/roles/`)
+4. If no good match → delegate role creation to `/engineering-agent-prompt-engineer`
+
+**VERIFY minimum:** `/testing-reality-checker` + `/engineering-code-reviewer` — both always run, no exceptions.
 
 ### Step 3: Plan the Pipeline
 
-Match task type to pipeline:
+**Every step is mandatory — no skipping.**
 
-| Type | Steps | When |
-|------|-------|------|
-| `feature` | PLAN → BUILD → TEST → VERIFY → SHIP | New functionality |
-| `bugfix` | BUILD → TEST → VERIFY → SHIP | Skip planning |
-| `infra` | PLAN → BUILD → VERIFY → SHIP | No test step |
-| `content` | PLAN → BUILD → VERIFY(human) | Docs / marketing |
-| `spike` | PLAN | Research only |
+| Type | Steps |
+|------|-------|
+| `feature` | PLAN → BUILD → TEST → VERIFY → SHIP |
+| `bugfix` | BUILD → TEST → VERIFY → SHIP |
+| `infra` | PLAN → BUILD → TEST → VERIFY → SHIP |
+| `content` | PLAN → BUILD → VERIFY → SHIP |
+| `spike` | PLAN |
 
 ### Step 4: Execute with Gates
 
 - Run roles sequentially (parallel only where explicitly allowed)
-- Each step must produce artifact + gate: `APPROVED` or `NEEDS WORK (reason)`
+- Each step: artifact + gate (`APPROVED` / `NEEDS WORK (reason)`)
 - No role starts until the previous gate passes
 - On failure: 3 retries → helper role → 2 more → human escalation
+
+**Mandatory pre-SHIP checklist:**
+```
+☐ TEST gate: APPROVED
+☐ VERIFY gate: APPROVED
+```
+Both must be checked. SHIP is blocked until they pass.
+
+### Step 4b: Log Discovered Issues
+
+If any agent surfaces bugs, security findings, tech debt, or broken config **unrelated to the current task** — log them immediately, don't ignore, don't fix inline.
+
+| System | How |
+|--------|-----|
+| GitHub Issues | `gh issue create --title "..." --body "..." --label "bug"` |
+| O'Brien memory | `o-brien.store(content: "...", tags: ["discovered-issue", "<category>"])` |
+
+Log before moving on. One issue = one ticket.
 
 ### Step 5: Deliver
 
