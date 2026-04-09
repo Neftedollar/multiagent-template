@@ -41,13 +41,33 @@ public sealed class HooksCommand(string hookName)
         (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /"),
     ];
 
+    // Text-manipulation tools whose command line may legitimately contain SQL keywords
+    // without executing them (e.g. grep patterns, gh pr bodies, git log searches).
+    // SQL-dangerous patterns are skipped when the command starts with one of these.
+    private static readonly HashSet<string> SqlSafeFirstWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "grep", "rg", "ag", "awk", "sed", "cat", "head", "tail", "less", "more",
+        "echo", "printf", "gh", "git", "curl", "wget", "jq",
+        "python", "python3", "node", "npx", "ruby", "perl"
+    };
+
     private static int BlockDangerous(string input)
     {
         var command = JsonGet(input, "tool_input", "command");
         if (string.IsNullOrEmpty(command)) return 0;
 
+        // Extract first command word to decide whether SQL patterns apply.
+        var firstWord = command.Split([' ', '\t', '\n', '\r'], 2, StringSplitOptions.RemoveEmptyEntries)
+                               .FirstOrDefault() ?? "";
+        var isSqlSafeContext = SqlSafeFirstWords.Contains(firstWord);
+
         foreach (var (re, label) in DangerousPatterns)
         {
+            // Skip SQL-destructive patterns when the command is a text-manipulation or
+            // search tool — those may mention SQL keywords without executing them.
+            if (isSqlSafeContext && (label.Contains("TABLE") || label.Contains("DATABASE")))
+                continue;
+
             if (re.IsMatch(command))
             {
                 WriteDeny("PreToolUse",
@@ -85,11 +105,16 @@ public sealed class HooksCommand(string hookName)
 
     private static string ExtractCommitMessage(string cmd)
     {
+        // Heredoc: git commit -m "$(cat <<'EOF'\nfeat: message\nEOF\n)"
+        // Handles the CLAUDE.md-recommended heredoc commit pattern.
+        var heredocMatch = Regex.Match(cmd, @"<<'?EOF'?\s*\n([\s\S]*?)\n\s*EOF\b", RegexOptions.Multiline);
+        if (heredocMatch.Success) return heredocMatch.Groups[1].Value.Trim();
+
         var m = Regex.Match(cmd, @"-m\s+""([^""]+)""");
         if (m.Success) return m.Groups[1].Value;
         m = Regex.Match(cmd, @"-m\s+'([^']+)'");
         if (m.Success) return m.Groups[1].Value;
-        // heredoc with literal \n
+        // Fallback: scan for a conventional-commit type line (handles \n-escaped commands)
         return cmd.Replace("\\n", "\n")
                   .Split('\n')
                   .FirstOrDefault(l => Regex.IsMatch(l.Trim(),

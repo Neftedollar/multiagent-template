@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.25.0] — 2026-04-09
+
+### Fixed
+- **`block-dangerous` hook**: SQL-destructive patterns (`DROP TABLE/DATABASE`, `TRUNCATE TABLE`) no longer trigger false positives when the command is a text-manipulation tool (`grep`, `rg`, `gh`, `git`, `cat`, `echo`, etc.). Direct SQL execution (`DROP TABLE users`, `psql ... DROP TABLE`) is still blocked. Adds 6 new regression tests (total: 65).
+- **`enforce-commit-msg` hook**: Added heredoc commit message extraction. The `<<'EOF'...EOF` pattern (recommended in the system prompt for multi-line commits) now correctly extracts the commit message body for validation instead of always passing silently.
+
+---
+
 ## [1.24.0] — 2026-04-09
 
 ### Added

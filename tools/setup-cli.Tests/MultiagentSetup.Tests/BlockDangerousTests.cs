@@ -26,8 +26,26 @@ public class BlockDangerousTests
         (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /"),
     ];
 
-    private static bool IsBlocked(string cmd) =>
-        Patterns.Any(p => p.re.IsMatch(cmd));
+    // Mirrors HooksCommand.SqlSafeFirstWords
+    private static readonly HashSet<string> SqlSafeFirstWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "grep", "rg", "ag", "awk", "sed", "cat", "head", "tail", "less", "more",
+        "echo", "printf", "gh", "git", "curl", "wget", "jq",
+        "python", "python3", "node", "npx", "ruby", "perl"
+    };
+
+    private static bool IsBlocked(string cmd)
+    {
+        var firstWord = cmd.Split([' ', '\t', '\n', '\r'], 2, StringSplitOptions.RemoveEmptyEntries)
+                           .FirstOrDefault() ?? "";
+        var isSqlSafeContext = SqlSafeFirstWords.Contains(firstWord);
+        return Patterns.Any(p =>
+        {
+            if (isSqlSafeContext && (p.label.Contains("TABLE") || p.label.Contains("DATABASE")))
+                return false;
+            return p.re.IsMatch(cmd);
+        });
+    }
 
     // ── Should BLOCK ──────────────────────────────────────────────────────────
 
@@ -66,6 +84,8 @@ public class BlockDangerousTests
     [InlineData("DROP TABLE users")]
     [InlineData("DROP DATABASE mydb")]
     [InlineData("TRUNCATE TABLE sessions")]
+    [InlineData("psql -U user -c \"DROP TABLE foo\"")]
+    [InlineData("mysql -e 'TRUNCATE TABLE logs'")]
     public void SqlDestructive_ShouldBlock(string cmd) => Assert.True(IsBlocked(cmd));
 
     // ── Should ALLOW ──────────────────────────────────────────────────────────
@@ -96,4 +116,14 @@ public class BlockDangerousTests
     [InlineData("git reset --soft HEAD~1")]
     [InlineData("git reset --hard HEAD~1")]
     public void LocalReset_ShouldAllow(string cmd) => Assert.False(IsBlocked(cmd));
+
+    // SQL keywords in text-tool context should NOT be blocked (false positive prevention)
+    [Theory]
+    [InlineData("grep -n \"DROP TABLE\" HooksCommand.cs")]
+    [InlineData("grep -rn \"TRUNCATE TABLE\" src/")]
+    [InlineData("rg \"DROP TABLE\" --type cs")]
+    [InlineData("gh pr create --body \"Removes DROP TABLE call from migration\"")]
+    [InlineData("cat migration.sql | head -20")]
+    [InlineData("echo \"Schema includes DROP TABLE — review carefully\"")]
+    public void SqlKeywordInTextToolContext_ShouldAllow(string cmd) => Assert.False(IsBlocked(cmd));
 }
