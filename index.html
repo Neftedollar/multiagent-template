@@ -20,7 +20,7 @@
     />
     <meta
       property="og:description"
-      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, and Nessy."
+      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, Nessy, and Kiro."
     />
     <meta
       property="og:image"
@@ -36,7 +36,7 @@
     />
     <meta
       name="twitter:description"
-      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, and Nessy."
+      content="One command scaffolds an autonomous multi-agent workspace. Orchestrator picks roles, runs the pipeline, delivers PRs. Supports Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, Nessy, and Kiro."
     />
     <meta
       name="twitter:image"
@@ -49,7 +49,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "multiagent-setup",
-        "description": "A .NET dotnet global tool that scaffolds autonomous multi-agent AI workspaces for 12 AI coding assistants: Claude, Nessy, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, and Roo Code. One command creates a full team of specialized AI agents — orchestrator, architect, developer, reviewer, DevOps — that autonomously drives software from backlog to merged PR.",
+        "description": "A .NET dotnet global tool that scaffolds autonomous multi-agent AI workspaces for 13 AI coding assistants: Claude, Nessy, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, and Amazon Kiro. One command creates a full team of specialized AI agents — orchestrator, architect, developer, reviewer, DevOps — that autonomously drives software from backlog to merged PR.",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Windows, macOS, Linux",
         "offers": {
@@ -60,7 +60,7 @@
         "url": "https://github.com/Neftedollar/multiagent-template",
         "downloadUrl": "https://www.nuget.org/packages/multiagent-setup",
         "softwareVersion": "latest",
-        "keywords": "multi-agent, AI coding, autonomous code generation, Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, GitHub Copilot, Cline, Aider, Continue.dev, Roo Code, autonomous agents, agentic workflow, LLM, orchestrator, developer tools, PR automation"
+        "keywords": "multi-agent, AI coding, autonomous code generation, Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, GitHub Copilot, Cline, Aider, Continue.dev, Roo Code, Amazon Kiro, Kiro VS Code, autonomous agents, agentic workflow, LLM, orchestrator, developer tools, PR automation"
       }
     </script>
 
@@ -736,8 +736,7 @@
           <div class="copy-widget" id="copyWidget">
             <span class="prompt">$</span>
             <span class="cmd" id="installCmd"
-              >brew install
-              Neftedollar/multiagent-template/multiagent-setup</span
+              >dotnet tool install -g multiagent-setup</span
             >
             <button
               class="copy-btn"
@@ -802,8 +801,8 @@
               alt=".NET 10+"
             />
             <img
-              src="https://img.shields.io/badge/providers-12-f0883e?style=flat-square&labelColor=161b22"
-              alt="12 providers"
+              src="https://img.shields.io/badge/providers-13-f0883e?style=flat-square&labelColor=161b22"
+              alt="13 providers"
             />
           </div>
         </div>
@@ -850,10 +849,10 @@
           </div>
           <div class="feature-card">
             <div class="feature-icon">🔌</div>
-            <div class="feature-title">12 AI providers</div>
+            <div class="feature-title">13 AI providers</div>
             <p class="feature-desc">
               Claude, Gemini, Codex, Qwen, Cursor, Windsurf, Copilot, Nessy,
-              Cline, Aider, Continue, Roo Code — one command each, or
+              Cline, Aider, Continue, Roo Code, Kiro — one command each, or
               <code style="color: var(--code-fg)">--provider all</code> to
               scaffold every provider at once.
             </p>
@@ -918,22 +917,7 @@
                 <span class="terminal-title">zsh</span>
               </div>
               <div class="terminal-body">
-                <div>
-                  <span class="comment"
-                    ># 1. Install (macOS — no .NET required)</span
-                  >
-                </div>
-                <div>
-                  <span class="prompt">$ </span
-                  ><span class="cmd"
-                    >brew install
-                    Neftedollar/multiagent-template/multiagent-setup</span
-                  >
-                </div>
-                <div>&nbsp;</div>
-                <div>
-                  <span class="comment"># Or via dotnet (all platforms)</span>
-                </div>
+                <div><span class="comment"># 1. Install the tool</span></div>
                 <div>
                   <span class="prompt">$ </span
                   ><span class="cmd"
@@ -943,7 +927,7 @@
                 <div>&nbsp;</div>
                 <div>
                   <span class="comment"
-                    ># 2. Scaffold — interactive picker selects provider</span
+                    ># 2. Scaffold a workspace (Claude by default)</span
                   >
                 </div>
                 <div>
@@ -951,8 +935,12 @@
                   ><span class="cmd">multiagent-setup new MyProject</span>
                 </div>
                 <div>&nbsp;</div>
+                <div><span class="comment"># Or pick your provider</span></div>
                 <div>
-                  <span class="comment"># Or pass provider directly</span>
+                  <span class="prompt">$ </span
+                  ><span class="cmd"
+                    >multiagent-setup new MyProject --provider gemini</span
+                  >
                 </div>
                 <div>
                   <span class="prompt">$ </span
@@ -1106,6 +1094,11 @@
             <div class="provider-logo">🦘</div>
             <div class="provider-name">Roo Code</div>
             <span class="provider-cmd">--provider roo</span>
+          </div>
+          <div class="provider-card">
+            <div class="provider-logo">☁️</div>
+            <div class="provider-name">Kiro</div>
+            <span class="provider-cmd">--provider kiro</span>
           </div>
         </div>
 
