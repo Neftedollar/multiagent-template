@@ -6,6 +6,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.35.0] — 2026-04-09
+
+### Added
+- **Orchestrator: real Agent subagents (Claude Code)** — orchestrator now spawns `Agent(subagent_type: "general-purpose")` with the role file injected into the prompt instead of simulating roles inline. Each agent gets an isolated context with no session history.
+- **Orchestrator: model selection per step** — each agent spawn specifies `model`: `haiku` for data gathering/git ops/test runner, `sonnet` for implementation/analysis, `opus` for architecture/VERIFY/consolidation.
+- **Orchestrator: parallel consolidation** — after any parallel step, a mandatory consolidation agent (opus) reviews all parallel outputs for conflicts, duplicates, and coverage gaps before advancing the pipeline.
+- **Orchestrator: worktree isolation** — all BUILD agents that write code use `isolation: "worktree"` for branch isolation.
+- **`engineering-agent-prompt-engineer` role** added to provider templates: codex, cursor, windsurf, roo, qwen.
+- **Orchestrator** added to provider templates: roo (`.roo/rules/`), kiro (`.kiro/steering/`), qwen (`.qwen/agents/`).
+- **Step 4b: log discovered issues** — orchestrator now logs any bugs, security findings, tech debt, or broken config discovered during pipeline execution before continuing.
+
+### Fixed
+- **Cursor/Windsurf/Codex orchestrators** — fixed infra pipeline (missing TEST step), added VERIFY pre-SHIP checklist, Step 4b, ad-hoc role delegation.
+- **Qwen** — added orchestrator and prompt-engineer templates at `.qwen/agents/` (correct Qwen Code SubAgent path per `convert.sh`; QWEN.md previously referenced a non-existent `.qwen/commands/` path).
+- **`docs/workflows/REGISTRY.md` template** — synced missing Reality Checker entry.
+
+### Changed
+- **`.gitignore`** — added test workspace patterns (`Test*/`, `add-provider/`, `doctor/`, `init/`, `list-providers/`, `update/`) to prevent accidental commits of CLI test artifacts.
+
+---
+
+## [1.34.0] — 2026-04-09
+
+### Added
+- **`engineering-agent-prompt-engineer` role** — new built-in slash command for writing, reviewing, and improving AI agent prompts and role definitions. Scaffolded into every new workspace and updated via `multiagent-setup update`.
+- **Orchestrator: project focus → standing roles** — orchestrator now reads `CLAUDE.md` at startup and derives standing roles based on project focus keywords (`ui`, `security`, `AI/LLM`, `performance`, `mobile`, `blockchain`). Matching roles automatically participate in every relevant pipeline step.
+- **Orchestrator: ad-hoc role creation via `/engineering-agent-prompt-engineer`** — when no existing role fits a task, orchestrator delegates role creation to the prompt engineer rather than writing the role itself.
+- **`role-capabilities.md`: vetted role list** — curated list of ~40 roles relevant for software product pipelines, organized by category. Orchestrator uses this as primary lookup; anything outside it triggers ad-hoc creation.
+- **`role-capabilities.md`: default role per pipeline step** — explicit default role assignments for PLAN / TEST / VERIFY so orchestrator always has a starting point even when no task-specific signals match.
+
+### Fixed
+- **`kiro` missing from interactive provider picker** — `multiagent-setup new` without `--provider` now shows Kiro in the IDE/Extension section.
+- **Shell completions: `doctor --for` values** — `zsh` and `pwsh` completions now suggest `sync-roles`, `init`, `update` as values after `--for`.
+- **ProviderRegistry tests** updated to reflect 13 providers (after adding `kiro` in v1.33.0).
+
+### Changed
+- **Orchestrator pipeline table** now embedded directly in the prompt (not just referenced via `process.md`) — each pipeline type lists mandatory steps explicitly.
+- **Orchestrator VERIFY gate** — mandatory pre-SHIP checklist added; default VERIFY roles are `testing-reality-checker` + `engineering-code-reviewer` (both always run).
+- **Orchestrator role selection** — changed from "select once for whole pipeline" to "select per step"; graph queries are now optional enrichment (not the primary source).
+
+---
+
 ## [1.33.0] — 2026-04-09
 
 ### Added

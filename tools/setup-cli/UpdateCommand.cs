@@ -23,6 +23,7 @@ public sealed class UpdateCommand(bool force = false, bool dryRun = false)
         ".claude/hooks/",
         ".claude/mcp.json",
         ".claude/commands/orchestrator.md",
+        ".claude/commands/engineering-agent-prompt-engineer.md",
     ];
 
     public async Task<int> ExecuteAsync()

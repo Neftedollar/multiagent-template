@@ -8,3 +8,10 @@ tools/agency-agents/
 agency-agents/
 hook/
 my-mcps/
+# Test workspaces created by multiagent-setup new
+Test*/
+add-provider/
+doctor/
+init/
+list-providers/
+update/
