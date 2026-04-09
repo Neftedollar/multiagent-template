@@ -276,7 +276,11 @@ public sealed class HooksCommand(string hookName)
         var (code, diff, _) = await ProcessHelper.RunAsync("git",
             ["-C", projDir, "diff", "--name-only", baseline],
             captureOutput: true, allowFailure: true);
-        if (code != 0) return false;
+        if (code != 0)
+        {
+            Console.Error.WriteLine($"  WARN: stop-guard git diff failed (baseline: {baseline[..Math.Min(8, baseline.Length)]}...) — skipping check");
+            return false;
+        }
         return Regex.IsMatch(diff,
             @"\.(ts|tsx|js|jsx|py|go|rs|rb|php|fs|fsx|cs|java|kt|swift|vue|svelte)$",
             RegexOptions.Multiline);

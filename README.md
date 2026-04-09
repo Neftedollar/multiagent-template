@@ -88,7 +88,7 @@ claude          # or: nessy / codex / qwen-code / gemini (terminal agents)
 **What happens next:**
 1. Orchestrator reads `docs/process.md` and selects roles dynamically
 2. Creates a plan and asks: `APPROVED / NEEDS WORK?`
-3. Proceeds through **BUILD → TEST → VERIFY → SHIP**
+3. Proceeds through **PLAN → BUILD → TEST → VERIFY → SHIP**
 4. Opens a PR on GitHub when done — no manual intervention needed
 
 > Interactive mode: Claude asks for gate approval at each step.  

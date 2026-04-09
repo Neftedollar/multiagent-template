@@ -154,65 +154,76 @@ if has multiagent-setup; then
   else
     echo "  ..  Updating multiagent-setup $_ms_installed → $MULTIAGENT_VERSION..."
     if [ "$OS" = "Darwin" ] && has brew; then
-      brew upgrade Neftedollar/multiagent-template/multiagent-setup 2>/dev/null \
+      brew upgrade Neftedollar/multiagent-template/multiagent-setup \
         || brew reinstall Neftedollar/multiagent-template/multiagent-setup
     else
       dotnet tool update -g multiagent-setup
-      # Persist .dotnet/tools to PATH in shell rc (Linux only)
-      if [[ "$OS" != "Darwin" ]]; then
-        _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
-        _added=false
-        for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
-          if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
-            echo "" >> "$_rc"
-            echo "# multiagent-setup: .NET tools path" >> "$_rc"
-            echo "$_dotnet_line" >> "$_rc"
-            echo "  INFO: Added .dotnet to PATH in $_rc"
-            _added=true
-            break
-          elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
-            _added=true
-            break
-          fi
-        done
-        if [[ "$_added" == false ]]; then
-          echo "$_dotnet_line" >> "$HOME/.profile"
-          echo "  INFO: Added .dotnet to PATH in ~/.profile"
+      # Persist .dotnet/tools to PATH in shell rc
+      _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
+      _added=false
+      for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+        if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+          echo "" >> "$_rc"
+          echo "# multiagent-setup: .NET tools path" >> "$_rc"
+          echo "$_dotnet_line" >> "$_rc"
+          echo "  INFO: Added .dotnet to PATH in $_rc"
+          _added=true
+          break
+        elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+          _added=true
+          break
         fi
+      done
+      if [[ "$_added" == false ]]; then
+        echo "$_dotnet_line" >> "$HOME/.profile"
+        echo "  INFO: Added .dotnet to PATH in ~/.profile"
       fi
     fi
-    echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+    _ms_new="$(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+    if [[ "$_ms_new" != "$MULTIAGENT_VERSION" ]]; then
+      echo "  WARN: expected $MULTIAGENT_VERSION but got ${_ms_new:-unknown} — update may have failed"
+    else
+      echo "  OK: multiagent-setup $_ms_new"
+    fi
   fi
 elif [ "$OS" = "Darwin" ] && has brew; then
   echo "  ..  Installing multiagent-setup via Homebrew (no .NET required)..."
   brew install Neftedollar/multiagent-template/multiagent-setup
-  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  _ms_new="$(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  if [[ "$_ms_new" != "$MULTIAGENT_VERSION" ]]; then
+    echo "  WARN: expected $MULTIAGENT_VERSION but got ${_ms_new:-unknown} — install may have failed"
+  else
+    echo "  OK: multiagent-setup $_ms_new"
+  fi
 else
   echo "  ..  Installing multiagent-setup via dotnet tool..."
   dotnet tool install -g multiagent-setup
-  # Persist .dotnet/tools to PATH in shell rc (Linux only)
-  if [[ "$OS" != "Darwin" ]]; then
-    _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
-    _added=false
-    for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
-      if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
-        echo "" >> "$_rc"
-        echo "# multiagent-setup: .NET tools path" >> "$_rc"
-        echo "$_dotnet_line" >> "$_rc"
-        echo "  INFO: Added .dotnet to PATH in $_rc"
-        _added=true
-        break
-      elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
-        _added=true
-        break
-      fi
-    done
-    if [[ "$_added" == false ]]; then
-      echo "$_dotnet_line" >> "$HOME/.profile"
-      echo "  INFO: Added .dotnet to PATH in ~/.profile"
+  # Persist .dotnet/tools to PATH in shell rc
+  _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
+  _added=false
+  for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+    if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+      echo "" >> "$_rc"
+      echo "# multiagent-setup: .NET tools path" >> "$_rc"
+      echo "$_dotnet_line" >> "$_rc"
+      echo "  INFO: Added .dotnet to PATH in $_rc"
+      _added=true
+      break
+    elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+      _added=true
+      break
     fi
+  done
+  if [[ "$_added" == false ]]; then
+    echo "$_dotnet_line" >> "$HOME/.profile"
+    echo "  INFO: Added .dotnet to PATH in ~/.profile"
   fi
-  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  _ms_new="$(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  if [[ "$_ms_new" != "$MULTIAGENT_VERSION" ]]; then
+    echo "  WARN: expected $MULTIAGENT_VERSION but got ${_ms_new:-unknown} — install may have failed"
+  else
+    echo "  OK: multiagent-setup $_ms_new"
+  fi
 fi
 
 # Detect init vs new mode:

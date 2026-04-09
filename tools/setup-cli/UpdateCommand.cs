@@ -111,6 +111,9 @@ public sealed class UpdateCommand(bool force = false)
     {
         var asm = Assembly.GetExecutingAssembly();
         int skippedCount = 0;
+        int skippedDocs  = 0;
+        int skippedHooks = 0;
+        int skippedOther = 0;
 
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
@@ -122,6 +125,12 @@ public sealed class UpdateCommand(bool force = false)
             if (File.Exists(outputPath) && !force)
             {
                 skippedCount++;
+                if (outputRel.StartsWith(".claude/hooks/") || outputRel == ".claude/mcp.json")
+                    skippedHooks++;
+                else if (outputRel.StartsWith("docs/") || outputRel.StartsWith("tools/"))
+                    skippedDocs++;
+                else
+                    skippedOther++;
                 continue;
             }
 
@@ -147,7 +156,12 @@ public sealed class UpdateCommand(bool force = false)
         }
 
         if (skippedCount > 0)
+        {
             Console.WriteLine($"  INFO: Skipped {skippedCount} existing files (use --force to overwrite)");
+            if (skippedDocs > 0)  Console.WriteLine($"         {skippedDocs} docs/tools file(s)");
+            if (skippedHooks > 0) Console.WriteLine($"         {skippedHooks} hook/config file(s)");
+            if (skippedOther > 0) Console.WriteLine($"         {skippedOther} provider template(s)");
+        }
     }
 
     private static string? ResolveOutputPath(string resourceName, string[] providers)
