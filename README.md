@@ -4,7 +4,9 @@
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![Build](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml/badge.svg)](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml)
+[![GitHub stars](https://img.shields.io/github/stars/Neftedollar/multiagent-template?style=social)](https://github.com/Neftedollar/multiagent-template/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Discussions](https://img.shields.io/badge/Discussions-join-blue)](https://github.com/Neftedollar/multiagent-template/discussions)
 
 <p align="center">
   <img src="docs/demo.svg" alt="multiagent-setup demo" width="720"/>
@@ -314,6 +316,14 @@ Yes. A GitHub Actions workflow (`orchestrator.yml`) is scaffolded for claude/nes
 
 **Does the pipeline need internet access?**  
 Only for git push/PR creation steps and any web research the agent does. All local code analysis, formatting, and linting runs offline.
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Questions and ideas → [Discussions](https://github.com/Neftedollar/multiagent-template/discussions).
+
+If this saves you time, a ⭐ star helps others find it.
 
 ---
 
