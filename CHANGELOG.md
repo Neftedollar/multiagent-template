@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.28.0] — 2026-04-09
+
+### Added
+- **Test coverage: DoctorCommand** — 12 tests covering exit codes, required/optional file checks, hook config validation, global roles, IDE provider detection (cursor, cline, aider), and MCP config parsing. `DoctorCommand` refactored to accept `workspaceRoot` and `homeDir` for testability.
+- **Demo SVG updated** — `docs/demo.svg` now shows the interactive provider picker (v1.24.0 feature) instead of the old `--provider claude` flag flow.
+- **Landing page updated** — Homebrew install and interactive picker shown in Quick Start.
+- Total tests: **125** (was 113).
+
+---
+
 ## [1.27.0] — 2026-04-09
 
 ### Added

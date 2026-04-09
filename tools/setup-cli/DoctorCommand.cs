@@ -1,11 +1,11 @@
 namespace MultiagentSetup;
 
-public sealed class DoctorCommand
+public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir = null)
 {
     public async Task<int> ExecuteAsync()
     {
-        var cwd  = Directory.GetCurrentDirectory();
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var cwd  = workspaceRoot ?? Directory.GetCurrentDirectory();
+        var home = homeDir       ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         Console.WriteLine("multiagent-setup doctor");
         Console.WriteLine("=======================");
