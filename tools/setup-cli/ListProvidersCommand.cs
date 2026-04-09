@@ -16,20 +16,36 @@ public sealed class ListProvidersCommand
 
         Console.WriteLine($"\nProviders in: {cwd}\n");
 
+        var installed  = new List<string>();
+        var available  = new List<string>();
+
         foreach (var def in ProviderRegistry.All)
         {
-            var detected = IsProviderDetected(cwd, def);
-            var marker   = detected ? "[+]" : "[ ]";
-            Console.Write($"  {marker} {def.Name,-12}");
-            if (detected && def.WorkspaceInstructionsFile is not null)
-                Console.WriteLine($"  {def.WorkspaceInstructionsFile}");
+            if (IsProviderDetected(cwd, def))
+            {
+                installed.Add(def.Name);
+                Console.Write($"  [installed] {def.Name,-12}");
+                if (def.WorkspaceInstructionsFile is not null)
+                    Console.WriteLine($"  {def.WorkspaceInstructionsFile}");
+                else
+                    Console.WriteLine();
+            }
             else
-                Console.WriteLine();
+            {
+                available.Add(def.Name);
+            }
+        }
+
+        if (available.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"  [available] {string.Join(", ", available)}");
         }
 
         Console.WriteLine();
+        if (installed.Count > 0)
+            Console.WriteLine("To remove a provider: multiagent-setup remove-provider <name>");
         Console.WriteLine("To add a provider:    multiagent-setup add-provider <name>");
-        Console.WriteLine("To remove a provider: multiagent-setup remove-provider <name>");
         Console.WriteLine();
 
         return Task.FromResult(0);
