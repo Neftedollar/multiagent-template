@@ -35,7 +35,9 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride, b
                     ["clone", AgencyRepo, agencyDir], captureOutput: true, allowFailure: true);
                 if (code != 0)
                 {
-                    Console.Error.WriteLine($"  WARN: could not clone agency-agents — {err.Trim()}");
+                    Console.Error.WriteLine($"  FAIL: could not clone agency-agents — {err.Trim()}");
+                    Console.Error.WriteLine($"        Try: git clone {AgencyRepo} --depth 1 {agencyDir}");
+                    Console.Error.WriteLine( "        Or:  multiagent-setup sync-roles --pull  (if already cloned manually)");
                     return 1;
                 }
                 Console.WriteLine("  OK: agency-agents cloned");
@@ -53,7 +55,11 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride, b
             Console.WriteLine("Pulling latest roles...");
             var (code, _, _) = await ProcessHelper.RunAsync("git", ["pull", "--ff-only"],
                 workingDir: agencyDir, captureOutput: true, allowFailure: true);
-            if (code != 0) Console.WriteLine("  WARN: git pull failed, using existing");
+            if (code != 0)
+            {
+                Console.WriteLine($"  WARN: git pull failed — syncing with existing roles in {agencyDir}");
+                Console.WriteLine($"        To retry: cd {agencyDir} && git pull --ff-only");
+            }
         }
 
         if (!Directory.Exists(agencyDir))

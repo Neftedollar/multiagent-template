@@ -289,6 +289,7 @@ public sealed class HooksCommand(string hookName)
     private static int UnknownHook(string name)
     {
         Console.Error.WriteLine($"Unknown hook: {name}");
+        Console.Error.WriteLine("Valid hooks: block-dangerous, enforce-commit-msg, auto-lint, log-agent, stop-guard, research-reminder");
         return 1;
     }
 
