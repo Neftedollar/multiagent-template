@@ -736,7 +736,8 @@
           <div class="copy-widget" id="copyWidget">
             <span class="prompt">$</span>
             <span class="cmd" id="installCmd"
-              >dotnet tool install -g multiagent-setup</span
+              >brew install
+              Neftedollar/multiagent-template/multiagent-setup</span
             >
             <button
               class="copy-btn"
@@ -917,7 +918,22 @@
                 <span class="terminal-title">zsh</span>
               </div>
               <div class="terminal-body">
-                <div><span class="comment"># 1. Install the tool</span></div>
+                <div>
+                  <span class="comment"
+                    ># 1. Install (macOS — no .NET required)</span
+                  >
+                </div>
+                <div>
+                  <span class="prompt">$ </span
+                  ><span class="cmd"
+                    >brew install
+                    Neftedollar/multiagent-template/multiagent-setup</span
+                  >
+                </div>
+                <div>&nbsp;</div>
+                <div>
+                  <span class="comment"># Or via dotnet (all platforms)</span>
+                </div>
                 <div>
                   <span class="prompt">$ </span
                   ><span class="cmd"
@@ -927,7 +943,7 @@
                 <div>&nbsp;</div>
                 <div>
                   <span class="comment"
-                    ># 2. Scaffold a workspace (Claude by default)</span
+                    ># 2. Scaffold — interactive picker selects provider</span
                   >
                 </div>
                 <div>
@@ -935,12 +951,8 @@
                   ><span class="cmd">multiagent-setup new MyProject</span>
                 </div>
                 <div>&nbsp;</div>
-                <div><span class="comment"># Or pick your provider</span></div>
                 <div>
-                  <span class="prompt">$ </span
-                  ><span class="cmd"
-                    >multiagent-setup new MyProject --provider gemini</span
-                  >
+                  <span class="comment"># Or pass provider directly</span>
                 </div>
                 <div>
                   <span class="prompt">$ </span
