@@ -23,6 +23,7 @@
   <ItemGroup>
     <!-- Root docs -->
     <EmbeddedResource Include="Templates/CLAUDE.md" LogicalName="CLAUDE.md" />
+    <EmbeddedResource Include="Templates/CHANGELOG.md" LogicalName="CHANGELOG.md" />
 
     <!-- Docs -->
     <EmbeddedResource Include="Templates/docs/process.md" LogicalName="docs/process.md" />

@@ -73,6 +73,8 @@ public sealed class UpdateCommand(bool force = false, bool dryRun = false)
             Console.WriteLine("Workspace updated.");
         if (!force && !dryRun)
             Console.WriteLine("Tip: use --force to overwrite all existing files.");
+        if (!dryRun)
+            Console.WriteLine("Tip: agent roles (.claude/commands/) are managed separately — run 'multiagent-setup sync-roles --pull' to update them.");
         Console.WriteLine();
         return 0;
     }
