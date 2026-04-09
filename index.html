@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>multiagent-setup — Ship with a full AI team</title>
+    <title>multiagent-setup — Autonomous Multi-Agent AI Coding Workspace</title>
     <meta
       name="description"
       content="Scaffold an autonomous multi-agent AI workspace with one command. Supports 13 providers: Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue, Roo Code, Kiro. PLAN → BUILD → TEST → VERIFY → SHIP pipeline with 20+ specialist roles."
@@ -16,7 +16,7 @@
     />
     <meta
       property="og:title"
-      content="multiagent-setup — Ship with a full AI team"
+      content="multiagent-setup — Autonomous Multi-Agent AI Coding Workspace"
     />
     <meta
       property="og:description"
@@ -32,7 +32,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="multiagent-setup — Ship with a full AI team"
+      content="multiagent-setup — Autonomous Multi-Agent AI Coding Workspace"
     />
     <meta
       name="twitter:description"
@@ -59,7 +59,15 @@
         },
         "url": "https://github.com/Neftedollar/multiagent-template",
         "downloadUrl": "https://www.nuget.org/packages/multiagent-setup",
-        "softwareVersion": "latest",
+        "softwareVersion": "1.33.0",
+        "featureList": [
+          "Autonomous PLAN → BUILD → TEST → VERIFY → SHIP pipeline",
+          "13 AI coding provider support: Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, Copilot, Cline, Aider, Continue.dev, Roo Code, Nessy, Amazon Kiro",
+          "20+ specialist AI agent roles via agency-agents",
+          "Safety hooks: block dangerous commands, enforce conventional commits, auto-lint",
+          "Optional AGE graph + O'Brien semantic memory for cross-session context",
+          "Cross-platform: macOS, Linux, Windows"
+        ],
         "keywords": "multi-agent, AI coding, autonomous code generation, Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, GitHub Copilot, Cline, Aider, Continue.dev, Roo Code, Amazon Kiro, Kiro VS Code, autonomous agents, agentic workflow, LLM, orchestrator, developer tools, PR automation"
       }
     </script>
@@ -712,6 +720,7 @@
           <li><a href="#quickstart">Quick start</a></li>
           <li><a href="#providers">Providers</a></li>
           <li><a href="#pipeline">Pipeline</a></li>
+          <li><a href="#faq">FAQ</a></li>
           <li>
             <a href="https://github.com/Neftedollar/multiagent-template"
               >GitHub</a
@@ -727,8 +736,10 @@
         <div class="hero-eyebrow"><span>✦</span> .NET Global Tool</div>
         <h1>Ship with a<br /><span>full AI team</span></h1>
         <p class="hero-sub">
-          One command scaffolds an autonomous multi-agent workspace.
-          Orchestrator picks roles, runs the pipeline, delivers PRs. You set
+          One command scaffolds an
+          <strong style="color: var(--text)"
+            >autonomous multi-agent AI coding workspace</strong
+          >. Orchestrator picks roles, runs the pipeline, delivers PRs. You set
           direction.
         </p>
 
@@ -829,7 +840,9 @@
     <section id="features">
       <div class="container">
         <div class="section-label">Why multiagent-setup</div>
-        <h2 class="section-title">Everything wired up, nothing to configure</h2>
+        <h2 class="section-title">
+          Everything wired up for autonomous AI coding
+        </h2>
         <p class="section-sub">
           From install to first autonomous PR in minutes. No YAML, no plumbing,
           no boilerplate.
@@ -901,7 +914,9 @@
     <section id="quickstart">
       <div class="container">
         <div class="section-label">Quick start</div>
-        <h2 class="section-title">Running in three steps</h2>
+        <h2 class="section-title">
+          Set up your AI coding workspace in three steps
+        </h2>
         <p class="section-sub">
           Install the tool, scaffold a workspace, tell the Orchestrator what to
           build.
@@ -1027,7 +1042,7 @@
       <div class="container">
         <div class="section-label text-center">Providers</div>
         <h2 class="section-title text-center">
-          Works with every major AI coder
+          Works with every major AI coding agent
         </h2>
         <p class="section-sub text-center" style="margin: 0 auto 3rem">
           Each provider gets its own scaffold: config files, hooks, role
@@ -1134,7 +1149,7 @@
       <div class="container">
         <div class="section-label text-center">Pipeline</div>
         <h2 class="section-title text-center">
-          Autonomous PLAN → SHIP execution
+          Autonomous AI agent pipeline: PLAN → SHIP
         </h2>
 
         <div class="pipeline-wrapper">
@@ -1178,6 +1193,180 @@
         </div>
       </div>
     </section>
+
+    <!-- ─── FAQ ────────────────────────────────────────────────── -->
+    <section id="faq">
+      <div class="container">
+        <div class="section-label text-center">FAQ</div>
+        <h2 class="section-title text-center">Common questions</h2>
+
+        <div
+          style="
+            max-width: 720px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+          "
+        >
+          <div>
+            <h3
+              style="
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: var(--text);
+              "
+            >
+              Do I need .NET installed to use multiagent-setup?
+            </h3>
+            <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7">
+              On macOS and Linux you can install via Homebrew — no .NET SDK
+              required:
+              <code style="color: var(--code-fg)"
+                >brew install
+                Neftedollar/multiagent-template/multiagent-setup</code
+              >. The dotnet global tool route (<code
+                style="color: var(--code-fg)"
+                >dotnet tool install -g multiagent-setup</code
+              >) requires .NET 10 SDK. A bootstrap script is also available that
+              installs all prerequisites automatically.
+            </p>
+          </div>
+          <div>
+            <h3
+              style="
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: var(--text);
+              "
+            >
+              Which AI coding agents are supported?
+            </h3>
+            <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7">
+              13 providers: Claude Code, Gemini CLI, Codex, Qwen, Cursor,
+              Windsurf, GitHub Copilot, Cline, Aider, Continue.dev, Roo Code,
+              Nessy, and Amazon Kiro. Use
+              <code style="color: var(--code-fg)">--provider all</code> to
+              scaffold every provider at once, or add providers later with
+              <code style="color: var(--code-fg)"
+                >multiagent-setup add-provider &lt;name&gt;</code
+              >.
+            </p>
+          </div>
+          <div>
+            <h3
+              style="
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: var(--text);
+              "
+            >
+              Can I add multiagent-setup to an existing code repository?
+            </h3>
+            <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7">
+              Yes. Use
+              <code style="color: var(--code-fg)">multiagent-setup init</code>
+              inside any existing git repository. It adds workspace files
+              (CLAUDE.md, docs/, .claude/, hooks) without touching your code or
+              creating a new directory.
+            </p>
+          </div>
+          <div>
+            <h3
+              style="
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: var(--text);
+              "
+            >
+              Is multiagent-setup free and open source?
+            </h3>
+            <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7">
+              Yes — MIT license, free for commercial and personal use. Source
+              code is on
+              <a href="https://github.com/Neftedollar/multiagent-template"
+                >GitHub</a
+              >.
+            </p>
+          </div>
+          <div>
+            <h3
+              style="
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: var(--text);
+              "
+            >
+              How does the orchestrator know which agent role to assign?
+            </h3>
+            <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7">
+              The orchestrator reads
+              <code style="color: var(--code-fg)"
+                >docs/role-capabilities.md</code
+              >
+              — a capability index generated during workspace setup — and
+              selects roles dynamically. It never hardcodes assignments. If no
+              existing role fits a task it can create an ad-hoc role on the fly.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FAQ Schema ──────────────────────────────────────────── -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do I need .NET installed to use multiagent-setup?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "On macOS and Linux you can install via Homebrew — no .NET SDK required: brew install Neftedollar/multiagent-template/multiagent-setup. The dotnet global tool route requires .NET 10 SDK. A bootstrap script is also available that installs all prerequisites automatically."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which AI coding agents are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "13 providers: Claude Code, Gemini CLI, Codex, Qwen, Cursor, Windsurf, GitHub Copilot, Cline, Aider, Continue.dev, Roo Code, Nessy, and Amazon Kiro. Use --provider all to scaffold every provider at once, or add providers later with multiagent-setup add-provider <name>."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I add multiagent-setup to an existing code repository?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Use multiagent-setup init inside any existing git repository. It adds workspace files (CLAUDE.md, docs/, .claude/, hooks) without touching your code or creating a new directory."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is multiagent-setup free and open source?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes — MIT license, free for commercial and personal use. Source code is at https://github.com/Neftedollar/multiagent-template."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the orchestrator know which agent role to assign?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The orchestrator reads docs/role-capabilities.md — a capability index generated during workspace setup — and selects roles dynamically. It never hardcodes assignments. If no existing role fits a task it can create an ad-hoc role on the fly."
+            }
+          }
+        ]
+      }
+    </script>
 
     <!-- ─── Footer ───────────────────────────────────────────── -->
     <footer>
