@@ -55,13 +55,14 @@ Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, 
 ### `sync-roles` — Update agent roles
 
 ```bash
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
 ```
 
-Syncs the latest agent role files from [agency-agents](https://github.com/msitarzewski/agency-agents) to:
-- `~/.claude/commands/` — Claude, Nessy, Gemini, Cursor, Windsurf, Copilot
-- `./.qwen/commands/` — auto-detected if Qwen workspace is present
-- `./.codex/skills/` — auto-detected if Codex workspace is present
+Syncs the latest agent role files from [agency-agents](https://github.com/msitarzewski/agency-agents) to the local workspace `.claude/commands/` by default. Add `--global` to also sync to `~/.claude/commands/`.
+
+Auto-detected additional targets:
+- `./.qwen/commands/` — if Qwen workspace is present
+- `./.codex/skills/` — if Codex workspace is present
 
 ### `add-provider` — Add provider to existing workspace
 
@@ -71,6 +72,24 @@ multiagent-setup add-provider all [--force]
 ```
 
 Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo).
+
+### `remove-provider` — Remove a provider from workspace
+
+```bash
+multiagent-setup remove-provider <provider> [--force]
+```
+
+Removes a provider's directories and workspace instructions file. Skips shared infrastructure (`.claude/`, `.github/`) and directories used by other active providers. Prompts for confirmation unless `--force` is set.
+
+Cannot remove `claude` (base provider).
+
+### `list-providers` — Show installed and available providers
+
+```bash
+multiagent-setup list-providers
+```
+
+Lists all providers with their installation status (`[installed]` or `[available]`) and workspace instructions file. Must be run from a workspace root.
 
 ### `update` — Update workspace templates to latest version
 

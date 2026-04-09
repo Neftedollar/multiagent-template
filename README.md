@@ -71,6 +71,10 @@ multiagent-setup add-provider cursor
 multiagent-setup add-provider gemini --force   # overwrite existing files
 multiagent-setup add-provider all              # add all providers at once
 
+# Manage providers
+multiagent-setup list-providers               # show installed vs. available providers
+multiagent-setup remove-provider cursor       # cleanly remove a provider and its files
+
 # Update an existing workspace to the latest templates
 multiagent-setup update          # skip already-customised files
 multiagent-setup update --force  # overwrite everything (CLAUDE.md preserved)
@@ -285,13 +289,15 @@ See [`examples/`](examples/) for concrete workflows:
 
 ```bash
 multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|all]
-multiagent-setup init [dir] [--provider <name>] [--force]  # add workspace files to an existing git repo
-multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
-multiagent-setup update [--force]                    # update workspace templates to latest version
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+multiagent-setup init [dir] [--provider <name>] [--force]    # add workspace files to an existing git repo
+multiagent-setup add-provider <provider> [--force]            # add provider to existing workspace
+multiagent-setup remove-provider <provider> [--force]         # remove a provider and its files
+multiagent-setup list-providers                               # list installed and available providers
+multiagent-setup update [--force]                             # update workspace templates to latest version
+multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
 multiagent-setup hook <name>
-multiagent-setup doctor                              # check workspace for common config issues
+multiagent-setup doctor                                       # check workspace for common config issues
 multiagent-setup -v | --version
 ```
 
