@@ -170,11 +170,74 @@ $ARGUMENTS
             }
         }
 
+        // Gemini — global extension (~/.gemini/extensions/agency-agents/) when .gemini/ detected or --global
+        var hasGeminiWorkspace = Directory.Exists(Path.Combine(cwd, ".gemini"));
+        if (hasGeminiWorkspace || globalSync)
+        {
+            var geminiHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var geminiExtDir = Path.Combine(geminiHome, ".gemini", "extensions", "agency-agents");
+            var gCount = await SyncToGeminiExtensionAsync(roles, geminiExtDir);
+            Console.WriteLine($"Synced {gCount} roles to {geminiExtDir} (gemini extension)");
+        }
+
         Console.WriteLine();
         Console.WriteLine("Check for new roles periodically:");
         Console.WriteLine("  multiagent-setup sync-roles --pull");
         Console.WriteLine("  multiagent-setup sync-roles --pull --global  # also update ~/.claude/commands/");
         return 0;
+    }
+
+    /// <summary>
+    /// Syncs roles to ~/.gemini/extensions/agency-agents/ as TOML slash commands.
+    /// Gemini CLI uses .toml files in extensions/name/commands/ for custom slash commands.
+    /// </summary>
+    private static async Task<int> SyncToGeminiExtensionAsync(
+        List<(string CmdName, string Output)> roles,
+        string extensionDir)
+    {
+        var commandsDir = Path.Combine(extensionDir, "commands");
+        Directory.CreateDirectory(commandsDir);
+
+        // Write extension manifest
+        var manifest = """
+            {
+              "name": "agency-agents",
+              "version": "1.0.0"
+            }
+            """;
+        await File.WriteAllTextAsync(
+            Path.Combine(extensionDir, "gemini-extension.json"),
+            manifest,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+        // Remove previously auto-generated TOML files
+        foreach (var f in Directory.GetFiles(commandsDir, "*.toml"))
+        {
+            var firstLine = File.ReadLines(f).FirstOrDefault() ?? "";
+            if (firstLine.Contains("auto-generated from agency-agents")) File.Delete(f);
+        }
+
+        int count = 0;
+        foreach (var (cmdName, output) in roles)
+        {
+            // TOML multi-line literal strings ('''...''') require no escaping except '''.
+            // Role content from agency-agents doesn't contain ''', so this is safe.
+            var toml = $"""
+                # auto-generated from agency-agents
+                description = "Expert role: {cmdName}"
+                prompt = '''
+                {output}
+                '''
+                """;
+
+            await File.WriteAllTextAsync(
+                Path.Combine(commandsDir, $"{cmdName}.toml"),
+                toml,
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            count++;
+        }
+
+        return count;
     }
 
     private static async Task<(int count, int skipped, List<string> skippedNames)> SyncToDirectoryAsync(

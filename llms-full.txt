@@ -70,6 +70,7 @@ Syncs the latest agent role files from [agency-agents](https://github.com/msitar
 Auto-detected additional targets:
 - `./.qwen/commands/` — if Qwen workspace is present
 - `./.codex/skills/` — if Codex workspace is present
+- `~/.gemini/extensions/agency-agents/` — if `.gemini/` workspace or `--global` is set (TOML format)
 
 ### `add-provider` — Add provider to existing workspace
 
