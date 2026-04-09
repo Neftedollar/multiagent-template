@@ -91,10 +91,13 @@ public sealed class HooksCommand(string hookName)
         var command = JsonGet(input, "tool_input", "command");
         if (string.IsNullOrEmpty(command)) return 0;
 
-        // Only intercept actual git-commit invocations — not commands that
-        // mention "git commit" in their arguments (e.g. gh issue create --body "...git commit...").
-        // Match: optional leading whitespace/pipe, then "git" as first executable token, then "commit".
-        if (!Regex.IsMatch(command, @"(?:^|[|&;]\s*)git\s+commit\b", RegexOptions.IgnoreCase)) return 0;
+        // Only intercept actual git-commit invocations — not commands that mention
+        // "git commit" in their arguments (e.g. gh pr create --body "...git commit...").
+        // Check only the first executable token to avoid false positives.
+        var tokens = command.TrimStart().Split(new[] { ' ', '\t', '\n', '\r' }, 3, StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Length < 2) return 0;
+        if (!tokens[0].Equals("git", StringComparison.OrdinalIgnoreCase)) return 0;
+        if (!tokens[1].Equals("commit", StringComparison.OrdinalIgnoreCase)) return 0;
 
         var msg = ExtractCommitMessage(command);
         if (string.IsNullOrEmpty(msg)) return 0;
@@ -247,8 +250,31 @@ public sealed class HooksCommand(string hookName)
 
     private static async Task<bool> HasCodeChangesAsync(string projDir)
     {
+        // Use a session-scoped baseline so pre-session changes don't trigger stop-guard.
+        // On first invocation, capture the current HEAD and store it in a temp file.
+        // Subsequent invocations compare against that baseline instead of current HEAD.
+        var sessionId = Environment.GetEnvironmentVariable("CLAUDE_SESSION_ID")
+                        ?? Environment.GetEnvironmentVariable("TERM_SESSION_ID")
+                        ?? "default";
+        var baselineFile = Path.Combine(Path.GetTempPath(), $"multiagent-stop-baseline-{sessionId}");
+
+        string baseline;
+        if (File.Exists(baselineFile))
+        {
+            baseline = (await File.ReadAllTextAsync(baselineFile)).Trim();
+        }
+        else
+        {
+            var (revCode, revOut, _) = await ProcessHelper.RunAsync("git",
+                ["-C", projDir, "rev-parse", "HEAD"],
+                captureOutput: true, allowFailure: true);
+            if (revCode != 0) return false;
+            baseline = revOut.Trim();
+            await File.WriteAllTextAsync(baselineFile, baseline);
+        }
+
         var (code, diff, _) = await ProcessHelper.RunAsync("git",
-            ["-C", projDir, "diff", "--name-only", "HEAD"],
+            ["-C", projDir, "diff", "--name-only", baseline],
             captureOutput: true, allowFailure: true);
         if (code != 0) return false;
         return Regex.IsMatch(diff,

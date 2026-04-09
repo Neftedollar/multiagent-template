@@ -22,7 +22,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
         Console.WriteLine($"\nmultiagent-setup v{version}");
-        Console.WriteLine($"  Mode:     init (inject into existing repo)");
+        Console.WriteLine($"  Mode:     init (add workspace files to existing repo)");
         Console.WriteLine($"  Target:   {targetDir}");
         Console.WriteLine($"  Provider: {provider}");
         Console.WriteLine();
@@ -34,7 +34,8 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         if (gitCheckCode != 0)
         {
             Console.Error.WriteLine($"Error: {targetDir} is not a git repository.");
-            Console.Error.WriteLine("       Use 'multiagent-setup new <name>' to create a new workspace.");
+            Console.Error.WriteLine("       Run `git init` first, then re-run `multiagent-setup init`.");
+            Console.Error.WriteLine("       Or use `multiagent-setup new <name>` to create a new workspace from scratch.");
             return 1;
         }
 
@@ -51,7 +52,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
 
         var graphName = $"{projectName.ToLower()}-ops";
 
-        Console.WriteLine("Injecting workspace files...");
+        Console.WriteLine("Adding workspace files...");
         Console.WriteLine($"  Project:    {projectName}");
         Console.WriteLine($"  GitHub org: {org}");
         Console.WriteLine($"  Graph:      {graphName}");
@@ -371,7 +372,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, globalSync: false, localSyncDir: workspaceRoot).ExecuteAsync();
     }
 
     // ── Git commit ────────────────────────────────────────────────────────────
@@ -394,7 +395,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         }
 
         var (commitCode, _, commitErr) = await ProcessHelper.RunAsync(
-            "git", ["commit", "-q", "-m", "chore: add multiagent workspace setup"],
+            "git", ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "chore: add multiagent workspace setup"],
             workingDir: root, captureOutput: true);
         if (commitCode != 0) throw new InvalidOperationException($"git commit failed: {commitErr}");
     }

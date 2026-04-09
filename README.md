@@ -16,11 +16,19 @@
 
 ## Quick Start
 
+**Which command do I need?**
+
+| Situation | Command |
+|-----------|---------|
+| Starting a new project | `multiagent-setup new <name>` |
+| Adding to an existing git repo | `multiagent-setup init .` |
+
 **macOS — Homebrew (no .NET required):**
 
 ```bash
 brew install Neftedollar/multiagent-template/multiagent-setup
-multiagent-setup new MyProject
+multiagent-setup new MyProject          # new workspace
+multiagent-setup init .                 # add to existing repo
 ```
 
 **One-liner bootstrap** (installs all deps including Homebrew/winget, agent CLI, and creates the workspace):
@@ -54,6 +62,10 @@ multiagent-setup new MyProject --provider continue   # Continue.dev (VS Code / J
 multiagent-setup new MyProject --provider roo        # Roo Code (VS Code)
 multiagent-setup new MyProject --provider all        # all providers at once
 
+# Add workspace files to an existing git repo (does not touch your code)
+multiagent-setup init .                              # current directory
+multiagent-setup init ./my-repo                      # specific directory
+
 # Add a provider to an existing workspace (no need to recreate)
 multiagent-setup add-provider cursor
 multiagent-setup add-provider gemini --force   # overwrite existing files
@@ -72,6 +84,15 @@ claude          # or: nessy / codex / qwen-code / gemini (terminal agents)
                 # or open in Cursor / Windsurf / VS Code (IDE agents)
 /orchestrator Implement user authentication with JWT
 ```
+
+**What happens next:**
+1. Orchestrator reads `docs/process.md` and selects roles dynamically
+2. Creates a plan and asks: `APPROVED / NEEDS WORK?`
+3. Proceeds through **BUILD → TEST → VERIFY → SHIP**
+4. Opens a PR on GitHub when done — no manual intervention needed
+
+> Interactive mode: Claude asks for gate approval at each step.  
+> Autonomous mode (`claude -p`): runs fully headless, escalates blockers to GitHub Issues.
 
 **What you get in 5 minutes:**
 - A workspace where agents run `PLAN → BUILD → TEST → VERIFY → SHIP` autonomously
@@ -181,6 +202,17 @@ MyProject/
     └── completions.ps1      <- PowerShell completions
 ```
 
+### Two CLAUDE.md files
+
+The workspace uses two separate instruction files:
+
+| File | Purpose |
+|------|---------|
+| `CLAUDE.md` (workspace root) | **How Claude operates** — pipeline, roles, process, team structure |
+| `code/<project>/CLAUDE.md` | **What Claude builds** — architecture, patterns, build commands, test setup |
+
+When you clone your code repo into `code/<project>/`, create a `CLAUDE.md` there describing the codebase (or copy your existing one). Claude Code automatically reads both files.
+
 **Bringing in an existing codebase:**
 
 ```bash
@@ -253,6 +285,7 @@ See [`examples/`](examples/) for concrete workflows:
 
 ```bash
 multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|all]
+multiagent-setup init [dir] [--provider <name>] [--force]  # add workspace files to an existing git repo
 multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
 multiagent-setup update [--force]                    # update workspace templates to latest version
 multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
@@ -287,7 +320,7 @@ Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Ea
 ## FAQ
 
 **Does this work with projects that already have code?**  
-Yes. The workspace wraps your existing repo: `multiagent-setup new MyProject` creates the workspace, then clone your repo into `code/MyProject/`.
+Yes — two options: (1) run `multiagent-setup init .` inside your existing repo to add workspace files directly, or (2) run `multiagent-setup new MyProject` to create a separate workspace, then clone your repo into `code/MyProject/`.
 
 **How do I use multiple providers?**  
 Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once. To add a provider to an existing workspace: `multiagent-setup add-provider gemini`.

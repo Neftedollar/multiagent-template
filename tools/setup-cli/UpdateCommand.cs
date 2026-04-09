@@ -110,6 +110,7 @@ public sealed class UpdateCommand(bool force = false)
     private void ExtractResources(string root, Dictionary<string, string> vars, string[] providers)
     {
         var asm = Assembly.GetExecutingAssembly();
+        int skippedCount = 0;
 
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
@@ -120,7 +121,7 @@ public sealed class UpdateCommand(bool force = false)
 
             if (File.Exists(outputPath) && !force)
             {
-                Console.WriteLine($"  SKIP: {outputRel}");
+                skippedCount++;
                 continue;
             }
 
@@ -144,6 +145,9 @@ public sealed class UpdateCommand(bool force = false)
                 Console.WriteLine($"  OK:   {outputRel}");
             }
         }
+
+        if (skippedCount > 0)
+            Console.WriteLine($"  INFO: Skipped {skippedCount} existing files (use --force to overwrite)");
     }
 
     private static string? ResolveOutputPath(string resourceName, string[] providers)

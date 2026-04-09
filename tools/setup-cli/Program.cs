@@ -96,15 +96,24 @@ async Task<int> HandleAddProvider(string[] a)
 
     if (provider == "all")
     {
+        var errors = new List<string>();
         foreach (var p in ProviderRegistry.ValidForAdd.Where(n => n != "all"))
         {
             var r = await new AddProviderCommand(p, force).ExecuteAsync();
-            if (r != 0) return r;
+            if (r != 0) errors.Add(p);
+        }
+        if (errors.Count > 0)
+        {
+            Console.Error.WriteLine($"  WARN: Failed providers: {string.Join(", ", errors)}");
+            return 1;
         }
         return 0;
     }
 
-    if (provider == "claude" || ProviderRegistry.Find(provider) is null)
+    if (provider == "claude")
+        return PrintUsage(error: "Provider 'claude' is included in 'new' and cannot be added separately.\n       Use: multiagent-setup add-provider <other-provider>");
+
+    if (ProviderRegistry.Find(provider) is null)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForAdd)}");
 
     return await new AddProviderCommand(provider, force).ExecuteAsync();
@@ -125,11 +134,12 @@ async Task<int> HandleHook(string[] a)
 
 async Task<int> HandleSyncRoles(string[] a)
 {
-    var action = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "--pull";
+    var action  = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "--pull";
+    bool global = a.Contains("--global");
     string? agDir = null;
     for (int i = 0; i < a.Length - 1; i++)
         if (a[i] == "--agency-dir") agDir = a[i + 1];
-    return await new SyncRolesCommand(action, agDir).ExecuteAsync();
+    return await new SyncRolesCommand(action, agDir, globalSync: global).ExecuteAsync();
 }
 
 static int PrintUsage(string? error = null)
@@ -143,8 +153,8 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
-    Console.WriteLine("  init [dir]                          Inject workspace files into an existing git repo");
-    Console.WriteLine("    dir                               Target directory (default: current directory)");
+    Console.WriteLine("  init [dir]                          Add workspace files to an existing git repo (does not touch your code)");
+    Console.WriteLine("    dir                               Target directory — must already be a git repo (default: current)");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
     Console.WriteLine("    --force                           Overwrite existing files");
@@ -153,7 +163,8 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --force                           Overwrite existing provider config");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");
-    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to ~/.claude/commands/");
+    Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to local .claude/commands/");
+    Console.WriteLine("    --global                          Also sync to ~/.claude/commands/ globally");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
     Console.WriteLine("  install-mcps [options]              Install age-mcp and o-brien MCP servers");
     Console.WriteLine("    --docker                          Use local Docker (default, interactive)");

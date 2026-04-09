@@ -15,6 +15,8 @@
 
 set -euo pipefail
 
+MULTIAGENT_VERSION="1.31.0"
+
 FIRST_ARG="${1:-}"
 if [[ -z "$FIRST_ARG" ]]; then
   echo "Usage: ./bootstrap.sh <project-name> [github-org] [--provider <name>]" >&2
@@ -73,7 +75,7 @@ echo "  OK: git"
 
 if [ "$OS" = "Darwin" ] && ! has brew; then
   echo "  ..  Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" # nosemgrep: curl-pipe-bash
   eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null)"
 fi
 
@@ -115,7 +117,7 @@ if ! has dotnet; then
   if [ "$OS" = "Darwin" ]; then
     brew install dotnet
   else
-    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0 # nosemgrep: curl-pipe-bash
     export PATH="$HOME/.dotnet:$PATH"
   fi
 fi
@@ -127,10 +129,15 @@ if ! has claude; then
   echo "  ..  Installing Claude Code..."
   if has npm; then npm install -g @anthropic-ai/claude-code
   elif [ "$OS" = "Darwin" ] && has brew; then brew install claude
-  else echo "  WARN: install Claude Code manually: https://docs.anthropic.com/en/docs/claude-code"
   fi
 fi
-has claude && echo "  OK: claude" || true
+if has claude; then
+  echo "  OK: claude $(claude --version 2>/dev/null | head -1 || true)"
+else
+  echo "  WARN: Claude Code not installed — install manually:"
+  echo "        npm install -g @anthropic-ai/claude-code"
+  echo "        or: https://docs.anthropic.com/en/docs/claude-code"
+fi
 
 # ─── Create workspace ─────────────────────────────────────────
 
@@ -141,13 +148,71 @@ echo ""
 export PATH="$PATH:$HOME/.dotnet/tools"
 
 if has multiagent-setup; then
-  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null || true)"
+  _ms_installed="$(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  if [[ "$_ms_installed" == "$MULTIAGENT_VERSION" ]]; then
+    echo "  OK: multiagent-setup $_ms_installed"
+  else
+    echo "  ..  Updating multiagent-setup $_ms_installed → $MULTIAGENT_VERSION..."
+    if [ "$OS" = "Darwin" ] && has brew; then
+      brew upgrade Neftedollar/multiagent-template/multiagent-setup 2>/dev/null \
+        || brew reinstall Neftedollar/multiagent-template/multiagent-setup
+    else
+      dotnet tool update -g multiagent-setup
+      # Persist .dotnet/tools to PATH in shell rc (Linux only)
+      if [[ "$OS" != "Darwin" ]]; then
+        _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
+        _added=false
+        for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+          if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+            echo "" >> "$_rc"
+            echo "# multiagent-setup: .NET tools path" >> "$_rc"
+            echo "$_dotnet_line" >> "$_rc"
+            echo "  INFO: Added .dotnet to PATH in $_rc"
+            _added=true
+            break
+          elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+            _added=true
+            break
+          fi
+        done
+        if [[ "$_added" == false ]]; then
+          echo "$_dotnet_line" >> "$HOME/.profile"
+          echo "  INFO: Added .dotnet to PATH in ~/.profile"
+        fi
+      fi
+    fi
+    echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
+  fi
 elif [ "$OS" = "Darwin" ] && has brew; then
   echo "  ..  Installing multiagent-setup via Homebrew (no .NET required)..."
   brew install Neftedollar/multiagent-template/multiagent-setup
+  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
 else
   echo "  ..  Installing multiagent-setup via dotnet tool..."
   dotnet tool install -g multiagent-setup
+  # Persist .dotnet/tools to PATH in shell rc (Linux only)
+  if [[ "$OS" != "Darwin" ]]; then
+    _dotnet_line='export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"'
+    _added=false
+    for _rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+      if [[ -f "$_rc" ]] && ! grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+        echo "" >> "$_rc"
+        echo "# multiagent-setup: .NET tools path" >> "$_rc"
+        echo "$_dotnet_line" >> "$_rc"
+        echo "  INFO: Added .dotnet to PATH in $_rc"
+        _added=true
+        break
+      elif [[ -f "$_rc" ]] && grep -q '\.dotnet' "$_rc" 2>/dev/null; then
+        _added=true
+        break
+      fi
+    done
+    if [[ "$_added" == false ]]; then
+      echo "$_dotnet_line" >> "$HOME/.profile"
+      echo "  INFO: Added .dotnet to PATH in ~/.profile"
+    fi
+  fi
+  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null | awk '{print $2}')"
 fi
 
 # Detect init vs new mode:

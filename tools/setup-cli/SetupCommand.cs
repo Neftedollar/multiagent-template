@@ -24,7 +24,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         var targetDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), projectName));
         if (Directory.Exists(targetDir))
         {
-            Console.Error.WriteLine($"Error: {targetDir} already exists");
+            Console.Error.WriteLine($"Error: {targetDir} already exists.");
+            Console.Error.WriteLine($"  • To update an existing workspace:  multiagent-setup update");
+            Console.Error.WriteLine($"  • To inject into an existing repo:  multiagent-setup init {targetDir}");
+            Console.Error.WriteLine($"  • To start fresh: delete the directory and re-run");
             return 1;
         }
 
@@ -250,7 +253,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, globalSync: false, localSyncDir: workspaceRoot).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────
@@ -272,7 +275,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (addCode != 0) throw new InvalidOperationException($"git add failed: {addErr}");
 
         var (commitCode, _, commitErr) = await ProcessHelper.RunAsync(
-            "git", ["commit", "-q", "-m", "init: multi-agent workspace from template"],
+            "git", ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "init: multi-agent workspace from template"],
             workingDir: root, captureOutput: true);
         if (commitCode != 0) throw new InvalidOperationException($"git commit failed: {commitErr}");
     }
