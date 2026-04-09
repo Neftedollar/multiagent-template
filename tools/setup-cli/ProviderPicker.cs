@@ -21,6 +21,7 @@ internal static class ProviderPicker
         ["cline"]    = "Cline — VS Code extension",
         ["continue"] = "Continue.dev (VS Code / JetBrains)",
         ["roo"]      = "Roo Code — VS Code extension",
+        ["kiro"]     = "Amazon Kiro — VS Code extension",
     };
 
     /// <summary>
@@ -30,7 +31,7 @@ internal static class ProviderPicker
     internal static string Ask()
     {
         var terminal = new[] { "claude", "nessy", "codex", "gemini", "qwen", "aider" };
-        var ide      = new[] { "cursor", "windsurf", "copilot", "cline", "continue", "roo" };
+        var ide      = new[] { "cursor", "windsurf", "copilot", "cline", "continue", "roo", "kiro" };
 
         Console.WriteLine("Which AI coding assistant will you use?");
         Console.WriteLine();
