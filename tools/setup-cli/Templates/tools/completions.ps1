@@ -104,14 +104,8 @@ Register-ArgumentCompleter -Native -CommandName multiagent-setup -ScriptBlock {
             }
         }
         'doctor' {
-            if ($prevToken -eq '--for') {
-                @('sync-roles', 'init', 'update') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
-                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
-                }
-            } else {
-                @('--for') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
-                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
-                }
+            @('--for') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+                [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
             }
         }
         'completions' {

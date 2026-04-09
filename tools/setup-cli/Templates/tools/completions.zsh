@@ -103,10 +103,7 @@ _multiagent_setup() {
       hook)
         _describe 'hook' hooks ;;
       doctor)
-        case ${words[CURRENT-1]} in
-          --for) compadd -- sync-roles init update ;;
-          *) compadd -- --for ;;
-        esac ;;
+        compadd -- --for ;;
       completions)
         _describe 'shell' shells ;;
     esac ;;
