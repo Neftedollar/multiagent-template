@@ -1,6 +1,6 @@
 # multiagent-template
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 12 AI coding agent providers.
+> Orchestrate teams of AI coding agents in a structured pipeline (PLAN → BUILD → TEST → VERIFY → SHIP). Unlike single-agent tools, multiagent-template prevents context collapse and ensures accountability via role separation and approval gates. Works with 12 providers: Claude, Gemini, Codex, Cursor, Windsurf, Cline, Aider, Continue, Roo, Qwen, Copilot, Nessy.
 
 ## The Problem
 

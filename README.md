@@ -1,12 +1,14 @@
-# multiagent-template
+# multiagent-template — Multi-Agent AI Orchestration for Autonomous Code Generation
 
-**Autonomous multi-agent code generation and PR automation for 12 AI coding assistants.** Scaffold a workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — drives software from backlog to merged PR without hand-holding. You set direction; the agents handle execution.
+**Autonomous multi-agent code generation and PR automation for 12 AI coding assistants.** Scaffold a structured workspace where specialized agents (orchestrator, architect, developer, reviewer, DevOps, designer) operate in a gated pipeline (PLAN → BUILD → TEST → VERIFY → SHIP) to drive software from backlog to merged PR autonomously — without context collapse, without code review bottlenecks, without hand-holding. You set direction; the agents handle execution.
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![Build](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml/badge.svg)](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml)
 [![GitHub stars](https://img.shields.io/github/stars/Neftedollar/multiagent-template?style=social)](https://github.com/Neftedollar/multiagent-template/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/badge/Discussions-join-blue)](https://github.com/Neftedollar/multiagent-template/discussions)
+
+**Tags:** AI agent orchestration · multi-agent AI · autonomous code generation · Claude Code · AI workflow automation · code review pipeline · agent routing · multi-LLM support · Claude Sonnet · OpenAI Codex · Gemini CLI
 
 <p align="center">
   <img src="docs/demo.svg" alt="multiagent-setup demo" width="720"/>

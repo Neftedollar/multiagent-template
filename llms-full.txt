@@ -13,7 +13,14 @@ This file is the comprehensive reference. See also: [llms.txt](llms.txt) for the
 
 ## What It Does
 
-`multiagent-setup` is a .NET 10 dotnet global tool that scaffolds a **multi-agent workspace** directory for your software project. The workspace contains:
+`multiagent-setup` is a .NET 10 dotnet global tool that solves the core problem of single-agent AI code generation: **context collapse, no accountability, inconsistent code quality**. It scaffolds a structured multi-agent workspace with:
+
+- **Role separation** — Orchestrator never writes code; architects design, developers build, reviewers validate independently
+- **Gated pipeline** — PLAN → BUILD → TEST → VERIFY → SHIP, with approval gates and automatic retry (3× same role, 2× helper role, then escalate to human)
+- **Provider agnostic** — Works with 12 AI coding agents: Claude, Gemini, Codex, Cursor, Windsurf, Cline, Aider, Continue, Roo, Qwen, Copilot, Nessy
+- **Safety-by-default** — Blocks destructive commands, enforces conventional commits, auto-lints on save
+
+The workspace contains:
 
 1. A context file (CLAUDE.md / AGENTS.md / GEMINI.md / etc.) that tells the AI its role and the pipeline rules
 2. A set of slash-command role files (`/orchestrator`, `/engineering-backend-architect`, etc.)
