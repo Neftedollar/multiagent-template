@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../setup-cli/MultiagentSetup.csproj" />
+  </ItemGroup>
+
 </Project>

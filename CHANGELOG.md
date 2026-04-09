@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.27.0] — 2026-04-09
+
+### Added
+- **Test coverage: ProviderRegistry** — 20 tests covering `All` count, `Find`, `ValidForNew/Add`, `AllExpansion`, per-provider contracts (nessy null prefix, cline/aider empty dirs, binary-name invariants). Acts as a regression guard when adding providers.
+- **Test coverage: TemplateResources** — 18 tests covering text/binary classification for all supported extensions including `.clinerules` regression case.
+- **`InternalsVisibleTo`** — test project now references the main assembly directly; no more pattern duplication needed for future tests.
+- Total tests: **113** (was 65).
+
+---
+
 ## [1.26.0] — 2026-04-09
 
 ### Added
