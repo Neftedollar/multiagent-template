@@ -16,7 +16,7 @@
 
 ## Quick Start
 
-**macOS / Linux — Homebrew (no .NET required):**
+**macOS — Homebrew (no .NET required):**
 
 ```bash
 brew install Neftedollar/multiagent-template/multiagent-setup
