@@ -26,7 +26,8 @@ The workspace wraps your existing code repo: `code/MyProject/` is the code (giti
 ## Install
 
 ```bash
-# Prerequisites: git, gh, jq, .NET 10 SDK
+# macOS — Homebrew (no .NET SDK required)
+brew install Neftedollar/multiagent-template/multiagent-setup
 
 # Bootstrap (macOS/Linux) — installs all prerequisites + scaffolds workspace
 curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
@@ -35,7 +36,7 @@ curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/mai
 irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
 .\bootstrap.ps1 MyProject
 
-# Install tool only (prerequisites already installed)
+# dotnet global tool (all platforms, requires .NET 10 SDK)
 dotnet tool install -g multiagent-setup
 ```
 

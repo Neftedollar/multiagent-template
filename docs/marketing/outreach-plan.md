@@ -41,8 +41,10 @@ Each gate is APPROVED or NEEDS WORK (with a reason).
 
 **Tweet 4 (one command)**
 ```bash
-dotnet tool install -g multiagent-setup
-multiagent-setup new MyProject --provider claude
+# macOS (no .NET needed):
+brew install Neftedollar/multiagent-template/multiagent-setup
+
+multiagent-setup new MyProject  # interactive provider picker
 cd MyProject && claude
 /orchestrator Implement JWT auth
 ```
