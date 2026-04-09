@@ -120,7 +120,7 @@ Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific fi
 ### `install-mcps` — Install optional memory infrastructure
 
 ```bash
-multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 ```
 
 Installs optional MCP servers:
@@ -144,10 +144,12 @@ Runs a compiled safety hook. All hooks are baked into the binary (no shell scrip
 ### `doctor` — Workspace health check
 
 ```bash
-multiagent-setup doctor
+multiagent-setup doctor [--for <command>]
 ```
 
 Checks the current workspace for common configuration issues: missing required files, undetected providers, hook configuration problems, and missing binaries. Run after `update` or when something seems wrong.
+
+`--for <command>` — pre-flight mode: runs targeted checks for a specific command before executing it. Supported values: `sync-roles`, `init`, `update`.
 
 ## Supported Providers
 
