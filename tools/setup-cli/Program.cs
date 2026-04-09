@@ -19,7 +19,7 @@ return args[0] switch
     "list-providers"   => await new ListProvidersCommand().ExecuteAsync(),
     "update"           => await HandleUpdate(args[1..]),
     "sync-roles"       => await HandleSyncRoles(args[1..]),
-    "install-mcps"     => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
+    "install-mcps"     => await HandleInstallMcps(args[1..]),
     "hook"             => await HandleHook(args[1..]),
     "doctor"           => await HandleDoctor(args[1..]),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
@@ -166,12 +166,19 @@ Task<int> HandleDoctor(string[] a)
 async Task<int> HandleHook(string[] a)
 {
     var name = a.ElementAtOrDefault(0);
-    if (name is null) return PrintUsage(error: "hook name is required");
+    if (name is null || name is "--help" or "-h") return PrintUsage(name is null ? "hook name is required" : null);
     return await new HooksCommand(name).ExecuteAsync();
+}
+
+async Task<int> HandleInstallMcps(string[] a)
+{
+    if (a.Contains("--help") || a.Contains("-h")) return PrintUsage();
+    return await new InstallMcpsCommand(a).ExecuteAsync();
 }
 
 async Task<int> HandleSyncRoles(string[] a)
 {
+    if (a.Contains("--help") || a.Contains("-h")) return PrintUsage();
     var action  = a.FirstOrDefault(x => x is "--clone" or "--pull") ?? "--pull";
     bool global = a.Contains("--global");
     string? agDir = null;
@@ -217,7 +224,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    --obrien-conn <str>               O'Brien connection string");
     Console.WriteLine("    --target <dir>                    Target dir for age-mcp clone");
     Console.WriteLine("  hook <name>                         Run a hook (cross-platform)");
-    Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard");
+    Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard | research-reminder");
     Console.WriteLine("  doctor                              Check workspace health (tools, files, hooks)");
     Console.WriteLine("    --for <command>                   Pre-flight check for a specific command (sync-roles, init, update)");
     Console.WriteLine();

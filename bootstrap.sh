@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-MULTIAGENT_VERSION="1.31.0"
+MULTIAGENT_VERSION="1.32.0"
 
 FIRST_ARG="${1:-}"
 if [[ -z "$FIRST_ARG" ]]; then
