@@ -20,10 +20,13 @@ A structured workspace where specialized agents (architect, developer, reviewer,
 ## Install
 
 ```bash
-# One-liner (macOS/Linux) — installs all dependencies
+# macOS / Linux — Homebrew (no .NET required)
+brew install Neftedollar/multiagent-template/multiagent-setup
+
+# One-liner bootstrap (installs all dependencies including .NET / Homebrew)
 curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
 
-# Direct install (requires git, gh, jq, .NET 10)
+# NuGet (requires git, gh, jq, .NET 10)
 dotnet tool install -g multiagent-setup
 multiagent-setup new MyProject
 ```

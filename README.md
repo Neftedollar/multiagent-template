@@ -14,7 +14,14 @@
 
 ## Quick Start
 
-> **Recommended: one-liner bootstrap.** Installs all deps (git, gh, jq, .NET 10, agent CLI) and creates the workspace in one shot.
+**macOS / Linux — Homebrew (no .NET required):**
+
+```bash
+brew install Neftedollar/multiagent-template/multiagent-setup
+multiagent-setup new MyProject
+```
+
+**One-liner bootstrap** (installs all deps including Homebrew/winget, agent CLI, and creates the workspace):
 
 ```bash
 # macOS / Linux
@@ -27,7 +34,7 @@ irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/boots
 .\bootstrap.ps1 MyProject --provider codex
 ```
 
-Already have git, gh, jq, and .NET 10 installed? (You don't need to know .NET — it's just the packaging mechanism.)
+**NuGet** (.NET 10+ required):
 
 ```bash
 dotnet tool install -g multiagent-setup

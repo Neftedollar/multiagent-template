@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.26.0] — 2026-04-09
+
+### Added
+- **Homebrew tap** — `brew install Neftedollar/multiagent-template/multiagent-setup` installs without requiring .NET SDK. Formula lives in `Formula/multiagent-setup.rb` in this repo; SHA256 and version updated automatically on each tagged release by the new `release.yml` CI workflow.
+- **GitHub Releases with binaries** — each tagged version now ships self-contained binaries for `osx-arm64`, `osx-x64`, `linux-x64`, and `win-x64` (no .NET runtime required to run them).
+
+---
+
 ## [1.25.0] — 2026-04-09
 
 ### Fixed

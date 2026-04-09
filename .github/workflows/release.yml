@@ -1,0 +1,99 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build self-contained binaries
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          for rid in osx-arm64 osx-x64 linux-x64; do
+            dotnet publish tools/setup-cli/MultiagentSetup.csproj \
+              -c Release -r $rid --self-contained true \
+              -p:PublishSingleFile=true -p:PublishTrimmed=true \
+              -o publish/$rid
+            mv publish/$rid/MultiagentSetup publish/$rid/multiagent-setup
+            tar czf multiagent-setup-${VERSION}-${rid}.tar.gz \
+              -C publish/$rid multiagent-setup
+          done
+          dotnet publish tools/setup-cli/MultiagentSetup.csproj \
+            -c Release -r win-x64 --self-contained true \
+            -p:PublishSingleFile=true -p:PublishTrimmed=true \
+            -o publish/win-x64
+          cd publish/win-x64 && zip ../../multiagent-setup-${VERSION}-win-x64.zip MultiagentSetup.exe
+
+      - name: Update Homebrew formula with new version and SHA256
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          SHA_ARM64=$(sha256sum multiagent-setup-${VERSION}-osx-arm64.tar.gz | cut -d' ' -f1)
+          SHA_X64=$(sha256sum   multiagent-setup-${VERSION}-osx-x64.tar.gz   | cut -d' ' -f1)
+          SHA_LINUX=$(sha256sum multiagent-setup-${VERSION}-linux-x64.tar.gz | cut -d' ' -f1)
+
+          python3 - "$VERSION" "$SHA_ARM64" "$SHA_X64" "$SHA_LINUX" <<'PYEOF'
+          import sys, re, pathlib
+          version, sha_arm64, sha_x64, sha_linux = sys.argv[1:]
+          formula = pathlib.Path("Formula/multiagent-setup.rb").read_text()
+
+          # Update version
+          formula = re.sub(r'version ".*?"', f'version "{version}"', formula)
+
+          # Update URLs
+          formula = re.sub(
+              r'releases/download/v[\d.]+/multiagent-setup-[\d.]+-osx-arm64',
+              f'releases/download/v{version}/multiagent-setup-{version}-osx-arm64', formula)
+          formula = re.sub(
+              r'releases/download/v[\d.]+/multiagent-setup-[\d.]+-osx-x64',
+              f'releases/download/v{version}/multiagent-setup-{version}-osx-x64', formula)
+          formula = re.sub(
+              r'releases/download/v[\d.]+/multiagent-setup-[\d.]+-linux-x64',
+              f'releases/download/v{version}/multiagent-setup-{version}-linux-x64', formula)
+
+          # Update SHA256 values — replace the sha256 line that follows each RID's URL
+          def replace_sha(text, rid_marker, new_sha):
+              return re.sub(
+                  rf'({re.escape(rid_marker)}\.tar\.gz"\n\s*sha256 ")[0-9a-f]{{64}}',
+                  rf'\g<1>{new_sha}', text)
+          formula = replace_sha(formula, 'osx-arm64', sha_arm64)
+          formula = replace_sha(formula, 'osx-x64',   sha_x64)
+          formula = replace_sha(formula, 'linux-x64',  sha_linux)
+
+          pathlib.Path("Formula/multiagent-setup.rb").write_text(formula)
+          print(f"Formula updated to v{version}")
+          PYEOF
+
+      - name: Commit updated formula
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/multiagent-setup.rb
+          git diff --cached --quiet || git commit -m "chore: update Homebrew formula to ${{ steps.version.outputs.version }}"
+          git push origin HEAD:main
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            multiagent-setup-*-osx-arm64.tar.gz
+            multiagent-setup-*-osx-x64.tar.gz
+            multiagent-setup-*-linux-x64.tar.gz
+            multiagent-setup-*-win-x64.zip
+          generate_release_notes: true
+          make_latest: true
