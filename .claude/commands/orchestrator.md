@@ -150,12 +150,63 @@ Match task type to pipeline. **Every step is mandatory — no skipping.**
 
 ### Step 4: Execute Pipeline Steps in Order
 
-- Run each step sequentially (parallel only where explicitly allowed)
-- Each step must produce an artifact + gate decision (APPROVED / NEEDS WORK)
+You are running inside **Claude Code** — use the `Agent` tool to spawn real subagents. Each agent gets its own context, its own tool access, and runs independently. This is true multiagent execution, not role simulation.
+
+**Spawn pattern for each step:**
+```
+1. Select role for this step (Step 2)
+2. Read role file: .claude/commands/<role-name>.md
+3. Agent(
+     subagent_type: "general-purpose",
+     description: "<role> — <step>: <task summary>",
+     prompt: """
+       <full role file content>
+
+       ---
+
+       Task: <specific task — one clear problem domain>
+       Context: <all relevant info: files, decisions, prior step output — agent has NO history from this session>
+       Constraints: <what the agent must NOT do — be explicit>
+       Return: <exact output format you expect — findings, decisions, artifacts>
+     """
+   )
+4. Collect result → evaluate gate (APPROVED / NEEDS WORK)
+```
+
+**Critical:** Each agent starts with zero context from your session. Construct everything it needs in the prompt — don't assume it knows anything.
+
+**Subagent type selection:**
+
+| Step | Subagent type | When |
+|------|--------------|------|
+| PLAN | `general-purpose` | Strategy, architecture, research |
+| BUILD (research/config) | `Explore` | Read-only, fast, no side effects |
+| BUILD (code changes) | `general-purpose` + `isolation: "worktree"` | Any file writes — always use worktree |
+| TEST | `general-purpose` | Run tests, report results |
+| VERIFY (code review) | `superpowers:code-reviewer` | Built-in reviewer subagent |
+| VERIFY (reality check) | `general-purpose` | Pass testing-reality-checker role |
+| SHIP | `general-purpose` | git branch, commit, PR |
+
+**Worktree isolation — mandatory for all code changes:**
+```
+Agent(
+  subagent_type: "general-purpose",
+  isolation: "worktree",       ← creates isolated branch automatically
+  prompt: "..."
+)
+```
+The agent returns the worktree path and branch. You collect the branch name for SHIP.
+
+**Parallelism — use `run_in_background: true` where outputs are independent:**
+- PLAN: multiple research agents in parallel (PM + architect, or multiple domain researchers)
+- VERIFY: `superpowers:code-reviewer` + reality-checker run in parallel
+- Never parallelize BUILD (one worktree at a time)
+
+**Gate evaluation:**
+- Each agent returns a result. You evaluate it — APPROVED or NEEDS WORK (reason).
 - **A step does not start until the previous gate is APPROVED**
-- On failure: 3 retries → helper → 2 more → CEO escalation
-- **Helper selection**: use graph `HELPS` edges or capability index Secondary role
-- Write checkpoints after each successful step
+- On failure: re-spawn the same agent with the failure reason in context (3 retries → helper role agent → 2 more → CEO escalation)
+- Write checkpoints after each successful gate
 
 **Mandatory pre-SHIP checklist — do not proceed to SHIP until all boxes checked:**
 ```
