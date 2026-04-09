@@ -1,5 +1,5 @@
 class MultiagentSetup < Formula
-  desc "Scaffold autonomous multi-agent AI workspaces for 12 AI coding assistants"
+  desc "Scaffold autonomous multi-agent AI workspaces for 13 AI coding assistants"
   homepage "https://github.com/Neftedollar/multiagent-template"
   license "MIT"
   version "1.31.0"
