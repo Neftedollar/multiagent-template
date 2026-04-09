@@ -40,6 +40,7 @@
 
     <!-- Claude commands + config -->
     <EmbeddedResource Include="Templates/.claude/commands/orchestrator.md" LogicalName=".claude/commands/orchestrator.md" />
+    <EmbeddedResource Include="Templates/.claude/commands/engineering-agent-prompt-engineer.md" LogicalName=".claude/commands/engineering-agent-prompt-engineer.md" />
     <EmbeddedResource Include="Templates/.claude/mcp.json" LogicalName=".claude/mcp.json" />
     <EmbeddedResource Include="Templates/.claude/settings.json" LogicalName=".claude/settings.json" />
 
