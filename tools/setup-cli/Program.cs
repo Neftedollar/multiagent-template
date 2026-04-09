@@ -12,14 +12,16 @@ if (args[0] is "-v" or "--version")
 
 return args[0] switch
 {
-    "new"           => await HandleNew(args[1..]),
-    "init"          => await HandleInit(args[1..]),
-    "add-provider"  => await HandleAddProvider(args[1..]),
-    "update"        => await HandleUpdate(args[1..]),
-    "sync-roles"    => await HandleSyncRoles(args[1..]),
-    "install-mcps"  => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
-    "hook"          => await HandleHook(args[1..]),
-    "doctor"        => await new DoctorCommand().ExecuteAsync(),
+    "new"              => await HandleNew(args[1..]),
+    "init"             => await HandleInit(args[1..]),
+    "add-provider"     => await HandleAddProvider(args[1..]),
+    "remove-provider"  => await HandleRemoveProvider(args[1..]),
+    "list-providers"   => await new ListProvidersCommand().ExecuteAsync(),
+    "update"           => await HandleUpdate(args[1..]),
+    "sync-roles"       => await HandleSyncRoles(args[1..]),
+    "install-mcps"     => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
+    "hook"             => await HandleHook(args[1..]),
+    "doctor"           => await new DoctorCommand().ExecuteAsync(),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
     _ => PrintUsage(error: $"Unknown command: {args[0]}")
 };
@@ -84,6 +86,20 @@ async Task<int> HandleInit(string[] a)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
 
     return await new InitCommand(dir, org, provider, force).ExecuteAsync();
+}
+
+async Task<int> HandleRemoveProvider(string[] a)
+{
+    var provider = a.ElementAtOrDefault(0);
+    if (provider is null || provider.StartsWith('-'))
+        return PrintUsage(error: "provider name is required");
+
+    bool force = a.Contains("--force");
+
+    if (ProviderRegistry.Find(provider) is null && provider != "claude")
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForAdd)}");
+
+    return await new RemoveProviderCommand(provider, force).ExecuteAsync();
 }
 
 async Task<int> HandleAddProvider(string[] a)
@@ -161,6 +177,10 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
     Console.WriteLine($"    <name>: {addNames}");
     Console.WriteLine("    --force                           Overwrite existing provider config");
+    Console.WriteLine("  remove-provider <name>              Remove a provider from an existing workspace");
+    Console.WriteLine($"    <name>: {addNames}");
+    Console.WriteLine("    --force                           Skip confirmation prompt");
+    Console.WriteLine("  list-providers                      List providers configured in current workspace");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to local .claude/commands/");
