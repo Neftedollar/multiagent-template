@@ -118,7 +118,13 @@ echo ""
 
 export PATH="$PATH:$HOME/.dotnet/tools"
 
-if ! dotnet tool list -g 2>/dev/null | grep -q '^multiagent-setup\b'; then
+if has multiagent-setup; then
+  echo "  OK: multiagent-setup $(multiagent-setup --version 2>/dev/null || true)"
+elif [ "$OS" = "Darwin" ] && has brew; then
+  echo "  ..  Installing multiagent-setup via Homebrew (no .NET required)..."
+  brew install Neftedollar/multiagent-template/multiagent-setup
+else
+  echo "  ..  Installing multiagent-setup via dotnet tool..."
   dotnet tool install -g multiagent-setup
 fi
 
