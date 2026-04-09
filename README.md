@@ -209,7 +209,9 @@ All hooks are compiled into the `multiagent-setup` binary — no shell scripts, 
 
 ## Agent Roles
 
-20+ specialist roles from [agency-agents](https://github.com/msitarzewski/agency-agents), installed at workspace creation time.
+> **Built on [agency-agents](https://github.com/msitarzewski/agency-agents)** — a community-maintained library of specialist Claude Code slash commands. `multiagent-setup sync-roles` clones and installs the full set at workspace creation. Go star that repo too — it's what makes the roles work.
+
+20+ specialist roles installed automatically:
 
 | Layer | Roles |
 |-------|-------|

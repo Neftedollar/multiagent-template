@@ -16,7 +16,7 @@
 
 - **Оркестратор** разбивает задачи на шаги и подбирает нужного специалиста для каждого
 - **Гейты пайплайна** ловят проблемы до того, как они накапливаются (`PLAN → BUILD → TEST → VERIFY → SHIP`)
-- **8 AI-агентов** из коробки: Claude, Gemini, Codex, Qwen, Nessy, Cursor, Windsurf, Copilot
+- **12 AI-агентов** из коробки: Claude, Gemini, Codex, Qwen, Nessy, Aider, Cursor, Windsurf, Copilot, Cline, Continue.dev, Roo Code
 - **Хуки безопасности** — блокировка опасных команд, conventional commits, автолинт, логирование агентов
 - **Семантическая память** через AGE-граф + O'Brien pgvector — агенты помнят контекст между сессиями
 - **Без платформо-специфичных скриптов** — все хуки работают через кросс-платформенный бинарник `multiagent-setup`
@@ -28,19 +28,22 @@
 ## Быстрый старт
 
 ```bash
+# macOS — Homebrew (без .NET SDK)
+brew install Neftedollar/multiagent-template/multiagent-setup
+
 # Один лайнер (macOS / Linux) — устанавливает все зависимости и создаёт воркспейс
 curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
 
 # Windows (PowerShell)
 irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
 .\bootstrap.ps1 MyProject
+
+# dotnet (все платформы, нужен .NET 10)
+dotnet tool install -g multiagent-setup
 ```
 
-Если git, gh, jq и .NET 10 уже установлены:
-
 ```bash
-dotnet tool install -g multiagent-setup
-multiagent-setup new MyProject                        # Claude (по умолчанию)
+multiagent-setup new MyProject                        # интерактивный выбор провайдера
 multiagent-setup new MyProject --provider nessy       # Nessy (совместим с Claude)
 multiagent-setup new MyProject --provider gemini      # Gemini CLI
 multiagent-setup new MyProject --provider codex       # OpenAI Codex

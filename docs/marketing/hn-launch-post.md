@@ -6,7 +6,7 @@
 
 **Post body:**
 
-I built a .NET dotnet global tool that scaffolds a structured multi-agent AI workspace: `dotnet tool install -g multiagent-setup && multiagent-setup new MyProject`.
+I built a tool that scaffolds a structured multi-agent AI workspace. macOS one-liner (no .NET needed): `brew install Neftedollar/multiagent-template/multiagent-setup`. All platforms: `dotnet tool install -g multiagent-setup`. Then: `multiagent-setup new MyProject`.
 
 The problem I was trying to solve: single-agent coding tools collapse when given non-trivial tasks because they're forced to be architect, developer, reviewer, and DevOps simultaneously. The solution I landed on is explicit role separation with approval gates at each handoff — the same structure that makes human teams work. An Orchestrator coordinates and never writes code. Architects design before developers build. Reviewers validate independently. Each step either passes (`APPROVED`) or returns (`NEEDS WORK`) with a reason. After 3 retries a helper role is invoked; after 2 more the human is escalated. In practice, human escalation is rare.
 
