@@ -75,7 +75,8 @@ public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir 
             || File.Exists(Path.Combine(cwd, ".clinerules"))
             || File.Exists(Path.Combine(cwd, ".aider.conf.yml"))
             || Directory.Exists(Path.Combine(cwd, ".continue"))
-            || Directory.Exists(Path.Combine(cwd, ".roo", "rules"));
+            || Directory.Exists(Path.Combine(cwd, ".roo", "rules"))
+            || Directory.Exists(Path.Combine(cwd, ".kiro"));
 
         if (foundAgents.Length == 0 && !hasIdeProviders)
         {
@@ -85,7 +86,7 @@ public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir 
         foreach (var a in foundAgents)
             Console.WriteLine($"  OK   {a}");
         if (hasIdeProviders)
-            Console.WriteLine("  OK   IDE/extension provider (cursor/windsurf/copilot/cline/aider/continue/roo) detected");
+            Console.WriteLine("  OK   IDE/extension provider (cursor/windsurf/copilot/cline/aider/continue/roo/kiro) detected");
         Console.WriteLine();
 
         // ── Optional infrastructure ───────────────────────────────────────────

@@ -62,6 +62,7 @@ multiagent-setup new MyProject --provider cline      # Cline (VS Code)
 multiagent-setup new MyProject --provider aider      # Aider AI pair programmer
 multiagent-setup new MyProject --provider continue   # Continue.dev (VS Code / JetBrains)
 multiagent-setup new MyProject --provider roo        # Roo Code (VS Code)
+multiagent-setup new MyProject --provider kiro       # Amazon Kiro (VS Code)
 multiagent-setup new MyProject --provider all        # all providers at once
 
 # Choose a workspace template (saas, oss, internal, or default)
@@ -140,7 +141,7 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | Team of specialized roles | ✅ | ❌ | ❌ |
 | Autonomous overnight backlog drain | ✅ | Limited | ❌ |
 | Works inside your existing IDE | ✅ (via provider flags) | ✅ | ✅ |
-| Any AI provider (Claude, Gemini, Codex…) | ✅ 12 providers | Claude only | Any, but no pipeline |
+| Any AI provider (Claude, Gemini, Codex…) | ✅ 13 providers | Claude only | Any, but no pipeline |
 
 ---
 
@@ -160,8 +161,9 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | **aider** | [Aider](https://aider.chat) | Terminal pair programming | Creates `.aider.conf.yml` — auto-reads CLAUDE.md |
 | **continue** | [Continue.dev](https://continue.dev) | VS Code + JetBrains users | `.continue/config.yaml` with `/orchestrator` slash command |
 | **roo** | [Roo Code](https://github.com/RooVetGit/Roo-Code) | VS Code extension users | Rules in `.roo/rules/` — auto-loaded per project |
+| **kiro** | [Amazon Kiro](https://kiro.dev) | AWS + VS Code users | Steering docs in `.kiro/steering/` — auto-loaded by Kiro |
 
-Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider + continue + roo).
+Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider + continue + roo + kiro).
 
 ---
 
@@ -296,7 +298,7 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|all] [--template default|saas|oss|internal]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|kiro|all] [--template default|saas|oss|internal]
 multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]   # add workspace to existing repo
 multiagent-setup add-provider <provider> [--force]            # add provider to existing workspace
 multiagent-setup remove-provider <provider> [--force]         # remove a provider and its files

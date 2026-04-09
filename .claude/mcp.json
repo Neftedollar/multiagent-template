@@ -1,3 +1,19 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "age-mcp": {
+      "type": "stdio",
+      "command": "age-mcp",
+      "env": {
+        "AGE_CONNECTION_STRING": "Host=localhost;Port=5435;Database=agemcp;Username=agemcp;Password=agemcp",
+        "TENANT_ID": "default"
+      }
+    },
+    "o-brien": {
+      "type": "stdio",
+      "command": "obrien-mcp",
+      "env": {
+        "DATABASE_URL": "Host=localhost;Port=5433;Database=obrien;Username=postgres;Password=postgres"
+      }
+    }
+  }
 }

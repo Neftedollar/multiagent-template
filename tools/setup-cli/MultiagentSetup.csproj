@@ -90,6 +90,13 @@
     <!-- Provider: Roo Code -->
     <EmbeddedResource Include="Templates/providers/roo/.roo/rules/workspace.md" LogicalName="providers/roo/.roo/rules/workspace.md" />
 
+    <!-- Provider: Kiro (Amazon) -->
+    <EmbeddedResource Include="Templates/providers/kiro/.kiro/steering/workspace.md" LogicalName="providers/kiro/.kiro/steering/workspace.md" />
+
+    <!-- CI workflows for additional providers -->
+    <EmbeddedResource Include="Templates/providers/gemini/.github/workflows/orchestrator-gemini.yml" LogicalName="providers/gemini/.github/workflows/orchestrator-gemini.yml" />
+    <EmbeddedResource Include="Templates/providers/codex/.github/workflows/orchestrator-codex.yml" LogicalName="providers/codex/.github/workflows/orchestrator-codex.yml" />
+
     <!-- Template variants -->
     <EmbeddedResource Include="Templates/variants/saas/docs/process.md" LogicalName="variant/saas/docs/process.md" />
     <EmbeddedResource Include="Templates/variants/oss/docs/process.md" LogicalName="variant/oss/docs/process.md" />
