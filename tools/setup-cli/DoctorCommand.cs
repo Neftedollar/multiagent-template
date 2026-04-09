@@ -1,11 +1,15 @@
 namespace MultiagentSetup;
 
-public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir = null)
+public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir = null, string? forCommand = null)
 {
     public async Task<int> ExecuteAsync()
     {
         var cwd  = workspaceRoot ?? Directory.GetCurrentDirectory();
         var home = homeDir       ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        // Pre-flight mode: targeted checks for a specific command
+        if (forCommand is not null)
+            return await RunPreflightAsync(cwd, forCommand);
 
         Console.WriteLine("multiagent-setup doctor");
         Console.WriteLine("=======================");
@@ -111,6 +115,88 @@ public sealed class DoctorCommand(string? workspaceRoot = null, string? homeDir 
             if (warnings > 0)
                 Console.WriteLine($"{warnings} warning(s) — workspace may have reduced functionality.");
         }
+        Console.WriteLine();
+        return errors > 0 ? 1 : 0;
+    }
+
+    // ── Pre-flight mode ────────────────────────────────────────────────────────
+
+    private static async Task<int> RunPreflightAsync(string cwd, string command)
+    {
+        Console.WriteLine($"Pre-flight check: multiagent-setup {command}");
+        Console.WriteLine();
+        int errors = 0;
+
+        switch (command.ToLowerInvariant())
+        {
+            case "sync-roles":
+            {
+                errors += Check(ProcessHelper.IsOnPath("git"), "git is on PATH");
+
+                var agencyDir = Environment.GetEnvironmentVariable("AGENCY_DIR")
+                    ?? Path.GetFullPath(Path.Combine(cwd, "..", "agency-agents"));
+
+                if (Directory.Exists(Path.Combine(agencyDir, ".git")))
+                {
+                    Console.WriteLine($"  OK   agency-agents found at {agencyDir}");
+                }
+                else
+                {
+                    Console.WriteLine($"  WARN agency-agents not found at {agencyDir}");
+                    Console.WriteLine( "       Run: multiagent-setup sync-roles --clone");
+                    errors++;
+                }
+
+                var hasLocalClaude = Directory.Exists(Path.Combine(cwd, ".claude"));
+                if (hasLocalClaude)
+                    Console.WriteLine($"  OK   local .claude/ workspace found");
+                else
+                {
+                    Console.WriteLine($"  WARN no local .claude/ workspace — roles will only sync with --global");
+                    Console.WriteLine( "       Run: multiagent-setup sync-roles --clone --global");
+                }
+                break;
+            }
+
+            case "init":
+            {
+                errors += Check(ProcessHelper.IsOnPath("git"), "git is on PATH");
+                errors += Check(ProcessHelper.IsOnPath("gh"),  "gh (GitHub CLI) is on PATH");
+
+                var (code, _, _) = await ProcessHelper.RunAsync("git",
+                    ["rev-parse", "--git-dir"], workingDir: cwd,
+                    captureOutput: true, allowFailure: true);
+                if (code == 0)
+                    Console.WriteLine($"  OK   {cwd} is a git repository");
+                else
+                {
+                    Console.WriteLine($"  FAIL {cwd} is NOT a git repository");
+                    Console.WriteLine( "       Run: git init, then re-run multiagent-setup init");
+                    errors++;
+                }
+                break;
+            }
+
+            case "update":
+            {
+                var hasClaude  = File.Exists(Path.Combine(cwd, "CLAUDE.md"));
+                var hasProcess = File.Exists(Path.Combine(cwd, "docs", "process.md"));
+                errors += Check(hasClaude,  "CLAUDE.md found (workspace root)");
+                errors += Check(hasProcess, "docs/process.md found");
+                break;
+            }
+
+            default:
+                Console.Error.WriteLine($"Unknown command for --for: {command}");
+                Console.Error.WriteLine("Supported: sync-roles, init, update");
+                return 1;
+        }
+
+        Console.WriteLine();
+        if (errors == 0)
+            Console.WriteLine($"Pre-flight passed — {command} should succeed.");
+        else
+            Console.WriteLine($"{errors} issue(s) found — fix above before running {command}.");
         Console.WriteLine();
         return errors > 0 ? 1 : 0;
     }

@@ -21,7 +21,7 @@ return args[0] switch
     "sync-roles"       => await HandleSyncRoles(args[1..]),
     "install-mcps"     => await new InstallMcpsCommand(args[1..]).ExecuteAsync(),
     "hook"             => await HandleHook(args[1..]),
-    "doctor"           => await new DoctorCommand().ExecuteAsync(),
+    "doctor"           => await HandleDoctor(args[1..]),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
     _ => PrintUsage(error: $"Unknown command: {args[0]}")
 };
@@ -33,14 +33,20 @@ async Task<int> HandleNew(string[] a)
 
     string? org      = null;
     string? provider = null;  // null = not specified by user
+    string? template = null;
 
     for (int i = 1; i < a.Length; i++)
     {
         if (a[i] == "--provider" && i + 1 < a.Length)
             provider = a[++i];
+        else if (a[i] == "--template" && i + 1 < a.Length)
+            template = a[++i];
         else if (!a[i].StartsWith('-'))
             org ??= a[i];
     }
+
+    if (template is not null && template != "default")
+        Console.WriteLine($"  INFO: template '{template}' not yet available — using 'default'. Track: https://github.com/Neftedollar/multiagent-template/issues/111");
 
     // Interactive provider picker when not specified and stdin is a terminal
     if (provider is null && !Console.IsInputRedirected)
@@ -59,17 +65,23 @@ async Task<int> HandleInit(string[] a)
     string? dir      = null;
     string? org      = null;
     string? provider = null;
+    string? template = null;
     bool    force    = false;
 
     for (int i = 0; i < a.Length; i++)
     {
         if (a[i] == "--provider" && i + 1 < a.Length)
             provider = a[++i];
+        else if (a[i] == "--template" && i + 1 < a.Length)
+            template = a[++i];
         else if (a[i] == "--force")
             force = true;
         else if (!a[i].StartsWith('-'))
             dir ??= a[i];
     }
+
+    if (template is not null && template != "default")
+        Console.WriteLine($"  INFO: template '{template}' not yet available — using 'default'. Track: https://github.com/Neftedollar/multiagent-template/issues/111");
 
     dir = Path.GetFullPath(dir ?? Directory.GetCurrentDirectory());
 
@@ -141,6 +153,14 @@ Task<int> HandleUpdate(string[] a)
     return new UpdateCommand(force).ExecuteAsync();
 }
 
+Task<int> HandleDoctor(string[] a)
+{
+    string? forCmd = null;
+    for (int i = 0; i < a.Length - 1; i++)
+        if (a[i] == "--for") forCmd = a[i + 1];
+    return new DoctorCommand(forCommand: forCmd).ExecuteAsync();
+}
+
 async Task<int> HandleHook(string[] a)
 {
     var name = a.ElementAtOrDefault(0);
@@ -169,10 +189,12 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
+    Console.WriteLine("    --template <name>                 Workspace template: default (only option currently)");
     Console.WriteLine("  init [dir]                          Add workspace files to an existing git repo (does not touch your code)");
     Console.WriteLine("    dir                               Target directory — must already be a git repo (default: current)");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
+    Console.WriteLine("    --template <name>                 Workspace template: default (only option currently)");
     Console.WriteLine("    --force                           Overwrite existing files");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
     Console.WriteLine($"    <name>: {addNames}");
@@ -195,6 +217,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  hook <name>                         Run a hook (cross-platform)");
     Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard");
     Console.WriteLine("  doctor                              Check workspace health (tools, files, hooks)");
+    Console.WriteLine("    --for <command>                   Pre-flight check for a specific command (sync-roles, init, update)");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  -h, --help                          Show this help");
