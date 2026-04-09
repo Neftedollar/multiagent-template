@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-MULTIAGENT_VERSION="1.32.0"
+MULTIAGENT_VERSION="1.33.0"
 
 FIRST_ARG="${1:-}"
 if [[ -z "$FIRST_ARG" ]]; then
@@ -243,3 +243,45 @@ else
   [ -n "$PROVIDER" ]   && SETUP_ARGS+=("--provider" "$PROVIDER")
 fi
 multiagent-setup "${SETUP_ARGS[@]}"
+
+# Post-setup guidance
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Setup complete! What's next:"
+echo ""
+if [[ -n "${TARGET_DIR:-}" ]]; then
+  echo "  Workspace injected into: $TARGET_DIR"
+else
+  echo "  cd $PROJECT_NAME"
+fi
+echo ""
+_effective_provider="${PROVIDER:-claude}"
+case "$_effective_provider" in
+  claude|nessy)
+    echo "  Start the orchestrator:"
+    echo "    $_effective_provider"
+    echo "    /orchestrator Build the initial project skeleton"
+    ;;
+  gemini)
+    echo "  Start the orchestrator:"
+    echo "    gemini"
+    echo "    /orchestrator Build the initial project skeleton"
+    ;;
+  codex)
+    echo "  Start the orchestrator:"
+    echo "    codex"
+    echo "    /orchestrator Build the initial project skeleton"
+    ;;
+  qwen)
+    echo "  Start the orchestrator:"
+    echo "    qwen-code"
+    echo "    /orchestrator Build the initial project skeleton"
+    ;;
+  *)
+    echo "  Open the project in your IDE ($_effective_provider) and run:"
+    echo "    /orchestrator Build the initial project skeleton"
+    ;;
+esac
+echo ""
+echo "  Full docs: https://github.com/Neftedollar/multiagent-template"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
