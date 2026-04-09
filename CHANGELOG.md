@@ -6,6 +6,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.34.0] — 2026-04-09
+
+### Added
+- **`engineering-agent-prompt-engineer` role** — new built-in slash command for writing, reviewing, and improving AI agent prompts and role definitions. Scaffolded into every new workspace and updated via `multiagent-setup update`.
+- **Orchestrator: project focus → standing roles** — orchestrator now reads `CLAUDE.md` at startup and derives standing roles based on project focus keywords (`ui`, `security`, `AI/LLM`, `performance`, `mobile`, `blockchain`). Matching roles automatically participate in every relevant pipeline step.
+- **Orchestrator: ad-hoc role creation via `/engineering-agent-prompt-engineer`** — when no existing role fits a task, orchestrator delegates role creation to the prompt engineer rather than writing the role itself.
+- **`role-capabilities.md`: vetted role list** — curated list of ~40 roles relevant for software product pipelines, organized by category. Orchestrator uses this as primary lookup; anything outside it triggers ad-hoc creation.
+- **`role-capabilities.md`: default role per pipeline step** — explicit default role assignments for PLAN / TEST / VERIFY so orchestrator always has a starting point even when no task-specific signals match.
+
+### Fixed
+- **`kiro` missing from interactive provider picker** — `multiagent-setup new` without `--provider` now shows Kiro in the IDE/Extension section.
+- **Shell completions: `doctor --for` values** — `zsh` and `pwsh` completions now suggest `sync-roles`, `init`, `update` as values after `--for`.
+- **ProviderRegistry tests** updated to reflect 13 providers (after adding `kiro` in v1.33.0).
+
+### Changed
+- **Orchestrator pipeline table** now embedded directly in the prompt (not just referenced via `process.md`) — each pipeline type lists mandatory steps explicitly.
+- **Orchestrator VERIFY gate** — mandatory pre-SHIP checklist added; default VERIFY roles are `testing-reality-checker` + `engineering-code-reviewer` (both always run).
+- **Orchestrator role selection** — changed from "select once for whole pipeline" to "select per step"; graph queries are now optional enrichment (not the primary source).
+
+---
+
 ## [1.33.0] — 2026-04-09
 
 ### Added
