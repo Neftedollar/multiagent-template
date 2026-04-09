@@ -9,21 +9,21 @@ namespace MultiagentSetup.Tests;
 public class BlockDangerousTests
 {
     // Mirrors HooksCommand.DangerousPatterns
-    private static readonly (Regex re, string label)[] Patterns =
+    private static readonly (Regex re, string label, bool isSqlPattern)[] Patterns =
     [
-        (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /"),
-        (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf ."),
-        (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *"),
-        (new(@"git\s+push\s+(?:(?:--force|-f)\s+(?:origin\s+)?|origin\s+(?:--force|-f)\s+)(main|master)(?:\s|$)", RegexOptions.IgnoreCase), "force push to main/master"),
-        (new(@"git\s+push\s+(--force|-f)\s*(?:2>|$)",        RegexOptions.IgnoreCase), "force push (no branch specified)"),
-        (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main"),
-        (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd"),
-        (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE"),
-        (new(@"TRUNCATE\s+TABLE",                            RegexOptions.IgnoreCase), "TRUNCATE TABLE"),
-        (new(@"mkfs\.",                                      RegexOptions.IgnoreCase), "mkfs"),
-        (new(@"dd\s+if=.*of=/dev/",                         RegexOptions.IgnoreCase), "dd to device"),
-        (new(@"chmod\s+-R\s+777\s+/",                       RegexOptions.IgnoreCase), "chmod -R 777 /"),
-        (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /"),
+        (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /",                                           false),
+        (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf .",                                           false),
+        (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *",                                           false),
+        (new(@"git\s+push\s+(?:(?:--force|-f)\s+(?:origin\s+)?|origin\s+(?:--force|-f)\s+)(main|master)(?:\s|$)", RegexOptions.IgnoreCase), "force push to main/master", false),
+        (new(@"git\s+push\s+(--force|-f)\s*(?:2>|$)",        RegexOptions.IgnoreCase), "force push (no branch specified)",                   false),
+        (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main",                       false),
+        (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd",                                      false),
+        (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE",                                true),
+        (new(@"TRUNCATE\s+TABLE",                            RegexOptions.IgnoreCase), "TRUNCATE TABLE",                                     true),
+        (new(@"mkfs\.",                                      RegexOptions.IgnoreCase), "mkfs",                                               false),
+        (new(@"dd\s+if=.*of=/dev/",                         RegexOptions.IgnoreCase), "dd to device",                                       false),
+        (new(@"chmod\s+-R\s+777\s+/",                       RegexOptions.IgnoreCase), "chmod -R 777 /",                                     false),
+        (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /",                                         false),
     ];
 
     // Mirrors HooksCommand.SqlSafeFirstWords
@@ -41,7 +41,7 @@ public class BlockDangerousTests
         var isSqlSafeContext = SqlSafeFirstWords.Contains(firstWord);
         return Patterns.Any(p =>
         {
-            if (isSqlSafeContext && (p.label.Contains("TABLE") || p.label.Contains("DATABASE")))
+            if (isSqlSafeContext && p.isSqlPattern)
                 return false;
             return p.re.IsMatch(cmd);
         });

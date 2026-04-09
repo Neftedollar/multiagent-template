@@ -23,27 +23,28 @@ public sealed class HooksCommand(string hookName)
 
     // ── block-dangerous ───────────────────────────────────────────────────────
 
-    private static readonly (Regex re, string label)[] DangerousPatterns =
+    // isSqlPattern = true: skip when command executable is a text/search tool (grep, gh, git, etc.)
+    private static readonly (Regex re, string label, bool isSqlPattern)[] DangerousPatterns =
     [
-        (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /"),
-        (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf ."),
-        (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *"),
+        (new(@"rm\s+-rf\s+/",                                RegexOptions.IgnoreCase), "rm -rf /",                                           false),
+        (new(@"rm\s+-rf\s+\.",                               RegexOptions.IgnoreCase), "rm -rf .",                                           false),
+        (new(@"rm\s+-rf\s+\*",                               RegexOptions.IgnoreCase), "rm -rf *",                                           false),
         // Match: git push [--force|-f] [origin] main|master   or   git push origin [--force|-f] main|master
-        (new(@"git\s+push\s+(?:(?:--force|-f)\s+(?:origin\s+)?|origin\s+(?:--force|-f)\s+)(main|master)(?:\s|$)", RegexOptions.IgnoreCase), "force push to main/master"),
-        (new(@"git\s+push\s+(--force|-f)\s*(?:2>|$)",        RegexOptions.IgnoreCase), "force push (no branch specified — affects tracked branch)"),
-        (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main"),
-        (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd"),
-        (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE"),
-        (new(@"TRUNCATE\s+TABLE",                            RegexOptions.IgnoreCase), "TRUNCATE TABLE"),
-        (new(@"mkfs\.",                                      RegexOptions.IgnoreCase), "mkfs"),
-        (new(@"dd\s+if=.*of=/dev/",                         RegexOptions.IgnoreCase), "dd to device"),
-        (new(@"chmod\s+-R\s+777\s+/",                       RegexOptions.IgnoreCase), "chmod -R 777 /"),
-        (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /"),
+        (new(@"git\s+push\s+(?:(?:--force|-f)\s+(?:origin\s+)?|origin\s+(?:--force|-f)\s+)(main|master)(?:\s|$)", RegexOptions.IgnoreCase), "force push to main/master",              false),
+        (new(@"git\s+push\s+(--force|-f)\s*(?:2>|$)",        RegexOptions.IgnoreCase), "force push (no branch — affects tracked branch)",    false),
+        (new(@"git\s+reset\s+--hard\s+origin/(main|master)", RegexOptions.IgnoreCase), "git reset --hard origin/main",                       false),
+        (new(@"git\s+clean\s+-fd",                           RegexOptions.IgnoreCase), "git clean -fd",                                      false),
+        (new(@"DROP\s+(TABLE|DATABASE)",                     RegexOptions.IgnoreCase), "DROP TABLE/DATABASE",                                true),
+        (new(@"TRUNCATE\s+TABLE",                            RegexOptions.IgnoreCase), "TRUNCATE TABLE",                                     true),
+        (new(@"mkfs\.",                                      RegexOptions.IgnoreCase), "mkfs",                                               false),
+        (new(@"dd\s+if=.*of=/dev/",                         RegexOptions.IgnoreCase), "dd to device",                                       false),
+        (new(@"chmod\s+-R\s+777\s+/",                       RegexOptions.IgnoreCase), "chmod -R 777 /",                                     false),
+        (new(@"chown\s+-R.*\s+/",                           RegexOptions.IgnoreCase), "chown -R /",                                         false),
     ];
 
     // Text-manipulation tools whose command line may legitimately contain SQL keywords
     // without executing them (e.g. grep patterns, gh pr bodies, git log searches).
-    // SQL-dangerous patterns are skipped when the command starts with one of these.
+    // Patterns with isSqlPattern=true are skipped when the command starts with one of these.
     private static readonly HashSet<string> SqlSafeFirstWords = new(StringComparer.OrdinalIgnoreCase)
     {
         "grep", "rg", "ag", "awk", "sed", "cat", "head", "tail", "less", "more",
@@ -61,11 +62,11 @@ public sealed class HooksCommand(string hookName)
                                .FirstOrDefault() ?? "";
         var isSqlSafeContext = SqlSafeFirstWords.Contains(firstWord);
 
-        foreach (var (re, label) in DangerousPatterns)
+        foreach (var (re, label, isSqlPattern) in DangerousPatterns)
         {
             // Skip SQL-destructive patterns when the command is a text-manipulation or
             // search tool — those may mention SQL keywords without executing them.
-            if (isSqlSafeContext && (label.Contains("TABLE") || label.Contains("DATABASE")))
+            if (isSqlSafeContext && isSqlPattern)
                 continue;
 
             if (re.IsMatch(command))
@@ -89,7 +90,11 @@ public sealed class HooksCommand(string hookName)
     {
         var command = JsonGet(input, "tool_input", "command");
         if (string.IsNullOrEmpty(command)) return 0;
-        if (!Regex.IsMatch(command, @"git\s+commit", RegexOptions.IgnoreCase)) return 0;
+
+        // Only intercept actual git-commit invocations — not commands that
+        // mention "git commit" in their arguments (e.g. gh issue create --body "...git commit...").
+        // Match: optional leading whitespace/pipe, then "git" as first executable token, then "commit".
+        if (!Regex.IsMatch(command, @"(?:^|[|&;]\s*)git\s+commit\b", RegexOptions.IgnoreCase)) return 0;
 
         var msg = ExtractCommitMessage(command);
         if (string.IsNullOrEmpty(msg)) return 0;
@@ -107,7 +112,7 @@ public sealed class HooksCommand(string hookName)
     {
         // Heredoc: git commit -m "$(cat <<'EOF'\nfeat: message\nEOF\n)"
         // Handles the CLAUDE.md-recommended heredoc commit pattern.
-        var heredocMatch = Regex.Match(cmd, @"<<'?EOF'?\s*\n([\s\S]*?)\n\s*EOF\b", RegexOptions.Multiline);
+        var heredocMatch = Regex.Match(cmd, @"<<'?EOF'?\r?\n([\s\S]*?)\r?\n\s*EOF\b", RegexOptions.Multiline);
         if (heredocMatch.Success) return heredocMatch.Groups[1].Value.Trim();
 
         var m = Regex.Match(cmd, @"-m\s+""([^""]+)""");

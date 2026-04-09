@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.30.0] — 2026-04-09
+
+### Fixed
+- **`block-dangerous` false positive on SQL keywords in text-tool context** — `DangerousPatterns` refactored from 2-tuple `(Regex, string)` to 3-tuple `(Regex, string, bool isSqlPattern)`. SQL-destructive patterns (`DROP TABLE/DATABASE`, `TRUNCATE TABLE`) now have an explicit `isSqlPattern = true` flag; the first-word context check uses the flag instead of fragile label-string matching. Fixes false positives in `grep`, `gh`, `git log`, etc.
+- **`enforce-commit-msg` false positive on `gh` commands mentioning "git commit"** — regex anchored to `(?:^|[|&;]\s*)git\s+commit\b`; no longer fires when "git commit" appears inside a `--body` argument.
+- **`ExtractCommitMessage` CRLF heredoc** — `\n` in heredoc boundary regex loosened to `\r?\n`; fixes Windows heredoc commit messages not being extracted.
+
+Total tests: **127** (unchanged — 3-tuple refactor is a structural fix, not new functionality).
+
+---
+
 ## [1.29.0] — 2026-04-09
 
 ### Fixed
