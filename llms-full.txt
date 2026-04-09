@@ -94,10 +94,10 @@ Adds a new provider's scaffold (config files, hooks, role commands) to an existi
 ### `remove-provider` — Remove a provider from workspace
 
 ```bash
-multiagent-setup remove-provider <provider> [--force]
+multiagent-setup remove-provider <provider> [--force] [--dry-run]
 ```
 
-Removes a provider's directories and workspace instructions file. Skips shared infrastructure (`.claude/`, `.github/`) and directories used by other active providers. Prompts for confirmation unless `--force` is set.
+Removes a provider's directories and workspace instructions file. Skips shared infrastructure (`.claude/`, `.github/`) and directories used by other active providers. Prompts for confirmation unless `--force` is set. Use `--dry-run` to preview what would be deleted without making any changes.
 
 Cannot remove `claude` (base provider).
 
@@ -112,10 +112,10 @@ Lists all providers with their installation status (`[installed]` or `[available
 ### `update` — Update workspace templates to latest version
 
 ```bash
-multiagent-setup update [--force]
+multiagent-setup update [--force] [--dry-run]
 ```
 
-Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files.
+Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files. Use `--dry-run` to preview what would be created or overwritten without writing anything.
 
 ### `install-mcps` — Install optional memory infrastructure
 
@@ -150,6 +150,23 @@ multiagent-setup doctor [--for <command>]
 Checks the current workspace for common configuration issues: missing required files, undetected providers, hook configuration problems, and missing binaries. Run after `update` or when something seems wrong.
 
 `--for <command>` — pre-flight mode: runs targeted checks for a specific command before executing it. Supported values: `sync-roles`, `init`, `update`.
+
+### `completions` — Print shell completion script
+
+```bash
+multiagent-setup completions zsh    # zsh completion script
+multiagent-setup completions pwsh   # PowerShell completion script
+```
+
+Prints the shell completion script to stdout. Install with:
+
+```bash
+eval "$(multiagent-setup completions zsh)"          # source inline
+multiagent-setup completions zsh >> ~/.zshrc         # persist to zshrc
+multiagent-setup completions pwsh >> $PROFILE        # persist to PowerShell profile
+```
+
+Completions cover all subcommands, providers, templates, hooks, and flags.
 
 ## Supported Providers
 

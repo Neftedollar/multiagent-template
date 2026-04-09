@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.33.0] — 2026-04-09
+
+### Added
+- **`completions` subcommand** — `multiagent-setup completions zsh` and `multiagent-setup completions pwsh` print the shell completion script to stdout. Install with `eval "$(multiagent-setup completions zsh)"` or append to `~/.zshrc` / `$PROFILE`. No longer requires locating the file in a scaffolded workspace.
+- **`--dry-run` for `update`** — preview which files would be created or overwritten without writing anything. Works with and without `--force`.
+- **`--dry-run` for `remove-provider`** — preview which directories and files would be deleted without making any changes. Skips the confirmation prompt in dry-run mode.
+- **Shell completions updated** — `completions.zsh` and `completions.ps1` now cover all commands (`init`, `remove-provider`, `list-providers`, `completions`), all flags (`--dry-run`, `--global`, `--template`, `--for`), all 13 providers (added `kiro`), and all templates (`default`, `saas`, `oss`, `internal`).
+
+---
+
 ## [1.32.0] — 2026-04-09
 
 ### Added

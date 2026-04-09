@@ -301,13 +301,14 @@ See [`examples/`](examples/) for concrete workflows:
 multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|kiro|all] [--template default|saas|oss|internal]
 multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]   # add workspace to existing repo
 multiagent-setup add-provider <provider> [--force]            # add provider to existing workspace
-multiagent-setup remove-provider <provider> [--force]         # remove a provider and its files
-multiagent-setup list-providers                               # list installed and available providers
-multiagent-setup update [--force]                             # update workspace templates to latest version
+multiagent-setup remove-provider <provider> [--force] [--dry-run]  # remove a provider (--dry-run to preview)
+multiagent-setup list-providers                                    # list installed and available providers
+multiagent-setup update [--force] [--dry-run]                      # update templates (--dry-run to preview)
 multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 multiagent-setup hook <name>
-multiagent-setup doctor [--for sync-roles|init|update]       # check workspace or run pre-flight check
+multiagent-setup doctor [--for sync-roles|init|update]             # check workspace or run pre-flight check
+multiagent-setup completions zsh|pwsh                              # print shell completion script
 multiagent-setup -v | --version
 ```
 

@@ -78,13 +78,14 @@ All safety hooks are baked into the `multiagent-setup` binary (cross-platform, n
 multiagent-setup new <project> [org] [--provider <name>] [--template default|saas|oss|internal]
 multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]
 multiagent-setup add-provider <provider>|all [--force]
-multiagent-setup remove-provider <provider> [--force]
+multiagent-setup remove-provider <provider> [--force] [--dry-run]
 multiagent-setup list-providers
-multiagent-setup update [--force]
+multiagent-setup update [--force] [--dry-run]
 multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
 multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 multiagent-setup hook <name>
 multiagent-setup doctor [--for sync-roles|init|update]
+multiagent-setup completions zsh|pwsh
 ```
 
 ## Source Structure

@@ -22,6 +22,7 @@ return args[0] switch
     "install-mcps"     => await HandleInstallMcps(args[1..]),
     "hook"             => await HandleHook(args[1..]),
     "doctor"           => await HandleDoctor(args[1..]),
+    "completions"      => await HandleCompletions(args[1..]),
     _ when !args[0].StartsWith('-') => await HandleNew(args), // backward compat
     _ => PrintUsage(error: $"Unknown command: {args[0]}")
 };
@@ -108,12 +109,13 @@ async Task<int> HandleRemoveProvider(string[] a)
     if (provider is null || provider.StartsWith('-'))
         return PrintUsage(error: "provider name is required");
 
-    bool force = a.Contains("--force");
+    bool force  = a.Contains("--force");
+    bool dryRun = a.Contains("--dry-run");
 
     if (ProviderRegistry.Find(provider) is null && provider != "claude")
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForAdd)}");
 
-    return await new RemoveProviderCommand(provider, force).ExecuteAsync();
+    return await new RemoveProviderCommand(provider, force, dryRun).ExecuteAsync();
 }
 
 async Task<int> HandleAddProvider(string[] a)
@@ -151,8 +153,9 @@ async Task<int> HandleAddProvider(string[] a)
 
 Task<int> HandleUpdate(string[] a)
 {
-    bool force = a.Contains("--force");
-    return new UpdateCommand(force).ExecuteAsync();
+    bool force  = a.Contains("--force");
+    bool dryRun = a.Contains("--dry-run");
+    return new UpdateCommand(force, dryRun).ExecuteAsync();
 }
 
 Task<int> HandleDoctor(string[] a)
@@ -174,6 +177,26 @@ async Task<int> HandleInstallMcps(string[] a)
 {
     if (a.Contains("--help") || a.Contains("-h")) return PrintUsage();
     return await new InstallMcpsCommand(a).ExecuteAsync();
+}
+
+async Task<int> HandleCompletions(string[] a)
+{
+    var shell = a.ElementAtOrDefault(0);
+    if (shell is null || shell is "--help" or "-h")
+    {
+        Console.WriteLine("Usage: multiagent-setup completions <shell>");
+        Console.WriteLine();
+        Console.WriteLine("Shells:");
+        Console.WriteLine("  zsh   — zsh completion script");
+        Console.WriteLine("  pwsh  — PowerShell completion script");
+        Console.WriteLine();
+        Console.WriteLine("Examples:");
+        Console.WriteLine("  eval \"$(multiagent-setup completions zsh)\"");
+        Console.WriteLine("  multiagent-setup completions zsh >> ~/.zshrc");
+        Console.WriteLine("  multiagent-setup completions pwsh >> $PROFILE");
+        return shell is null ? 1 : 0;
+    }
+    return await new CompletionsCommand(shell).ExecuteAsync();
 }
 
 async Task<int> HandleSyncRoles(string[] a)
@@ -211,9 +234,11 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  remove-provider <name>              Remove a provider from an existing workspace");
     Console.WriteLine($"    <name>: {addNames}");
     Console.WriteLine("    --force                           Skip confirmation prompt");
+    Console.WriteLine("    --dry-run                         Preview what would be removed without deleting");
     Console.WriteLine("  list-providers                      List providers configured in current workspace");
     Console.WriteLine("  update                              Update workspace templates to latest version");
     Console.WriteLine("    --force                           Overwrite all files (CLAUDE.md preserved by default)");
+    Console.WriteLine("    --dry-run                         Preview what would be updated without writing");
     Console.WriteLine("  sync-roles [--clone|--pull]         Sync agent roles to local .claude/commands/");
     Console.WriteLine("    --global                          Also sync to ~/.claude/commands/ globally");
     Console.WriteLine("    --agency-dir <path>               Override agency-agents directory");
@@ -227,6 +252,7 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("    block-dangerous | enforce-commit-msg | auto-lint | log-agent | stop-guard | research-reminder");
     Console.WriteLine("  doctor                              Check workspace health (tools, files, hooks)");
     Console.WriteLine("    --for <command>                   Pre-flight check for a specific command (sync-roles, init, update)");
+    Console.WriteLine("  completions <shell>                 Print shell completion script (zsh, pwsh)");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  -h, --help                          Show this help");

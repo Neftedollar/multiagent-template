@@ -1,6 +1,6 @@
 namespace MultiagentSetup;
 
-public sealed class RemoveProviderCommand(string provider, bool force = false)
+public sealed class RemoveProviderCommand(string provider, bool force = false, bool dryRun = false)
 {
     public Task<int> ExecuteAsync()
     {
@@ -35,7 +35,7 @@ public sealed class RemoveProviderCommand(string provider, bool force = false)
             return Task.FromResult(0);
         }
 
-        if (!force)
+        if (!force && !dryRun)
         {
             if (Console.IsInputRedirected)
             {
@@ -83,7 +83,7 @@ public sealed class RemoveProviderCommand(string provider, bool force = false)
             var fullPath = Path.Combine(cwd, rootSegment);
             if (Directory.Exists(fullPath))
             {
-                Directory.Delete(fullPath, recursive: true);
+                if (!dryRun) Directory.Delete(fullPath, recursive: true);
                 removed.Add(rootSegment + "/");
             }
         }
@@ -94,7 +94,7 @@ public sealed class RemoveProviderCommand(string provider, bool force = false)
             var detectPath = Path.Combine(cwd, def.Detection.DetectFile.Replace('/', Path.DirectorySeparatorChar));
             if (File.Exists(detectPath))
             {
-                File.Delete(detectPath);
+                if (!dryRun) File.Delete(detectPath);
                 removed.Add(def.Detection.DetectFile);
             }
         }
@@ -105,16 +105,19 @@ public sealed class RemoveProviderCommand(string provider, bool force = false)
             var instrPath = Path.Combine(cwd, def.WorkspaceInstructionsFile);
             if (File.Exists(instrPath))
             {
-                File.Delete(instrPath);
+                if (!dryRun) File.Delete(instrPath);
                 removed.Add(def.WorkspaceInstructionsFile);
             }
         }
 
-        Console.WriteLine($"\nProvider '{provider}' removed from {cwd}.");
+        if (dryRun)
+            Console.WriteLine($"\n[DRY RUN] No changes will be made. Would remove provider '{provider}' from {cwd}.");
+        else
+            Console.WriteLine($"\nProvider '{provider}' removed from {cwd}.");
 
         if (removed.Count > 0)
         {
-            Console.WriteLine("Removed:");
+            Console.WriteLine(dryRun ? "Would remove:" : "Removed:");
             foreach (var r in removed) Console.WriteLine($"  - {r}");
         }
 
@@ -123,6 +126,9 @@ public sealed class RemoveProviderCommand(string provider, bool force = false)
             Console.WriteLine("Skipped:");
             foreach (var s in skipped) Console.WriteLine($"  - {s}");
         }
+
+        if (dryRun)
+            Console.WriteLine("\nDry run complete. No files were modified. Remove --dry-run to apply.");
 
         Console.WriteLine();
         return Task.FromResult(0);
