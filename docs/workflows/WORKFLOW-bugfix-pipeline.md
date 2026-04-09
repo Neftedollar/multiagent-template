@@ -78,22 +78,25 @@ Triggered when fix touched UI files or issue has label `ui-bug`.
 ---
 
 ### STEP 3: VERIFY
-**Actor**: Code Reviewer + Security Engineer (parallel) + Performance Benchmarker (conditional)
+**Actor**: Code Reviewer + Security Engineer + Reality Checker (parallel) + Performance Benchmarker (conditional)
 **Gate**: `VERIFIED`
 **Timeout**: 15 min per reviewer
 
 All run **in parallel** (read code, don't write).
 
+**Reality Checker** — always runs. Validates: does the fix actually solve the reported bug? No regression in adjacent behaviour? Sanity-checks the fix against the issue description.
+
 **Performance Benchmarker** — triggered when bug was performance-related or fix touches hot paths.
 
-**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", perf_review?: "APPROVED", status: "VERIFIED" }` → GO TO STEP 4
+**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", reality_check: "APPROVED", perf_review?: "APPROVED", status: "VERIFIED" }` → GO TO STEP 4
 
 **Output on FAILURE**:
 - `NEEDS_WORK(code_quality)` → return to STEP 1
 - `NEEDS_WORK(security_issue)` → return to STEP 1, PRIORITY: security fix
 - `NEEDS_WORK(perf_issue)` → return to STEP 1
+- `NEEDS_WORK(reality_fail, details)` → return to STEP 1
 
-**Merge rule**: Code Reviewer + Security Engineer MUST return APPROVED.
+**Merge rule**: Code Reviewer + Security Engineer + Reality Checker MUST return APPROVED.
 
 ---
 

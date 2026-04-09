@@ -9,9 +9,9 @@ public class ProviderRegistryTests
     // ── Provider count ────────────────────────────────────────────────────────
 
     [Fact]
-    public void All_Has12Providers()
+    public void All_Has13Providers()
     {
-        Assert.Equal(12, ProviderRegistry.All.Count);
+        Assert.Equal(13, ProviderRegistry.All.Count);
     }
 
     [Fact]
@@ -21,9 +21,9 @@ public class ProviderRegistryTests
     }
 
     [Fact]
-    public void ValidForNew_Has13Entries_12ProvidersPlusAll()
+    public void ValidForNew_Has14Entries_13ProvidersPlusAll()
     {
-        Assert.Equal(13, ProviderRegistry.ValidForNew.Count);
+        Assert.Equal(14, ProviderRegistry.ValidForNew.Count);
     }
 
     [Fact]
@@ -41,10 +41,10 @@ public class ProviderRegistryTests
     }
 
     [Fact]
-    public void AllExpansion_Includes11Providers()
+    public void AllExpansion_Includes12Providers()
     {
-        // All 12 minus nessy (which shares .claude/ with claude)
-        Assert.Equal(11, ProviderRegistry.AllExpansion.Count);
+        // All 13 minus nessy (which shares .claude/ with claude)
+        Assert.Equal(12, ProviderRegistry.AllExpansion.Count);
     }
 
     // ── Find ──────────────────────────────────────────────────────────────────
@@ -62,6 +62,7 @@ public class ProviderRegistryTests
     [InlineData("aider")]
     [InlineData("continue")]
     [InlineData("roo")]
+    [InlineData("kiro")]
     public void Find_ReturnsProvider_ForEachValidName(string name)
     {
         var def = ProviderRegistry.Find(name);

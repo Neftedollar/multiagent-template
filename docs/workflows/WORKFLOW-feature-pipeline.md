@@ -121,7 +121,7 @@ Triggered when BUILD touched UI files (`*.html`, `*.css`, `*.tsx`, `*.jsx`, `*.v
 ---
 
 ### STEP 4: VERIFY
-**Actor**: Code Reviewer + Security Engineer + Performance Benchmarker (all parallel)
+**Actor**: Code Reviewer + Security Engineer + Reality Checker + Performance Benchmarker (all parallel)
 **Gate**: `VERIFIED`
 **Timeout**: 15 min per reviewer
 
@@ -130,6 +130,8 @@ All run **in parallel** (read code, don't write).
 **Action (Code Reviewer)**: quality patterns, maintainability, test coverage.
 
 **Action (Security Engineer)**: OWASP, auth, injection, data exposure.
+
+**Action (Reality Checker)**: end-to-end sanity check — does the implementation actually solve the issue? Does the change match the acceptance criteria? Are there unintended side effects? Validates the "big picture" before merge.
 
 **Action (Performance Benchmarker — conditional)**:
 
@@ -141,14 +143,15 @@ Triggered when BUILD changed backend code (routes, queries, services) or fronten
 4. Identify O(n^2)+ algorithms on potentially large datasets
 5. Flag missing pagination, unbounded queries, missing caching
 
-**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", perf_review?: "APPROVED", status: "VERIFIED" }` → GO TO STEP 5
+**Output on SUCCESS**: `{ code_review: "APPROVED", security_review: "APPROVED", reality_check: "APPROVED", perf_review?: "APPROVED", status: "VERIFIED" }` → GO TO STEP 5
 
 **Output on FAILURE**:
 - `NEEDS_WORK(code_quality)` → return to STEP 2
 - `NEEDS_WORK(security_issue)` → return to STEP 2, PRIORITY: security fix
 - `NEEDS_WORK(perf_issue, details)` → return to STEP 2
+- `NEEDS_WORK(reality_fail, details)` → return to STEP 2
 
-**Merge rule**: Code Reviewer + Security Engineer MUST return APPROVED. Performance Benchmarker issues are advisory unless critical (unbounded queries, memory leaks).
+**Merge rule**: Code Reviewer + Security Engineer + Reality Checker MUST return APPROVED. Performance Benchmarker issues are advisory unless critical (unbounded queries, memory leaks).
 
 ---
 

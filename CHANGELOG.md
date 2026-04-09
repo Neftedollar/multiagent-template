@@ -6,6 +6,43 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [1.33.0] — 2026-04-09
+
+### Added
+- **`completions` subcommand** — `multiagent-setup completions zsh` and `multiagent-setup completions pwsh` print the shell completion script to stdout. Install with `eval "$(multiagent-setup completions zsh)"` or append to `~/.zshrc` / `$PROFILE`. No longer requires locating the file in a scaffolded workspace.
+- **`--dry-run` for `update`** — preview which files would be created or overwritten without writing anything. Works with and without `--force`.
+- **`--dry-run` for `remove-provider`** — preview which directories and files would be deleted without making any changes. Skips the confirmation prompt in dry-run mode.
+- **Shell completions updated** — `completions.zsh` and `completions.ps1` now cover all commands (`init`, `remove-provider`, `list-providers`, `completions`), all flags (`--dry-run`, `--global`, `--template`, `--for`), all 13 providers (added `kiro`), and all templates (`default`, `saas`, `oss`, `internal`).
+
+---
+
+## [1.32.0] — 2026-04-09
+
+### Added
+- **Workspace templates** (`--template saas|oss|internal|default`) — `new` and `init` now accept `--template` to scaffold a `process.md` tuned for the project type. `saas`: user-impact VERIFY gates, feature flags, analytics events, SLO review, canary deploy guidance. `oss`: CHANGELOG required in SHIP, semver gates, backward-compat escalation, contributor guidelines, security disclosure process. `internal`: simplified pipeline with skippable PLAN/VERIFY for small tasks.
+- **Gemini CLI extension sync** — `sync-roles` now syncs roles to `~/.gemini/extensions/agency-agents/` as TOML commands when a `.gemini/` workspace is detected or `--global` is specified.
+- **`doctor --for <command>` pre-flight mode** — targeted health check before running `sync-roles`, `init`, or `update`. Exits 1 if prerequisites aren't met.
+- **`init` command** — `multiagent-setup init [dir]` injects workspace files into any existing git repository without creating a new directory. Supports `--provider`, `--template`, `--force`.
+- **`list-providers` command** — shows installed vs. available providers with their workspace instructions files.
+- **`remove-provider` command** — cleanly removes a provider's files from an existing workspace.
+- **`sync-roles --global`** — syncs roles to `~/.claude/commands/` globally in addition to the local workspace.
+- **`bootstrap.ps1` init mode** — now detects when the first argument is a path or existing directory and uses `multiagent-setup init` instead of `new`, matching `bootstrap.sh` behavior.
+
+### Fixed
+- `sync-roles`, `install-mcps`, and `hook` now respect `--help`/`-h` and show usage instead of executing.
+- `hook --help` now shows the full usage including the `research-reminder` hook.
+- README duplicate Contributing section removed.
+- Docs updated: `--template`, `--target`, `--for`, `init` command signatures added to README, llms-full.txt, and llms.txt.
+
+---
+
+## [1.31.0] — 2026-04-09
+
+### Added
+- **Homebrew formula updated to v1.31.0** — SHA256 checksums for osx-arm64, osx-x64, linux-x64 binaries.
+
+---
+
 ## [1.30.0] — 2026-04-09
 
 ### Fixed

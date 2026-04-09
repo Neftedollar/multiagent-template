@@ -1,6 +1,6 @@
 # multiagent-template
 
-> A scaffold for autonomous multi-agent AI development workspaces. One command creates a full team of specialized AI agents (orchestrator, architect, developer, reviewer, DevOps, designer) that autonomously drives software from backlog to merged PR across 12 AI coding agent providers.
+> Orchestrate teams of AI coding agents in a structured pipeline (PLAN → BUILD → TEST → VERIFY → SHIP). Unlike single-agent tools, multiagent-template prevents context collapse and ensures accountability via role separation and approval gates. Works with 13 providers: Claude, Gemini, Codex, Cursor, Windsurf, Cline, Aider, Continue, Roo, Qwen, Copilot, Nessy, Kiro.
 
 ## The Problem
 
@@ -48,8 +48,9 @@ multiagent-setup new MyProject
 - **Aider** (`aider`) — Aider AI pair programmer; config via `.aider.conf.yml` (auto-reads CLAUDE.md)
 - **Continue.dev** (`continue`) — VS Code/JetBrains extension; config via `.continue/config.yaml` with `/orchestrator` slash command
 - **Roo Code** (`roo`) — Roo Code VS Code extension; rules auto-loaded from `.roo/rules/`
+- **Amazon Kiro** (`kiro`) — Kiro VS Code extension (AWS); steering docs auto-loaded from `.kiro/steering/`
 
-Use `--provider all` to scaffold all providers at once, `add-provider <name>` (or `add-provider all`) to add providers to an existing workspace, or `update` to pull the latest templates into an existing workspace.
+Use `--provider all` to scaffold all providers at once, `add-provider <name>` (or `add-provider all`) to add providers to an existing workspace, `remove-provider <name>` to remove one, `list-providers` to see installed vs. available, or `update` to pull the latest templates into an existing workspace.
 
 ## Key Concepts
 
@@ -74,20 +75,24 @@ All safety hooks are baked into the `multiagent-setup` binary (cross-platform, n
 ## CLI Reference
 
 ```
-multiagent-setup new <project> [org] [--provider <name>]
+multiagent-setup new <project> [org] [--provider <name>] [--template default|saas|oss|internal]
+multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]
 multiagent-setup add-provider <provider>|all [--force]
-multiagent-setup update [--force]
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
-multiagent-setup install-mcps [--docker|--manual]
+multiagent-setup remove-provider <provider> [--force] [--dry-run]
+multiagent-setup list-providers
+multiagent-setup update [--force] [--dry-run]
+multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 multiagent-setup hook <name>
-multiagent-setup doctor
+multiagent-setup doctor [--for sync-roles|init|update]
+multiagent-setup completions zsh|pwsh
 ```
 
 ## Source Structure
 
 - `tools/setup-cli/` — .NET CLI source (C#, .NET 10)
 - `tools/setup-cli/Templates/` — embedded workspace templates
-- `tools/setup-cli/Templates/providers/` — provider-specific configs (codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo)
+- `tools/setup-cli/Templates/providers/` — provider-specific configs (codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo, kiro)
 - `tools/setup-cli/Templates/.claude/` — Claude/Nessy config templates
 - `tools/setup-cli/Templates/docs/` — process.md, role-capabilities.md, workflow specs
 

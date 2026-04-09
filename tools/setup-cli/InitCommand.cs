@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class InitCommand(string targetDir, string? requestedOrg, string provider = "claude", bool force = false)
+public sealed class InitCommand(string targetDir, string? requestedOrg, string provider = "claude", bool force = false, string template = "default")
 {
     // Resource names for provider-specific workspace instruction files
     // (in init mode, the CLAUDE.md template is repurposed as the workspace instructions base)
@@ -22,7 +22,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
         Console.WriteLine($"\nmultiagent-setup v{version}");
-        Console.WriteLine($"  Mode:     init (inject into existing repo)");
+        Console.WriteLine($"  Mode:     init (add workspace files to existing repo)");
         Console.WriteLine($"  Target:   {targetDir}");
         Console.WriteLine($"  Provider: {provider}");
         Console.WriteLine();
@@ -34,7 +34,8 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         if (gitCheckCode != 0)
         {
             Console.Error.WriteLine($"Error: {targetDir} is not a git repository.");
-            Console.Error.WriteLine("       Use 'multiagent-setup new <name>' to create a new workspace.");
+            Console.Error.WriteLine("       Run `git init` first, then re-run `multiagent-setup init`.");
+            Console.Error.WriteLine("       Or use `multiagent-setup new <name>` to create a new workspace from scratch.");
             return 1;
         }
 
@@ -51,7 +52,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
 
         var graphName = $"{projectName.ToLower()}-ops";
 
-        Console.WriteLine("Injecting workspace files...");
+        Console.WriteLine("Adding workspace files...");
         Console.WriteLine($"  Project:    {projectName}");
         Console.WriteLine($"  GitHub org: {org}");
         Console.WriteLine($"  Graph:      {graphName}");
@@ -67,7 +68,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         CreateDirectories(targetDir, providers);
 
         var vars = BuildVars(projectName, org, graphName);
-        ExtractTemplates(targetDir, vars, providers);
+        ExtractTemplates(targetDir, vars, providers, template);
         Console.WriteLine("  OK: templates extracted");
 
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -257,11 +258,25 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         ["{{HOOK_EXEC}}"]           = TemplateResources.ResolveHookExec(),
     };
 
-    private void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
+    private void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers, string templateName)
     {
         var asm = Assembly.GetExecutingAssembly();
+
+        // Build variant override map: default resource name → variant resource name
+        var variantOverrides = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (templateName != "default")
+        {
+            var prefix = $"variant/{templateName}/";
+            foreach (var res in asm.GetManifestResourceNames())
+                if (res.StartsWith(prefix, StringComparison.Ordinal))
+                    variantOverrides[res[prefix.Length..]] = res;
+        }
+
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
+            // Skip variant resources — used only via overrides
+            if (resourceName.StartsWith("variant/", StringComparison.Ordinal)) continue;
+
             var outputRel = ResolveOutputPathForInit(resourceName, providers);
             if (outputRel is null) continue;
 
@@ -274,11 +289,15 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
                 continue;
             }
 
+            // Use variant override if available for this resource
+            var effectiveResource = variantOverrides.TryGetValue(resourceName, out var variantRes)
+                ? variantRes : resourceName;
+
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
-            using var stream = asm.GetManifestResourceStream(resourceName)!;
+            using var stream = asm.GetManifestResourceStream(effectiveResource)!;
 
-            if (TemplateResources.IsTextResource(resourceName))
+            if (TemplateResources.IsTextResource(effectiveResource))
             {
                 using var reader = new StreamReader(stream, Encoding.UTF8);
                 var content = reader.ReadToEnd();
@@ -371,7 +390,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, globalSync: false, localSyncDir: workspaceRoot).ExecuteAsync();
     }
 
     // ── Git commit ────────────────────────────────────────────────────────────
@@ -394,7 +413,7 @@ public sealed class InitCommand(string targetDir, string? requestedOrg, string p
         }
 
         var (commitCode, _, commitErr) = await ProcessHelper.RunAsync(
-            "git", ["commit", "-q", "-m", "chore: add multiagent workspace setup"],
+            "git", ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "chore: add multiagent workspace setup"],
             workingDir: root, captureOutput: true);
         if (commitCode != 0) throw new InvalidOperationException($"git commit failed: {commitErr}");
     }

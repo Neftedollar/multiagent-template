@@ -3,9 +3,11 @@
 #
 # Usage:
 #   irm https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.ps1 -OutFile bootstrap.ps1
-#   .\bootstrap.ps1 MyProject
-#   .\bootstrap.ps1 MyProject --provider gemini
-#   .\bootstrap.ps1 MyProject my-org --provider all
+#   .\bootstrap.ps1 MyProject                        # create new workspace
+#   .\bootstrap.ps1 MyProject --provider gemini      # with specific provider
+#   .\bootstrap.ps1 MyProject my-org --provider all  # with GitHub org
+#   .\bootstrap.ps1 .                                # inject into current git repo (init mode)
+#   .\bootstrap.ps1 C:\path\to\repo                  # inject into existing git repo (init mode)
 param(
     [Parameter(Position=0, Mandatory=$true)][string]$ProjectName,
     [Parameter(Position=1)][string]$GithubOrg = "",
@@ -27,9 +29,22 @@ function Install-WinGet([string]$Id, [string]$Name) {
     RefreshPath
 }
 
+# Detect init vs new mode:
+# init mode — arg is ".", an absolute path, a relative .\ path, or an existing directory
+# new mode  — arg is a plain project name (no path separators)
+$isPath = ($ProjectName -eq ".") -or
+          ($ProjectName -match '^[A-Za-z]:\\') -or
+          ($ProjectName -match '^\\\\') -or
+          ($ProjectName -match '^\.\\') -or
+          ($ProjectName -match '^\.\.\\') -or
+          (Test-Path $ProjectName -PathType Container)
+$_Mode = if ($isPath) { "init" } else { "new" }
+$_Target = if ($isPath) { (Resolve-Path $ProjectName -ErrorAction SilentlyContinue).Path ?? $ProjectName } else { $ProjectName }
+
 Write-Host "============================================"
 Write-Host "  Multi-Agent Workspace Bootstrap"
-Write-Host "  Project:  $ProjectName"
+Write-Host "  Mode:     $_Mode"
+Write-Host "  Target:   $_Target"
 Write-Host "  Provider: $(if ($Provider) { $Provider } else { 'claude (default)' })"
 Write-Host "  OS:       Windows"
 Write-Host "============================================"
@@ -112,9 +127,18 @@ if (-not $installed) {
     & dotnet tool update -g multiagent-setup 2>&1 | Out-Null
 }
 
-$argList = @("new", $ProjectName)
-if ($GithubOrg)  { $argList += $GithubOrg }
-if ($Provider)   { $argList += "--provider"; $argList += $Provider }
+# Build argument list based on mode
+if ($_Mode -eq "init") {
+    if ($GithubOrg) {
+        Write-Warning "GithubOrg ('$GithubOrg') is ignored in init mode — org is inferred from the repo's git remote."
+    }
+    $argList = @("init", $_Target)
+    if ($Provider) { $argList += "--provider"; $argList += $Provider }
+} else {
+    $argList = @("new", $ProjectName)
+    if ($GithubOrg) { $argList += $GithubOrg }
+    if ($Provider)  { $argList += "--provider"; $argList += $Provider }
+}
 
 & multiagent-setup @argList
 exit $LASTEXITCODE

@@ -11,7 +11,7 @@ namespace MultiagentSetup;
 /// Provider files are re-extracted for every provider detected in the workspace.
 /// Existing files are preserved by default; use --force to overwrite.
 /// </summary>
-public sealed class UpdateCommand(bool force = false)
+public sealed class UpdateCommand(bool force = false, bool dryRun = false)
 {
     // Resources that should be updated but are not provider-specific.
     // CLAUDE.md and context files (GEMINI.md etc.) are intentionally excluded —
@@ -41,14 +41,24 @@ public sealed class UpdateCommand(bool force = false)
         var providers   = DetectProviders(cwd);
         var vars        = BuildVars(cwd, projectName);
 
-        Console.WriteLine($"\nUpdating workspace: {cwd}");
-        Console.WriteLine($"Detected providers: {(providers.Length > 0 ? string.Join(", ", providers) : "claude (default)")}");
-        Console.WriteLine($"Mode: {(force ? "overwrite (--force)" : "skip existing")}");
+        if (dryRun)
+        {
+            Console.WriteLine($"\n[DRY RUN] No changes will be written.");
+            Console.WriteLine($"Workspace: {cwd}");
+            Console.WriteLine($"Detected providers: {(providers.Length > 0 ? string.Join(", ", providers) : "claude (default)")}");
+            Console.WriteLine($"Mode: {(force ? "overwrite (--force)" : "skip existing")}");
+        }
+        else
+        {
+            Console.WriteLine($"\nUpdating workspace: {cwd}");
+            Console.WriteLine($"Detected providers: {(providers.Length > 0 ? string.Join(", ", providers) : "claude (default)")}");
+            Console.WriteLine($"Mode: {(force ? "overwrite (--force)" : "skip existing")}");
+        }
         Console.WriteLine();
 
         ExtractResources(cwd, vars, providers);
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!dryRun && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var scripts = Directory.GetFiles(cwd, "*.sh", SearchOption.AllDirectories)
                 .Concat(Directory.GetFiles(cwd, "*.zsh", SearchOption.AllDirectories));
@@ -57,9 +67,14 @@ public sealed class UpdateCommand(bool force = false)
         }
 
         Console.WriteLine();
-        Console.WriteLine("Workspace updated.");
-        if (!force)
+        if (dryRun)
+            Console.WriteLine("Dry run complete. No files were modified. Remove --dry-run to apply.");
+        else
+            Console.WriteLine("Workspace updated.");
+        if (!force && !dryRun)
             Console.WriteLine("Tip: use --force to overwrite all existing files.");
+        if (!dryRun)
+            Console.WriteLine("Tip: agent roles (.claude/commands/) are managed separately — run 'multiagent-setup sync-roles --pull' to update them.");
         Console.WriteLine();
         return 0;
     }
@@ -110,6 +125,10 @@ public sealed class UpdateCommand(bool force = false)
     private void ExtractResources(string root, Dictionary<string, string> vars, string[] providers)
     {
         var asm = Assembly.GetExecutingAssembly();
+        int skippedCount = 0;
+        int skippedDocs  = 0;
+        int skippedHooks = 0;
+        int skippedOther = 0;
 
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
@@ -118,9 +137,26 @@ public sealed class UpdateCommand(bool force = false)
 
             var outputPath = Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar));
 
-            if (File.Exists(outputPath) && !force)
+            var exists = File.Exists(outputPath);
+            if (exists && !force)
             {
-                Console.WriteLine($"  SKIP: {outputRel}");
+                skippedCount++;
+                if (outputRel.StartsWith(".claude/hooks/") || outputRel == ".claude/mcp.json")
+                    skippedHooks++;
+                else if (outputRel.StartsWith("docs/") || outputRel.StartsWith("tools/"))
+                    skippedDocs++;
+                else
+                    skippedOther++;
+                if (dryRun)
+                    Console.WriteLine($"  SKIP: {outputRel}  [existing — use --force to overwrite]");
+                continue;
+            }
+
+            if (dryRun)
+            {
+                Console.WriteLine(exists
+                    ? $"  WOULD OVERWRITE: {outputRel}"
+                    : $"  WOULD CREATE:    {outputRel}");
                 continue;
             }
 
@@ -143,6 +179,14 @@ public sealed class UpdateCommand(bool force = false)
                 stream.CopyTo(file);
                 Console.WriteLine($"  OK:   {outputRel}");
             }
+        }
+
+        if (skippedCount > 0 && !dryRun)
+        {
+            Console.WriteLine($"  INFO: Skipped {skippedCount} existing files (use --force to overwrite)");
+            if (skippedDocs > 0)  Console.WriteLine($"         {skippedDocs} docs/tools file(s)");
+            if (skippedHooks > 0) Console.WriteLine($"         {skippedHooks} hook/config file(s)");
+            if (skippedOther > 0) Console.WriteLine($"         {skippedOther} provider template(s)");
         }
     }
 

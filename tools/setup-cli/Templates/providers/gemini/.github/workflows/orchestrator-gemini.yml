@@ -1,0 +1,95 @@
+# Autonomous Orchestrator (Gemini CLI) — runs the multi-agent pipeline in CI
+#
+# Triggers:
+#   • workflow_dispatch — manual run with a task description
+#   • schedule          — nightly autonomous backlog processing (optional)
+#   • issues labeled    — run when an issue gets the 'orchestrator' label
+#
+# Required secrets:
+#   GEMINI_API_KEY — Gemini API key (Settings → Secrets → Actions)
+#
+# Usage:
+#   1. Enable this workflow by committing to your workspace repo
+#   2. Go to Actions → Autonomous Orchestrator (Gemini) → Run workflow
+#   3. Enter your task (or leave blank for autonomous backlog mode)
+
+name: Autonomous Orchestrator (Gemini)
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Task for the orchestrator (leave blank for autonomous backlog mode)"
+        required: false
+        default: ""
+  issues:
+    types: [labeled]
+  # Uncomment to enable nightly autonomous runs:
+  # schedule:
+  #   - cron: '0 8 * * 1-5'   # 8:00 UTC, Mon–Fri
+
+jobs:
+  orchestrate:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'issues' && github.event.label.name == 'orchestrator')
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout workspace
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+
+      - name: Set up git identity
+        run: |
+          git config --global user.name "orchestrator[bot]"
+          git config --global user.email "orchestrator@users.noreply.github.com"
+
+      - name: Build task prompt
+        id: task
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          INPUT_TASK: ${{ inputs.task }}
+        run: |
+          if [ "$EVENT_NAME" = "issues" ]; then
+            {
+              echo 'prompt<<EOF'
+              printf '/orchestrator #%s: %s' "$ISSUE_NUMBER" "$ISSUE_TITLE"
+              echo
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          elif [ -n "$INPUT_TASK" ]; then
+            {
+              echo 'prompt<<EOF'
+              printf '/orchestrator %s' "$INPUT_TASK"
+              echo
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "prompt=/orchestrator Pick the top task from the GitHub backlog and execute it." >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run orchestrator
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORCHESTRATOR_PROMPT: ${{ steps.task.outputs.prompt }}
+        run: |
+          gemini --yolo -p "$ORCHESTRATOR_PROMPT"

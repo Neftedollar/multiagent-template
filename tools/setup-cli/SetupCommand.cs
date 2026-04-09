@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class SetupCommand(string projectName, string? requestedOrg, string provider = "claude")
+public sealed class SetupCommand(string projectName, string? requestedOrg, string provider = "claude", string template = "default")
 {
     public async Task<int> ExecuteAsync()
     {
@@ -24,7 +24,10 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         var targetDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), projectName));
         if (Directory.Exists(targetDir))
         {
-            Console.Error.WriteLine($"Error: {targetDir} already exists");
+            Console.Error.WriteLine($"Error: {targetDir} already exists.");
+            Console.Error.WriteLine($"  • To update an existing workspace:  multiagent-setup update");
+            Console.Error.WriteLine($"  • To inject into an existing repo:  multiagent-setup init {targetDir}");
+            Console.Error.WriteLine($"  • To start fresh: delete the directory and re-run");
             return 1;
         }
 
@@ -44,7 +47,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         CreateDirectories(targetDir, providers);
 
         var vars = BuildVars(projectName, org, graphName);
-        ExtractTemplates(targetDir, vars, providers);
+        ExtractTemplates(targetDir, vars, providers, template);
         Console.WriteLine("  OK: templates extracted");
 
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -181,20 +184,38 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         ["{{HOOK_EXEC}}"]           = TemplateResources.ResolveHookExec(),
     };
 
-    private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers)
+    private static void ExtractTemplates(string root, Dictionary<string, string> vars, string[] providers, string template)
     {
         var asm = Assembly.GetExecutingAssembly();
+
+        // Build variant override map: default resource name → variant resource name
+        var variantOverrides = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (template != "default")
+        {
+            var prefix = $"variant/{template}/";
+            foreach (var res in asm.GetManifestResourceNames())
+                if (res.StartsWith(prefix, StringComparison.Ordinal))
+                    variantOverrides[res[prefix.Length..]] = res;
+        }
+
         foreach (var resourceName in asm.GetManifestResourceNames())
         {
+            // Skip variant resources — used only via overrides
+            if (resourceName.StartsWith("variant/", StringComparison.Ordinal)) continue;
+
             var outputRel = ResolveOutputPath(resourceName, providers);
             if (outputRel is null) continue;
+
+            // Use variant override if available for this resource
+            var effectiveResource = variantOverrides.TryGetValue(resourceName, out var variantRes)
+                ? variantRes : resourceName;
 
             var outputPath = Path.Combine(root, outputRel.Replace('/', Path.DirectorySeparatorChar));
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
-            using var stream = asm.GetManifestResourceStream(resourceName)!;
+            using var stream = asm.GetManifestResourceStream(effectiveResource)!;
 
-            if (TemplateResources.IsTextResource(resourceName))
+            if (TemplateResources.IsTextResource(effectiveResource))
             {
                 using var reader = new StreamReader(stream, Encoding.UTF8);
                 var content = reader.ReadToEnd();
@@ -250,7 +271,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
     private static async Task SetupAgencyRolesAsync(string workspaceRoot)
     {
         var agencyDir = Path.GetFullPath(Path.Combine(workspaceRoot, "..", "agency-agents"));
-        await new SyncRolesCommand("--clone", agencyDir).ExecuteAsync();
+        await new SyncRolesCommand("--clone", agencyDir, globalSync: false, localSyncDir: workspaceRoot).ExecuteAsync();
     }
 
     // ── Git init ──────────────────────────────────────────────────────────────
@@ -272,7 +293,7 @@ public sealed class SetupCommand(string projectName, string? requestedOrg, strin
         if (addCode != 0) throw new InvalidOperationException($"git add failed: {addErr}");
 
         var (commitCode, _, commitErr) = await ProcessHelper.RunAsync(
-            "git", ["commit", "-q", "-m", "init: multi-agent workspace from template"],
+            "git", ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "init: multi-agent workspace from template"],
             workingDir: root, captureOutput: true);
         if (commitCode != 0) throw new InvalidOperationException($"git commit failed: {commitErr}");
     }

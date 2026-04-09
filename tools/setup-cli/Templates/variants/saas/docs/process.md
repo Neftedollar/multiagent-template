@@ -1,5 +1,7 @@
 # Operational Process
 
+> **Template**: SaaS (Software-as-a-Service). Customer-facing product — treat every change as potentially affecting live users.
+
 > **MCPs are optional.** If you haven't run `install-mcps`, skip all graph/Cypher sections below.
 > Use GitHub Issues as your backlog. The pipeline works without AGE or O'Brien.
 
@@ -18,22 +20,6 @@
 | Coordination | O'Brien (active-work, bugs, suggestions) <!-- requires AGE MCP --> |
 
 **Pipeline**: PLAN → BUILD → TEST → VERIFY → SHIP (5 steps, 5 pipelines: feature, bugfix, infra, content, spike).
-
-## How agents use the graph
-
-<!-- requires AGE MCP -->
-
-Graph `{{GRAPH_NAME}}` is both process definition and **project knowledge base**. Each pipeline step is enriched with graph context:
-
-| Step | What to query from graph | Why |
-|------|-------------------------|-----|
-| **PLAN** | `issue DEPENDS_ON`, `Module` by affected files | Understand scope, dependencies, architecture |
-| **BUILD** | `Module.key_classes`, `Module DEPENDS_ON`, `CodeInsight` by files | Developer knows key classes, debt, patterns |
-| **VERIFY** | `SecurityFinding` by affected files | Reviewer sees known security issues in this area |
-| **SHIP** | `Module BELONGS_TO Repo` | Determine which repo to merge/deploy |
-| **Role selection** | `Role HELPS Role`, `Step PERFORMED_BY Role` | Who to assign, who to call as helper |
-
-**After task completion** — update graph: new modules, security findings, code insights, issue status.
 
 ---
 
@@ -79,17 +65,13 @@ Orchestrator selects roles dynamically via `docs/role-capabilities.md` + graph:
 1. **Signals**: labels, files, keywords, task domain
 2. **Match**: signals → capability index + graph → Primary + Secondary roles
 3. **Composition**: sequential (A → B), parallel (A + B), or composite prompt
-4. **Fallback**: if no role fits → create ad-hoc role (see orchestrator.md → "Ad-Hoc Role Creation")
-
-Details: `orchestrator.md` → "Step 2: Select Roles Dynamically".
+4. **Fallback**: if no role fits → create ad-hoc role
 
 ---
 
 ## Helper mechanism on blockers
 
 3 retry → helper → 2 retry with recommendation → CEO escalation.
-
-**Helper selection**: use Secondary role from `docs/role-capabilities.md` for the same domain. If Secondary matches the failed role — take Primary from adjacent domain.
 
 Helper MUST NOT be the same role that failed.
 
@@ -107,29 +89,11 @@ All agents modifying code **must** work in a git worktree:
 git worktree add ../<project>-wt-<issue> -b <branch-name> main
 ```
 
-**Rules**:
-- Each bugfix/feature creates its own worktree
-- After merge — `git worktree remove` (cleanup)
-- Orchestrator passes worktree path to BUILD/TEST agents, not main repo
-- Main working directory — **read-only** for pipeline
-
-**Exception**: Single Expert mode for read-only tasks (code review, analysis) can read main directly.
+Each bugfix/feature creates its own worktree. After merge — `git worktree remove`.
 
 ### RED CI — fix before new PR
 
-CI RED on PR → fix **in the same PR** (don't create a new one). Max 3 attempts, then helper.
-
-### O'Brien tagging
-
-| Event | Tag |
-|-------|-----|
-| Code written | `code-done` |
-| PR created | `pr-created` |
-| Code Review OK | `review-approved` |
-| **PR merged** | **`completed-work`** |
-| Deployed | `deploy-verified` |
-
-Do not tag `completed-work` before merge.
+CI RED on PR → fix **in the same PR**. Max 3 attempts, then helper.
 
 ---
 
@@ -140,13 +104,9 @@ Optimistic lock via O'Brien to prevent two orchestrators from taking the same ta
 ```
 1. o-brien.search(tags: ["active-work", "issue-NNN"]) → if found → SKIP
 2. o-brien.store(content: "LOCK: issue #NNN", tags: ["active-work", "issue-NNN", "lock"])
-3. Wait 2 sec
-4. o-brien.search(tags: ["active-work", "issue-NNN"]) → if >1 records → race → delete own lock, SKIP
-5. Otherwise → task locked, continue
+3. Wait 2 sec → re-check → if >1 records → race → delete own lock, SKIP
+4. Otherwise → task locked, continue
 ```
-
-On completion: `o-brien.update(tags: ["completed-work"])`.
-On crash recovery: `active-work` older than 24h → `stale-work`, lock auto-released.
 
 ---
 
@@ -167,18 +127,31 @@ gh pr list --repo {{GITHUB_ORG}}/{{GITHUB_REPO}}
 
 ---
 
-## Known issues
+## SaaS-specific rules
 
-### AGE MCP connection pool
+### User impact — required in VERIFY
 
-Sequential query recommended. Parallel `cypher_query` calls may hit PostgreSQL connection limits.
+Every PR touching user-facing code must include in the VERIFY checklist:
+- Does this affect existing user data? (migration needed?)
+- Does this change user-visible behavior? (comms or announcement needed?)
+- Error budget impact — acceptable regression in SLOs?
 
-**Workaround**: Orchestrator makes AGE queries **sequentially**, one `cypher_query` at a time.
+### Feature flags — preferred for risky changes
 
-### Limitations
+Use feature flags for changes that:
+- Touch core user flows (auth, billing, data access)
+- Cannot be rolled back in under 5 minutes
+- Affect >10% of active users
 
-1. Checkpoint loses retry context on crash
-2. No persistent metrics (retries, turns, timing)
-3. No automatic rollback
-4. Context window limit for long pipelines
-5. AGE connection pool limit (max 2 parallel queries)
+### Analytics events — required for new features
+
+Every new user-facing feature must fire at least one analytics event. Include event spec in the PLAN step output.
+
+### SLO gate — added to VERIFY
+
+Orchestrator: add SLO/error-budget review to the VERIFY step for all feature and infra pipelines.
+Assign to `/engineering-devops-automator` or `/engineering-backend-architect`.
+
+### Deployment strategy
+
+Prefer canary or blue-green deploys for changes to stateful services. Include rollback plan in the SHIP step.

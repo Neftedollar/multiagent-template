@@ -13,7 +13,14 @@ This file is the comprehensive reference. See also: [llms.txt](llms.txt) for the
 
 ## What It Does
 
-`multiagent-setup` is a .NET 10 dotnet global tool that scaffolds a **multi-agent workspace** directory for your software project. The workspace contains:
+`multiagent-setup` is a .NET 10 dotnet global tool that solves the core problem of single-agent AI code generation: **context collapse, no accountability, inconsistent code quality**. It scaffolds a structured multi-agent workspace with:
+
+- **Role separation** — Orchestrator never writes code; architects design, developers build, reviewers validate independently
+- **Gated pipeline** — PLAN → BUILD → TEST → VERIFY → SHIP, with approval gates and automatic retry (3× same role, 2× helper role, then escalate to human)
+- **Provider agnostic** — Works with 12 AI coding agents: Claude, Gemini, Codex, Cursor, Windsurf, Cline, Aider, Continue, Roo, Qwen, Copilot, Nessy
+- **Safety-by-default** — Blocks destructive commands, enforces conventional commits, auto-lints on save
+
+The workspace contains:
 
 1. A context file (CLAUDE.md / AGENTS.md / GEMINI.md / etc.) that tells the AI its role and the pipeline rules
 2. A set of slash-command role files (`/orchestrator`, `/engineering-backend-architect`, etc.)
@@ -45,23 +52,35 @@ dotnet tool install -g multiagent-setup
 ### `new` — Create workspace
 
 ```bash
-multiagent-setup new <project-name> [github-org] [--provider <name>]
+multiagent-setup new <project-name> [github-org] [--provider <name>] [--template <name>]
 ```
 
 Creates a workspace directory at `./project-name/`. Clones agency-agents and syncs roles globally to `~/.claude/commands/`. Initializes a git repo in the workspace.
 
-Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `cline`, `aider`, `continue`, `roo`, `all`
+Providers: `claude` (default), `gemini`, `codex`, `qwen`, `cursor`, `windsurf`, `copilot`, `nessy`, `cline`, `aider`, `continue`, `roo`, `kiro`, `all`
+
+Templates: `default` (generic), `saas` (SaaS product — user impact, feature flags, analytics, SLO gates), `oss` (Open Source — CHANGELOG, semver, backward-compat gates, contributor guidelines), `internal` (Internal tools — simplified pipeline, lighter gates, speed over ceremony)
+
+### `init` — Add workspace to existing repo
+
+```bash
+multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]
+```
+
+Adds workspace files (CLAUDE.md, docs/, .claude/, hooks) to an existing git repository without creating a new directory or touching your code. `dir` defaults to the current directory. Must already be a git repository. `--force` overwrites existing files.
 
 ### `sync-roles` — Update agent roles
 
 ```bash
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
+multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
 ```
 
-Syncs the latest agent role files from [agency-agents](https://github.com/msitarzewski/agency-agents) to:
-- `~/.claude/commands/` — Claude, Nessy, Gemini, Cursor, Windsurf, Copilot
-- `./.qwen/commands/` — auto-detected if Qwen workspace is present
-- `./.codex/skills/` — auto-detected if Codex workspace is present
+Syncs the latest agent role files from [agency-agents](https://github.com/msitarzewski/agency-agents) to the local workspace `.claude/commands/` by default. Add `--global` to also sync to `~/.claude/commands/`.
+
+Auto-detected additional targets:
+- `./.qwen/commands/` — if Qwen workspace is present
+- `./.codex/skills/` — if Codex workspace is present
+- `~/.gemini/extensions/agency-agents/` — if `.gemini/` workspace or `--global` is set (TOML format)
 
 ### `add-provider` — Add provider to existing workspace
 
@@ -70,20 +89,38 @@ multiagent-setup add-provider <provider> [--force]
 multiagent-setup add-provider all [--force]
 ```
 
-Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo).
+Adds a new provider's scaffold (config files, hooks, role commands) to an existing workspace without rebuilding from scratch. Use `all` to add every provider at once (nessy, codex, qwen, cursor, windsurf, copilot, gemini, cline, aider, continue, roo, kiro).
+
+### `remove-provider` — Remove a provider from workspace
+
+```bash
+multiagent-setup remove-provider <provider> [--force] [--dry-run]
+```
+
+Removes a provider's directories and workspace instructions file. Skips shared infrastructure (`.claude/`, `.github/`) and directories used by other active providers. Prompts for confirmation unless `--force` is set. Use `--dry-run` to preview what would be deleted without making any changes.
+
+Cannot remove `claude` (base provider).
+
+### `list-providers` — Show installed and available providers
+
+```bash
+multiagent-setup list-providers
+```
+
+Lists all providers with their installation status (`[installed]` or `[available]`) and workspace instructions file. Must be run from a workspace root.
 
 ### `update` — Update workspace templates to latest version
 
 ```bash
-multiagent-setup update [--force]
+multiagent-setup update [--force] [--dry-run]
 ```
 
-Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files.
+Re-extracts the latest `docs/`, `tools/`, hook configs, and provider-specific files into an existing workspace. Auto-detects which providers are installed. Skips user-customised context files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `AGENTS.md`) by default. Use `--force` to overwrite all files. Use `--dry-run` to preview what would be created or overwritten without writing anything.
 
 ### `install-mcps` — Install optional memory infrastructure
 
 ```bash
-multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 ```
 
 Installs optional MCP servers:
@@ -107,10 +144,29 @@ Runs a compiled safety hook. All hooks are baked into the binary (no shell scrip
 ### `doctor` — Workspace health check
 
 ```bash
-multiagent-setup doctor
+multiagent-setup doctor [--for <command>]
 ```
 
 Checks the current workspace for common configuration issues: missing required files, undetected providers, hook configuration problems, and missing binaries. Run after `update` or when something seems wrong.
+
+`--for <command>` — pre-flight mode: runs targeted checks for a specific command before executing it. Supported values: `sync-roles`, `init`, `update`.
+
+### `completions` — Print shell completion script
+
+```bash
+multiagent-setup completions zsh    # zsh completion script
+multiagent-setup completions pwsh   # PowerShell completion script
+```
+
+Prints the shell completion script to stdout. Install with:
+
+```bash
+eval "$(multiagent-setup completions zsh)"          # source inline
+multiagent-setup completions zsh >> ~/.zshrc         # persist to zshrc
+multiagent-setup completions pwsh >> $PROFILE        # persist to PowerShell profile
+```
+
+Completions cover all subcommands, providers, templates, hooks, and flags.
 
 ## Supported Providers
 
@@ -135,6 +191,7 @@ Checks the current workspace for common configuration issues: missing required f
 | `aider` | Aider (terminal) | `.aider.conf.yml` | `CLAUDE.md` (auto-read) |
 | `continue` | VS Code/JetBrains Continue | `.continue/config.yaml` | `.continue/config.yaml` |
 | `roo` | VS Code Roo Code extension | `.roo/rules/workspace.md` | `.roo/rules/workspace.md` |
+| `kiro` | VS Code Amazon Kiro extension | `.kiro/steering/workspace.md` (inclusion: always) | `.kiro/steering/workspace.md` |
 
 ## Pipeline System
 

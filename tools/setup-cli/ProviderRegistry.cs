@@ -209,6 +209,18 @@ internal static class ProviderRegistry
             IncludedInAll:            true,
             WorkspaceInstructionsFile: null   // instructions embedded in .roo/rules/*.md
         ),
+        new ProviderDef(
+            Name:                     "kiro",
+            TemplatePrefix:           "providers/kiro/",
+            Directories:              [".kiro/steering"],
+            Detection:                DetectionHint.ByDir(".kiro"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "kiro — Amazon Kiro VS Code extension, install from AWS Toolkit marketplace",
+            NextStepTemplate:         "       kiro          → open {cwd} in VS Code with Kiro extension, .kiro/steering/ loads automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions embedded in .kiro/steering/workspace.md
+        ),
     };
 
     /// <summary>All provider names valid for --provider flag (including "all").</summary>

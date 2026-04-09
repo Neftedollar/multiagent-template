@@ -2,7 +2,7 @@ using System.Text;
 
 namespace MultiagentSetup;
 
-public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
+public sealed class SyncRolesCommand(string action, string? agencyDirOverride, bool globalSync = false, string? localSyncDir = null)
 {
     private const string AgencyRepo = "https://github.com/msitarzewski/agency-agents.git";
     private const string Marker     = "<!-- auto-generated from agency-agents -->";
@@ -35,7 +35,9 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
                     ["clone", AgencyRepo, agencyDir], captureOutput: true, allowFailure: true);
                 if (code != 0)
                 {
-                    Console.Error.WriteLine($"  WARN: could not clone agency-agents — {err.Trim()}");
+                    Console.Error.WriteLine($"  FAIL: could not clone agency-agents — {err.Trim()}");
+                    Console.Error.WriteLine($"        Try: git clone {AgencyRepo} --depth 1 {agencyDir}");
+                    Console.Error.WriteLine( "        Or:  multiagent-setup sync-roles --pull  (if already cloned manually)");
                     return 1;
                 }
                 Console.WriteLine("  OK: agency-agents cloned");
@@ -53,7 +55,11 @@ public sealed class SyncRolesCommand(string action, string? agencyDirOverride)
             Console.WriteLine("Pulling latest roles...");
             var (code, _, _) = await ProcessHelper.RunAsync("git", ["pull", "--ff-only"],
                 workingDir: agencyDir, captureOutput: true, allowFailure: true);
-            if (code != 0) Console.WriteLine("  WARN: git pull failed, using existing");
+            if (code != 0)
+            {
+                Console.WriteLine($"  WARN: git pull failed — syncing with existing roles in {agencyDir}");
+                Console.WriteLine($"        To retry: cd {agencyDir} && git pull --ff-only");
+            }
         }
 
         if (!Directory.Exists(agencyDir))
@@ -97,24 +103,57 @@ $ARGUMENTS
         }
 
         // ── Sync targets ───────────────────────────────────────────────────────
-        var cwd = Directory.GetCurrentDirectory();
+        var cwd = localSyncDir ?? Directory.GetCurrentDirectory();
 
-        // Claude / Nessy — global ~/.claude/commands/
-        var (claudeCount, claudeSkipped) = await SyncToDirectoryAsync(
-            roles, globalCommandsDir,
-            projectOverrideDir: Path.Combine(cwd, ".claude", "commands"));
-        Console.WriteLine();
-        Console.WriteLine($"Synced {claudeCount} roles to {globalCommandsDir}");
-        if (claudeSkipped > 0) Console.WriteLine($"Skipped {claudeSkipped} (project-level override exists)");
+        // Claude / Nessy — local .claude/commands/ by default; global only with --global
+        var localClaudeDir = Path.Combine(cwd, ".claude", "commands");
+        var hasLocalClaude = Directory.Exists(Path.GetDirectoryName(localClaudeDir)!); // .claude/ exists
+
+        if (hasLocalClaude)
+        {
+            var (localCount, localSkipped, localSkippedNames) = await SyncToDirectoryAsync(
+                roles, localClaudeDir, projectOverrideDir: localClaudeDir);
+            Console.WriteLine();
+            Console.WriteLine($"Synced {localCount} roles to {localClaudeDir}");
+            if (localSkipped > 0)
+            {
+                Console.WriteLine($"Skipped {localSkipped} roles (project-level override takes precedence):");
+                Console.WriteLine($"  {string.Join(", ", localSkippedNames)}");
+            }
+        }
+
+        if (globalSync)
+        {
+            var overrideDir = hasLocalClaude ? localClaudeDir : Path.Combine(cwd, ".claude", "commands");
+            var (claudeCount, claudeSkipped, claudeSkippedNames) = await SyncToDirectoryAsync(
+                roles, globalCommandsDir, projectOverrideDir: overrideDir);
+            Console.WriteLine();
+            Console.WriteLine($"Synced {claudeCount} roles to {globalCommandsDir}");
+            if (claudeSkipped > 0)
+            {
+                Console.WriteLine($"Skipped {claudeSkipped} roles (project-level override takes precedence):");
+                Console.WriteLine($"  {string.Join(", ", claudeSkippedNames)}");
+            }
+        }
+
+        if (!hasLocalClaude && !globalSync)
+        {
+            Console.Error.WriteLine($"  WARN: no local .claude/ workspace found in {cwd}");
+            Console.Error.WriteLine($"  Use --global to sync to ~/.claude/commands/");
+        }
 
         // Qwen — workspace-level (auto-detected)
         var qwenDir = Path.Combine(cwd, ".qwen", "commands");
         if (Directory.Exists(Path.GetDirectoryName(qwenDir)!))
         {
             Directory.CreateDirectory(qwenDir);
-            var (qCount, qSkipped) = await SyncToDirectoryAsync(roles, qwenDir, projectOverrideDir: qwenDir);
+            var (qCount, qSkipped, qSkippedNames) = await SyncToDirectoryAsync(roles, qwenDir, projectOverrideDir: qwenDir);
             Console.WriteLine($"Synced {qCount} roles to {qwenDir} (qwen)");
-            if (qSkipped > 0) Console.WriteLine($"Skipped {qSkipped} (existing override)");
+            if (qSkipped > 0)
+            {
+                Console.WriteLine($"Skipped {qSkipped} roles (project-level override takes precedence):");
+                Console.WriteLine($"  {string.Join(", ", qSkippedNames)}");
+            }
         }
 
         // Codex — workspace-level (auto-detected)
@@ -122,18 +161,86 @@ $ARGUMENTS
         if (Directory.Exists(Path.GetDirectoryName(codexDir)!))
         {
             Directory.CreateDirectory(codexDir);
-            var (cCount, cSkipped) = await SyncToDirectoryAsync(roles, codexDir, projectOverrideDir: codexDir);
+            var (cCount, cSkipped, cSkippedNames) = await SyncToDirectoryAsync(roles, codexDir, projectOverrideDir: codexDir);
             Console.WriteLine($"Synced {cCount} roles to {codexDir} (codex)");
-            if (cSkipped > 0) Console.WriteLine($"Skipped {cSkipped} (existing override)");
+            if (cSkipped > 0)
+            {
+                Console.WriteLine($"Skipped {cSkipped} roles (project-level override takes precedence):");
+                Console.WriteLine($"  {string.Join(", ", cSkippedNames)}");
+            }
+        }
+
+        // Gemini — global extension (~/.gemini/extensions/agency-agents/) when .gemini/ detected or --global
+        var hasGeminiWorkspace = Directory.Exists(Path.Combine(cwd, ".gemini"));
+        if (hasGeminiWorkspace || globalSync)
+        {
+            var geminiHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var geminiExtDir = Path.Combine(geminiHome, ".gemini", "extensions", "agency-agents");
+            var gCount = await SyncToGeminiExtensionAsync(roles, geminiExtDir);
+            Console.WriteLine($"Synced {gCount} roles to {geminiExtDir} (gemini extension)");
         }
 
         Console.WriteLine();
         Console.WriteLine("Check for new roles periodically:");
         Console.WriteLine("  multiagent-setup sync-roles --pull");
+        Console.WriteLine("  multiagent-setup sync-roles --pull --global  # also update ~/.claude/commands/");
         return 0;
     }
 
-    private static async Task<(int count, int skipped)> SyncToDirectoryAsync(
+    /// <summary>
+    /// Syncs roles to ~/.gemini/extensions/agency-agents/ as TOML slash commands.
+    /// Gemini CLI uses .toml files in extensions/name/commands/ for custom slash commands.
+    /// </summary>
+    private static async Task<int> SyncToGeminiExtensionAsync(
+        List<(string CmdName, string Output)> roles,
+        string extensionDir)
+    {
+        var commandsDir = Path.Combine(extensionDir, "commands");
+        Directory.CreateDirectory(commandsDir);
+
+        // Write extension manifest
+        var manifest = """
+            {
+              "name": "agency-agents",
+              "version": "1.0.0"
+            }
+            """;
+        await File.WriteAllTextAsync(
+            Path.Combine(extensionDir, "gemini-extension.json"),
+            manifest,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+        // Remove previously auto-generated TOML files
+        foreach (var f in Directory.GetFiles(commandsDir, "*.toml"))
+        {
+            var firstLine = File.ReadLines(f).FirstOrDefault() ?? "";
+            if (firstLine.Contains("auto-generated from agency-agents")) File.Delete(f);
+        }
+
+        int count = 0;
+        foreach (var (cmdName, output) in roles)
+        {
+            // TOML multi-line literal strings ('''...''') require no escaping except '''.
+            // Role content from agency-agents doesn't contain ''', so this is safe.
+            var toml = $"""
+                # auto-generated from agency-agents
+                description = "Expert role: {cmdName}"
+                prompt = '''
+                {output}
+                '''
+                """;
+
+            await File.WriteAllTextAsync(
+                Path.Combine(commandsDir, $"{cmdName}.toml"),
+                toml,
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            count++;
+        }
+
+        return count;
+    }
+
+    private static async Task<(int count, int skipped, List<string> skippedNames)> SyncToDirectoryAsync(
         List<(string CmdName, string Output)> roles,
         string targetDir,
         string? projectOverrideDir)
@@ -148,6 +255,7 @@ $ARGUMENTS
         }
 
         int count = 0, skipped = 0;
+        var skippedNames = new List<string>();
 
         foreach (var (cmdName, output) in roles)
         {
@@ -155,7 +263,7 @@ $ARGUMENTS
             if (projectOverrideDir is not null && projectOverrideDir != targetDir)
             {
                 var projectCmd = Path.Combine(projectOverrideDir, $"{cmdName}.md");
-                if (File.Exists(projectCmd)) { skipped++; continue; }
+                if (File.Exists(projectCmd)) { skipped++; skippedNames.Add(cmdName); continue; }
             }
 
             await File.WriteAllTextAsync(
@@ -165,7 +273,7 @@ $ARGUMENTS
             count++;
         }
 
-        return (count, skipped);
+        return (count, skipped, skippedNames);
     }
 
     private static string ExtractAfterFrontmatter(string content)

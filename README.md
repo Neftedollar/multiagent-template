@@ -1,12 +1,14 @@
-# multiagent-template
+# multiagent-template — Multi-Agent AI Orchestration for Autonomous Code Generation
 
-**Autonomous multi-agent code generation and PR automation for 12 AI coding assistants.** Scaffold a workspace where a team of specialized agents — orchestrator, architect, developer, reviewer, DevOps, designer, and more — drives software from backlog to merged PR without hand-holding. You set direction; the agents handle execution.
+**Autonomous multi-agent code generation and PR automation for 13 AI coding assistants.** Scaffold a structured workspace where specialized agents (orchestrator, architect, developer, reviewer, DevOps, designer) operate in a gated pipeline (PLAN → BUILD → TEST → VERIFY → SHIP) to drive software from backlog to merged PR autonomously — without context collapse, without code review bottlenecks, without hand-holding. You set direction; the agents handle execution.
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![Build](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml/badge.svg)](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml)
 [![GitHub stars](https://img.shields.io/github/stars/Neftedollar/multiagent-template?style=social)](https://github.com/Neftedollar/multiagent-template/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/badge/Discussions-join-blue)](https://github.com/Neftedollar/multiagent-template/discussions)
+
+**Tags:** AI agent orchestration · multi-agent AI · autonomous code generation · Claude Code · AI workflow automation · code review pipeline · agent routing · multi-LLM support · Claude Sonnet · OpenAI Codex · Gemini CLI
 
 <p align="center">
   <img src="docs/demo.svg" alt="multiagent-setup demo" width="720"/>
@@ -16,11 +18,19 @@
 
 ## Quick Start
 
+**Which command do I need?**
+
+| Situation | Command |
+|-----------|---------|
+| Starting a new project | `multiagent-setup new <name>` |
+| Adding to an existing git repo | `multiagent-setup init .` |
+
 **macOS — Homebrew (no .NET required):**
 
 ```bash
 brew install Neftedollar/multiagent-template/multiagent-setup
-multiagent-setup new MyProject
+multiagent-setup new MyProject          # new workspace
+multiagent-setup init .                 # add to existing repo
 ```
 
 **One-liner bootstrap** (installs all deps including Homebrew/winget, agent CLI, and creates the workspace):
@@ -52,12 +62,27 @@ multiagent-setup new MyProject --provider cline      # Cline (VS Code)
 multiagent-setup new MyProject --provider aider      # Aider AI pair programmer
 multiagent-setup new MyProject --provider continue   # Continue.dev (VS Code / JetBrains)
 multiagent-setup new MyProject --provider roo        # Roo Code (VS Code)
+multiagent-setup new MyProject --provider kiro       # Amazon Kiro (VS Code)
 multiagent-setup new MyProject --provider all        # all providers at once
+
+# Choose a workspace template (saas, oss, internal, or default)
+multiagent-setup new MyProject --template saas       # SaaS product (user-impact gates, feature flags, SLO review)
+multiagent-setup new MyProject --template oss        # Open source (CHANGELOG, semver, backward-compat gates)
+multiagent-setup new MyProject --template internal   # Internal tools (lighter pipeline, no external gates)
+
+# Add workspace files to an existing git repo (does not touch your code)
+multiagent-setup init .                              # current directory
+multiagent-setup init ./my-repo                      # specific directory
+multiagent-setup init . --template saas              # with template
 
 # Add a provider to an existing workspace (no need to recreate)
 multiagent-setup add-provider cursor
 multiagent-setup add-provider gemini --force   # overwrite existing files
 multiagent-setup add-provider all              # add all providers at once
+
+# Manage providers
+multiagent-setup list-providers               # show installed vs. available providers
+multiagent-setup remove-provider cursor       # cleanly remove a provider and its files
 
 # Update an existing workspace to the latest templates
 multiagent-setup update          # skip already-customised files
@@ -72,6 +97,15 @@ claude          # or: nessy / codex / qwen-code / gemini (terminal agents)
                 # or open in Cursor / Windsurf / VS Code (IDE agents)
 /orchestrator Implement user authentication with JWT
 ```
+
+**What happens next:**
+1. Orchestrator reads `docs/process.md` and selects roles dynamically
+2. Creates a plan and asks: `APPROVED / NEEDS WORK?`
+3. Proceeds through **PLAN → BUILD → TEST → VERIFY → SHIP**
+4. Opens a PR on GitHub when done — no manual intervention needed
+
+> Interactive mode: Claude asks for gate approval at each step.  
+> Autonomous mode (`claude -p`): runs fully headless, escalates blockers to GitHub Issues.
 
 **What you get in 5 minutes:**
 - A workspace where agents run `PLAN → BUILD → TEST → VERIFY → SHIP` autonomously
@@ -107,7 +141,7 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | Team of specialized roles | ✅ | ❌ | ❌ |
 | Autonomous overnight backlog drain | ✅ | Limited | ❌ |
 | Works inside your existing IDE | ✅ (via provider flags) | ✅ | ✅ |
-| Any AI provider (Claude, Gemini, Codex…) | ✅ 12 providers | Claude only | Any, but no pipeline |
+| Any AI provider (Claude, Gemini, Codex…) | ✅ 13 providers | Claude only | Any, but no pipeline |
 
 ---
 
@@ -127,8 +161,9 @@ Each step has an approval gate. Failures retry (3×) → helper role (2×) → h
 | **aider** | [Aider](https://aider.chat) | Terminal pair programming | Creates `.aider.conf.yml` — auto-reads CLAUDE.md |
 | **continue** | [Continue.dev](https://continue.dev) | VS Code + JetBrains users | `.continue/config.yaml` with `/orchestrator` slash command |
 | **roo** | [Roo Code](https://github.com/RooVetGit/Roo-Code) | VS Code extension users | Rules in `.roo/rules/` — auto-loaded per project |
+| **kiro** | [Amazon Kiro](https://kiro.dev) | AWS + VS Code users | Steering docs in `.kiro/steering/` — auto-loaded by Kiro |
 
-Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider + continue + roo).
+Use `--provider all` to scaffold all providers (claude + nessy + codex + qwen + cursor + windsurf + copilot + gemini + cline + aider + continue + roo + kiro).
 
 ---
 
@@ -153,6 +188,64 @@ One human (CEO) gives tasks. The **Orchestrator** agent breaks them into steps, 
 | **CEO Mode** | `/orchestrator <task>` | Human gives task, orchestrator executes |
 | **Single Expert** | `/<role> <question>` | Direct expert call, no pipeline |
 | **Autonomous** | `claude -p "/orchestrator ..."` | Orchestrator self-selects tasks from backlog |
+
+### Using IDE providers (Cursor, Windsurf, Copilot, Cline, Continue, Roo, Kiro)
+
+After `multiagent-setup new MyProject --provider cursor` (or any IDE provider):
+
+1. **Open the workspace in your IDE** — open the `MyProject/` directory (not a subdirectory)
+2. **Invoke the orchestrator** — use your IDE's AI chat panel and type `/orchestrator <task>`:
+   - Cursor: `Cmd+K` or `Cmd+L` chat panel → `/orchestrator Implement user authentication`
+   - Windsurf: Cascade panel → `/orchestrator ...`
+   - Copilot: GitHub Copilot Chat → `@workspace /orchestrator ...`
+   - Cline: Cline panel → `/orchestrator ...`
+   - Continue / Roo / Kiro: respective chat panel → `/orchestrator ...`
+
+3. **Slash commands are pre-loaded** — `.cursor/rules/orchestrator.mdc` (and equivalent for each provider) is scaffolded with `alwaysApply: true`, so the orchestrator role is active automatically. All 20+ specialist roles are in `.claude/commands/` and invokable as slash commands.
+
+4. **Hooks require the CLI on PATH** — safety hooks (`block-dangerous`, `auto-lint`, etc.) are compiled into the `multiagent-setup` binary. IDE agents don't run hooks unless the binary is on PATH and the IDE inherits the shell environment. Terminal providers (Claude, Codex, Gemini, etc.) get hooks automatically via `.claude/settings.json`.
+
+5. **The pipeline is the same** — `PLAN → BUILD → TEST → VERIFY → SHIP` works identically whether you're using a terminal agent or an IDE agent. Gate approvals appear as responses in the chat panel.
+
+### Autonomous mode — setting up the backlog
+
+To run the orchestrator fully headlessly (no human in the loop):
+
+**1. Create a GitHub Project**
+
+Go to your GitHub repo → Projects → New project. Use the "Board" template with columns: `Backlog`, `In Progress`, `Done`. Link the project to your repository.
+
+**2. Add issues to Backlog**
+
+Write issues as tasks for the orchestrator. Good format:
+```
+Title: Implement user authentication with JWT
+Body: 
+- Users can sign up with email/password
+- JWT tokens expire in 7 days
+- Refresh token flow included
+- Acceptance: all auth endpoints have integration tests
+```
+
+**3. Trigger autonomously**
+
+```bash
+# One-shot: pick one task from backlog and implement it
+claude -p "/orchestrator Pick the highest-priority task from the GitHub Project backlog and implement it."
+
+# Or use the GitHub Actions CI workflow (label an issue with 'orchestrator')
+# The scaffolded .github/workflows/orchestrator.yml triggers automatically
+```
+
+The `orchestrator.yml` CI workflow triggers when you add the `orchestrator` label to any issue. It runs headlessly, implements the task, and opens a PR. You review and merge.
+
+**4. Loop mode** (drain the whole backlog unattended)
+
+```bash
+claude -p "/orchestrator Pick tasks from the GitHub Project backlog. Implement each one. Create a PR per task. Stop when the backlog is empty."
+```
+
+> The `CLAUDE.md` template variables `{{GITHUB_ORG}}` and `{{GITHUB_REPO}}` are substituted at workspace creation time with your actual org/repo names — no manual editing needed.
 
 ---
 
@@ -180,6 +273,17 @@ MyProject/
     ├── completions.zsh      <- zsh completions
     └── completions.ps1      <- PowerShell completions
 ```
+
+### Two CLAUDE.md files
+
+The workspace uses two separate instruction files:
+
+| File | Purpose |
+|------|---------|
+| `CLAUDE.md` (workspace root) | **How Claude operates** — pipeline, roles, process, team structure |
+| `code/<project>/CLAUDE.md` | **What Claude builds** — architecture, patterns, build commands, test setup |
+
+When you clone your code repo into `code/<project>/`, create a `CLAUDE.md` there describing the codebase (or copy your existing one). Claude Code automatically reads both files.
 
 **Bringing in an existing codebase:**
 
@@ -252,13 +356,17 @@ See [`examples/`](examples/) for concrete workflows:
 ## CLI Reference
 
 ```bash
-multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|all]
-multiagent-setup add-provider <provider> [--force]   # add provider to existing workspace
-multiagent-setup update [--force]                    # update workspace templates to latest version
-multiagent-setup sync-roles [--clone|--pull] [--agency-dir <path>]
-multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>]
+multiagent-setup new <project> [org] [--provider claude|nessy|codex|qwen|cursor|windsurf|copilot|gemini|cline|aider|continue|roo|kiro|all] [--template default|saas|oss|internal]
+multiagent-setup init [dir] [--provider <name>] [--template <name>] [--force]   # add workspace to existing repo
+multiagent-setup add-provider <provider> [--force]            # add provider to existing workspace
+multiagent-setup remove-provider <provider> [--force] [--dry-run]  # remove a provider (--dry-run to preview)
+multiagent-setup list-providers                                    # list installed and available providers
+multiagent-setup update [--force] [--dry-run]                      # update templates (--dry-run to preview)
+multiagent-setup sync-roles [--clone|--pull] [--global] [--agency-dir <path>]
+multiagent-setup install-mcps [--docker|--manual] [--age-conn <str>] [--obrien-conn <str>] [--target <dir>]
 multiagent-setup hook <name>
-multiagent-setup doctor                              # check workspace for common config issues
+multiagent-setup doctor [--for sync-roles|init|update]             # check workspace or run pre-flight check
+multiagent-setup completions zsh|pwsh                              # print shell completion script
 multiagent-setup -v | --version
 ```
 
@@ -282,12 +390,16 @@ multiagent-setup -v | --version
 
 Templates live in [`tools/setup-cli/Templates/`](tools/setup-cli/Templates/). Each provider gets its own directory under `providers/`. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to add a new provider.
 
+Questions and ideas → [Discussions](https://github.com/Neftedollar/multiagent-template/discussions).
+
+If this saves you time, a ⭐ star helps others find it.
+
 ---
 
 ## FAQ
 
 **Does this work with projects that already have code?**  
-Yes. The workspace wraps your existing repo: `multiagent-setup new MyProject` creates the workspace, then clone your repo into `code/MyProject/`.
+Yes — two options: (1) run `multiagent-setup init .` inside your existing repo to add workspace files directly, or (2) run `multiagent-setup new MyProject` to create a separate workspace, then clone your repo into `code/MyProject/`.
 
 **How do I use multiple providers?**  
 Run `multiagent-setup new MyProject --provider all` to scaffold all providers at once. To add a provider to an existing workspace: `multiagent-setup add-provider gemini`.
@@ -318,14 +430,6 @@ Yes. A GitHub Actions workflow (`orchestrator.yml`) is scaffolded for claude/nes
 
 **Does the pipeline need internet access?**  
 Only for git push/PR creation steps and any web research the agent does. All local code analysis, formatting, and linting runs offline.
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Questions and ideas → [Discussions](https://github.com/Neftedollar/multiagent-template/discussions).
-
-If this saves you time, a ⭐ star helps others find it.
 
 ---
 

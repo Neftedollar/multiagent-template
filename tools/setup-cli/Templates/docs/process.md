@@ -1,5 +1,8 @@
 # Operational Process
 
+> **MCPs are optional.** If you haven't run `install-mcps`, skip all graph/Cypher sections below.
+> Use GitHub Issues as your backlog. The pipeline works without AGE or O'Brien.
+
 > **Process v1**. Source of truth: AGE graph `{{GRAPH_NAME}}` + workflow specs.
 
 ## Source of truth
@@ -11,12 +14,14 @@
 | Security findings, Code insights | AGE graph `{{GRAPH_NAME}}` (SecurityFinding, CodeInsight nodes) |
 | Role capabilities (extended) | `docs/role-capabilities.md` |
 | Workflow specs | `docs/workflows/REGISTRY.md` → individual WORKFLOW-*.md |
-| Issues, dependencies | GitHub Project + graph (issue→DEPENDS_ON) |
-| Coordination | O'Brien (active-work, bugs, suggestions) |
+| Issues, dependencies | GitHub Project + graph (issue→DEPENDS_ON) <!-- requires AGE MCP --> |
+| Coordination | O'Brien (active-work, bugs, suggestions) <!-- requires AGE MCP --> |
 
 **Pipeline**: PLAN → BUILD → TEST → VERIFY → SHIP (5 steps, 5 pipelines: feature, bugfix, infra, content, spike).
 
 ## How agents use the graph
+
+<!-- requires AGE MCP -->
 
 Graph `{{GRAPH_NAME}}` is both process definition and **project knowledge base**. Each pipeline step is enriched with graph context:
 
