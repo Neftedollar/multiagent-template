@@ -6,13 +6,24 @@
 #   curl -fsSL https://raw.githubusercontent.com/Neftedollar/multiagent-template/main/bootstrap.sh | bash -s -- MyProject
 #   bash -s -- MyProject --provider gemini
 #   bash -s -- MyProject my-org --provider all
+#   # Init mode (inject into existing repo):
+#   bash -s -- . --provider claude
+#   bash -s -- /path/to/existing/repo --provider nessy
 #   # or locally:
 #   ./bootstrap.sh MyProject [github-org] [--provider <name>]
+#   ./bootstrap.sh . [--provider <name>]
 
 set -euo pipefail
 
-PROJECT_NAME="${1:?Usage: ./bootstrap.sh <project-name> [github-org] [--provider <name>]}"
+FIRST_ARG="${1:-}"
+if [[ -z "$FIRST_ARG" ]]; then
+  echo "Usage: ./bootstrap.sh <project-name> [github-org] [--provider <name>]" >&2
+  echo "       ./bootstrap.sh <dir-or-.> [--provider <name>]" >&2
+  exit 1
+fi
 shift
+
+PROJECT_NAME=""
 GITHUB_ORG=""
 PROVIDER=""
 
@@ -28,9 +39,20 @@ done
 OS="$(uname -s)"
 has() { command -v "$1" &>/dev/null; }
 
+# Detect init vs new mode early (for header display)
+if [[ "$FIRST_ARG" == "." || "$FIRST_ARG" == /* || "$FIRST_ARG" == ./* || "$FIRST_ARG" == ../* ]] || \
+   ( [[ -n "$FIRST_ARG" ]] && [[ -d "$FIRST_ARG" ]] ); then
+  _MODE="init"
+  _TARGET="$FIRST_ARG"
+else
+  _MODE="new"
+  _TARGET="$FIRST_ARG"
+fi
+
 echo "============================================"
 echo "  Multi-Agent Workspace Bootstrap"
-echo "  Project:  $PROJECT_NAME"
+echo "  Mode:     $_MODE"
+echo "  Target:   $_TARGET"
 echo "  Provider: ${PROVIDER:-claude (default)}"
 echo "  OS:       $OS $(uname -m)"
 echo "============================================"
@@ -128,7 +150,20 @@ else
   dotnet tool install -g multiagent-setup
 fi
 
-SETUP_ARGS=("new" "$PROJECT_NAME")
-[ -n "$GITHUB_ORG" ] && SETUP_ARGS+=("$GITHUB_ORG")
-[ -n "$PROVIDER" ]   && SETUP_ARGS+=("--provider" "$PROVIDER")
+# Detect init vs new mode:
+# init mode  — first arg is ".", an absolute path, a relative path, or an existing directory
+# new mode   — first arg is a plain project name (no slashes, not ".", not an existing dir)
+if [[ "$FIRST_ARG" == "." || "$FIRST_ARG" == /* || "$FIRST_ARG" == ./* || "$FIRST_ARG" == ../* ]] || \
+   ( [[ -n "$FIRST_ARG" ]] && [[ -d "$FIRST_ARG" ]] ); then
+  # init mode — inject into existing directory
+  TARGET_DIR="$(cd "$FIRST_ARG" && pwd)"
+  SETUP_ARGS=("init" "$TARGET_DIR")
+  [ -n "$PROVIDER" ] && SETUP_ARGS+=("--provider" "$PROVIDER")
+else
+  # new mode — create a new workspace
+  PROJECT_NAME="$FIRST_ARG"
+  SETUP_ARGS=("new" "$PROJECT_NAME")
+  [ -n "$GITHUB_ORG" ] && SETUP_ARGS+=("$GITHUB_ORG")
+  [ -n "$PROVIDER" ]   && SETUP_ARGS+=("--provider" "$PROVIDER")
+fi
 multiagent-setup "${SETUP_ARGS[@]}"

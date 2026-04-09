@@ -52,7 +52,13 @@ internal sealed record ProviderDef(
     string NextStepTemplate,
 
     /// <summary>True when included in --provider all expansion. nessy = false (shares .claude/ with claude).</summary>
-    bool IncludedInAll
+    bool IncludedInAll,
+
+    /// <summary>
+    /// Filename for the workspace instructions file (e.g. "CLAUDE.md", "NESSY.md").
+    /// null = provider embeds instructions in rules files rather than a standalone file (cursor, windsurf, roo, cline, copilot).
+    /// </summary>
+    string? WorkspaceInstructionsFile = null
 );
 
 internal static class ProviderRegistry
@@ -60,136 +66,148 @@ internal static class ProviderRegistry
     internal static readonly IReadOnlyList<ProviderDef> All = new[]
     {
         new ProviderDef(
-            Name:             "claude",
-            TemplatePrefix:   ".claude/",
-            Directories:      [".claude/commands", ".claude/hooks", ".github/workflows"],
-            Detection:        DetectionHint.ByDir(".claude"),
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "claude",
-            InstallHint:      "https://docs.anthropic.com/en/docs/claude-code",
-            NextStepTemplate: "       claude        → /orchestrator <task>",
-            IncludedInAll:    true
+            Name:                     "claude",
+            TemplatePrefix:           ".claude/",
+            Directories:              [".claude/commands", ".claude/hooks", ".github/workflows"],
+            Detection:                DetectionHint.ByDir(".claude"),
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "claude",
+            InstallHint:              "https://docs.anthropic.com/en/docs/claude-code",
+            NextStepTemplate:         "       claude        → /orchestrator <task>",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "CLAUDE.md"
         ),
         new ProviderDef(
-            Name:             "nessy",
-            TemplatePrefix:   null,        // shares .claude/ with claude
-            Directories:      [".claude/commands", ".claude/hooks"],
-            Detection:        DetectionHint.Never,
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "nessy",
-            InstallHint:      "https://nessy.ai",
-            NextStepTemplate: "       nessy         → /orchestrator <task>",
-            IncludedInAll:    false
+            Name:                     "nessy",
+            TemplatePrefix:           null,        // shares .claude/ with claude
+            Directories:              [".claude/commands", ".claude/hooks"],
+            Detection:                DetectionHint.Never,
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "nessy",
+            InstallHint:              "https://nessy.ai",
+            NextStepTemplate:         "       nessy         → /orchestrator <task>",
+            IncludedInAll:            false,
+            WorkspaceInstructionsFile: "NESSY.md"
         ),
         new ProviderDef(
-            Name:             "codex",
-            TemplatePrefix:   "providers/codex/",
-            Directories:      [".codex/skills"],
-            Detection:        DetectionHint.ByDir(".codex"),
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "codex",
-            InstallHint:      "https://github.com/openai/codex",
-            NextStepTemplate: "       codex         → /orchestrator <task>",
-            IncludedInAll:    true
+            Name:                     "codex",
+            TemplatePrefix:           "providers/codex/",
+            Directories:              [".codex/skills"],
+            Detection:                DetectionHint.ByDir(".codex"),
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "codex",
+            InstallHint:              "https://github.com/openai/codex",
+            NextStepTemplate:         "       codex         → /orchestrator <task>",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "AGENTS.md"
         ),
         new ProviderDef(
-            Name:             "qwen",
-            TemplatePrefix:   "providers/qwen/",
-            Directories:      [".qwen"],
-            Detection:        DetectionHint.ByDir(".qwen"),
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "qwen-code",
-            InstallHint:      "https://github.com/QwenLM/qwen-code",
-            NextStepTemplate: "       qwen-code     → /orchestrator <task>",
-            IncludedInAll:    true
+            Name:                     "qwen",
+            TemplatePrefix:           "providers/qwen/",
+            Directories:              [".qwen"],
+            Detection:                DetectionHint.ByDir(".qwen"),
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "qwen-code",
+            InstallHint:              "https://github.com/QwenLM/qwen-code",
+            NextStepTemplate:         "       qwen-code     → /orchestrator <task>",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "QWEN.md"
         ),
         new ProviderDef(
-            Name:             "cursor",
-            TemplatePrefix:   "providers/cursor/",
-            Directories:      [".cursor/rules"],
-            Detection:        DetectionHint.ByDir(".cursor/rules"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "cursor — IDE tool, install from https://cursor.com",
-            NextStepTemplate: "       cursor        → open {cwd}, rules load automatically",
-            IncludedInAll:    true
+            Name:                     "cursor",
+            TemplatePrefix:           "providers/cursor/",
+            Directories:              [".cursor/rules"],
+            Detection:                DetectionHint.ByDir(".cursor/rules"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "cursor — IDE tool, install from https://cursor.com",
+            NextStepTemplate:         "       cursor        → open {cwd}, rules load automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions embedded in .cursor/rules/*.mdc
         ),
         new ProviderDef(
-            Name:             "windsurf",
-            TemplatePrefix:   "providers/windsurf/",
-            Directories:      [".windsurf/rules"],
-            Detection:        DetectionHint.ByDir(".windsurf/rules"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "windsurf — IDE tool, install from https://windsurf.com",
-            NextStepTemplate: "       windsurf      → open {cwd}, rules load automatically",
-            IncludedInAll:    true
+            Name:                     "windsurf",
+            TemplatePrefix:           "providers/windsurf/",
+            Directories:              [".windsurf/rules"],
+            Detection:                DetectionHint.ByDir(".windsurf/rules"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "windsurf — IDE tool, install from https://windsurf.com",
+            NextStepTemplate:         "       windsurf      → open {cwd}, rules load automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions embedded in .windsurf/rules/*.md
         ),
         new ProviderDef(
-            Name:             "copilot",
-            TemplatePrefix:   "providers/copilot/",
-            Directories:      [".github"],
-            Detection:        DetectionHint.ByFile(".github/copilot-instructions.md"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "copilot — GitHub Copilot, install VS Code extension",
-            NextStepTemplate: "       copilot       → open {cwd} in VS Code, reads .github/copilot-instructions.md",
-            IncludedInAll:    true
+            Name:                     "copilot",
+            TemplatePrefix:           "providers/copilot/",
+            Directories:              [".github"],
+            Detection:                DetectionHint.ByFile(".github/copilot-instructions.md"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "copilot — GitHub Copilot, install VS Code extension",
+            NextStepTemplate:         "       copilot       → open {cwd} in VS Code, reads .github/copilot-instructions.md",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions in .github/copilot-instructions.md
         ),
         new ProviderDef(
-            Name:             "gemini",
-            TemplatePrefix:   "providers/gemini/",
-            Directories:      [".gemini"],
-            Detection:        DetectionHint.ByDir(".gemini"),
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "gemini",
-            InstallHint:      "https://ai.google.dev/gemini-api/docs/gemini-cli",
-            NextStepTemplate: "       gemini        → /orchestrator <task>",
-            IncludedInAll:    true
+            Name:                     "gemini",
+            TemplatePrefix:           "providers/gemini/",
+            Directories:              [".gemini"],
+            Detection:                DetectionHint.ByDir(".gemini"),
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "gemini",
+            InstallHint:              "https://ai.google.dev/gemini-api/docs/gemini-cli",
+            NextStepTemplate:         "       gemini        → /orchestrator <task>",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "GEMINI.md"
         ),
         new ProviderDef(
-            Name:             "cline",
-            TemplatePrefix:   "providers/cline/",
-            Directories:      [],           // writes .clinerules to workspace root, no subdirectory
-            Detection:        DetectionHint.ByFile(".clinerules"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "cline — VS Code extension, install from marketplace",
-            NextStepTemplate: "       cline         → open {cwd} in VS Code with Cline extension, .clinerules loads automatically",
-            IncludedInAll:    true
+            Name:                     "cline",
+            TemplatePrefix:           "providers/cline/",
+            Directories:              [],           // writes .clinerules to workspace root, no subdirectory
+            Detection:                DetectionHint.ByFile(".clinerules"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "cline — VS Code extension, install from marketplace",
+            NextStepTemplate:         "       cline         → open {cwd} in VS Code with Cline extension, .clinerules loads automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions embedded in .clinerules
         ),
         new ProviderDef(
-            Name:             "aider",
-            TemplatePrefix:   "providers/aider/",
-            Directories:      [],           // writes .aider.conf.yml to workspace root, no subdirectory
-            Detection:        DetectionHint.ByFile(".aider.conf.yml"),
-            ToolCheck:        ToolCheckMode.Suggest,
-            BinaryName:       "aider",
-            InstallHint:      "https://aider.chat",
-            NextStepTemplate: "       aider         → run 'aider' from {cwd}, CLAUDE.md loaded automatically",
-            IncludedInAll:    true
+            Name:                     "aider",
+            TemplatePrefix:           "providers/aider/",
+            Directories:              [],           // writes .aider.conf.yml to workspace root, no subdirectory
+            Detection:                DetectionHint.ByFile(".aider.conf.yml"),
+            ToolCheck:                ToolCheckMode.Suggest,
+            BinaryName:               "aider",
+            InstallHint:              "https://aider.chat",
+            NextStepTemplate:         "       aider         → run 'aider' from {cwd}, CLAUDE.md loaded automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "AIDER.md"
         ),
         new ProviderDef(
-            Name:             "continue",
-            TemplatePrefix:   "providers/continue/",
-            Directories:      [".continue"],
-            Detection:        DetectionHint.ByDir(".continue"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "continue — VS Code/JetBrains extension, install from https://continue.dev",
-            NextStepTemplate: "       continue      → open {cwd} in VS Code/JetBrains, rules load from .continue/config.yaml",
-            IncludedInAll:    true
+            Name:                     "continue",
+            TemplatePrefix:           "providers/continue/",
+            Directories:              [".continue"],
+            Detection:                DetectionHint.ByDir(".continue"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "continue — VS Code/JetBrains extension, install from https://continue.dev",
+            NextStepTemplate:         "       continue      → open {cwd} in VS Code/JetBrains, rules load from .continue/config.yaml",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: "CONTINUE.md"
         ),
         new ProviderDef(
-            Name:             "roo",
-            TemplatePrefix:   "providers/roo/",
-            Directories:      [".roo/rules"],
-            Detection:        DetectionHint.ByDir(".roo/rules"),
-            ToolCheck:        ToolCheckMode.Info,
-            BinaryName:       null,
-            InstallHint:      "roo — Roo Code VS Code extension, install from marketplace",
-            NextStepTemplate: "       roo           → open {cwd} in VS Code with Roo Code extension, .roo/rules/ loads automatically",
-            IncludedInAll:    true
+            Name:                     "roo",
+            TemplatePrefix:           "providers/roo/",
+            Directories:              [".roo/rules"],
+            Detection:                DetectionHint.ByDir(".roo/rules"),
+            ToolCheck:                ToolCheckMode.Info,
+            BinaryName:               null,
+            InstallHint:              "roo — Roo Code VS Code extension, install from marketplace",
+            NextStepTemplate:         "       roo           → open {cwd} in VS Code with Roo Code extension, .roo/rules/ loads automatically",
+            IncludedInAll:            true,
+            WorkspaceInstructionsFile: null   // instructions embedded in .roo/rules/*.md
         ),
     };
 

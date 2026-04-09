@@ -13,6 +13,7 @@ if (args[0] is "-v" or "--version")
 return args[0] switch
 {
     "new"           => await HandleNew(args[1..]),
+    "init"          => await HandleInit(args[1..]),
     "add-provider"  => await HandleAddProvider(args[1..]),
     "update"        => await HandleUpdate(args[1..]),
     "sync-roles"    => await HandleSyncRoles(args[1..]),
@@ -49,6 +50,40 @@ async Task<int> HandleNew(string[] a)
         return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
 
     return await new SetupCommand(name, org, provider).ExecuteAsync();
+}
+
+async Task<int> HandleInit(string[] a)
+{
+    string? dir      = null;
+    string? org      = null;
+    string? provider = null;
+    bool    force    = false;
+
+    for (int i = 0; i < a.Length; i++)
+    {
+        if (a[i] == "--provider" && i + 1 < a.Length)
+            provider = a[++i];
+        else if (a[i] == "--force")
+            force = true;
+        else if (!a[i].StartsWith('-'))
+            dir ??= a[i];
+    }
+
+    dir = Path.GetFullPath(dir ?? Directory.GetCurrentDirectory());
+
+    if (!Directory.Exists(dir))
+        return PrintUsage(error: $"Directory does not exist: {dir}");
+
+    // Interactive provider picker when not specified and stdin is a terminal
+    if (provider is null && !Console.IsInputRedirected)
+        provider = ProviderPicker.Ask();
+
+    provider ??= "claude";  // non-interactive fallback (CI / piped input)
+
+    if (provider != "all" && ProviderRegistry.Find(provider) is null)
+        return PrintUsage(error: $"Unknown provider '{provider}'. Valid: {string.Join(", ", ProviderRegistry.ValidForNew)}");
+
+    return await new InitCommand(dir, org, provider, force).ExecuteAsync();
 }
 
 async Task<int> HandleAddProvider(string[] a)
@@ -108,6 +143,11 @@ static int PrintUsage(string? error = null)
     Console.WriteLine("  new <project-name> [github-org]    Create a new multi-agent workspace");
     Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
     Console.WriteLine($"                                       {allNames}");
+    Console.WriteLine("  init [dir]                          Inject workspace files into an existing git repo");
+    Console.WriteLine("    dir                               Target directory (default: current directory)");
+    Console.WriteLine($"    --provider <name>                 Provider: claude (default), or:");
+    Console.WriteLine($"                                       {allNames}");
+    Console.WriteLine("    --force                           Overwrite existing files");
     Console.WriteLine("  add-provider <name>                 Add a provider to an existing workspace");
     Console.WriteLine($"    <name>: {addNames}");
     Console.WriteLine("    --force                           Overwrite existing provider config");
