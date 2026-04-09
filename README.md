@@ -1,6 +1,6 @@
 # multiagent-template — Multi-Agent AI Orchestration for Autonomous Code Generation
 
-**Autonomous multi-agent code generation and PR automation for 12 AI coding assistants.** Scaffold a structured workspace where specialized agents (orchestrator, architect, developer, reviewer, DevOps, designer) operate in a gated pipeline (PLAN → BUILD → TEST → VERIFY → SHIP) to drive software from backlog to merged PR autonomously — without context collapse, without code review bottlenecks, without hand-holding. You set direction; the agents handle execution.
+**Autonomous multi-agent code generation and PR automation for 13 AI coding assistants.** Scaffold a structured workspace where specialized agents (orchestrator, architect, developer, reviewer, DevOps, designer) operate in a gated pipeline (PLAN → BUILD → TEST → VERIFY → SHIP) to drive software from backlog to merged PR autonomously — without context collapse, without code review bottlenecks, without hand-holding. You set direction; the agents handle execution.
 
 [![NuGet](https://img.shields.io/nuget/v/multiagent-setup)](https://www.nuget.org/packages/multiagent-setup)
 [![Build](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml/badge.svg)](https://github.com/Neftedollar/multiagent-template/actions/workflows/build.yml)
@@ -188,6 +188,64 @@ One human (CEO) gives tasks. The **Orchestrator** agent breaks them into steps, 
 | **CEO Mode** | `/orchestrator <task>` | Human gives task, orchestrator executes |
 | **Single Expert** | `/<role> <question>` | Direct expert call, no pipeline |
 | **Autonomous** | `claude -p "/orchestrator ..."` | Orchestrator self-selects tasks from backlog |
+
+### Using IDE providers (Cursor, Windsurf, Copilot, Cline, Continue, Roo, Kiro)
+
+After `multiagent-setup new MyProject --provider cursor` (or any IDE provider):
+
+1. **Open the workspace in your IDE** — open the `MyProject/` directory (not a subdirectory)
+2. **Invoke the orchestrator** — use your IDE's AI chat panel and type `/orchestrator <task>`:
+   - Cursor: `Cmd+K` or `Cmd+L` chat panel → `/orchestrator Implement user authentication`
+   - Windsurf: Cascade panel → `/orchestrator ...`
+   - Copilot: GitHub Copilot Chat → `@workspace /orchestrator ...`
+   - Cline: Cline panel → `/orchestrator ...`
+   - Continue / Roo / Kiro: respective chat panel → `/orchestrator ...`
+
+3. **Slash commands are pre-loaded** — `.cursor/rules/orchestrator.mdc` (and equivalent for each provider) is scaffolded with `alwaysApply: true`, so the orchestrator role is active automatically. All 20+ specialist roles are in `.claude/commands/` and invokable as slash commands.
+
+4. **Hooks require the CLI on PATH** — safety hooks (`block-dangerous`, `auto-lint`, etc.) are compiled into the `multiagent-setup` binary. IDE agents don't run hooks unless the binary is on PATH and the IDE inherits the shell environment. Terminal providers (Claude, Codex, Gemini, etc.) get hooks automatically via `.claude/settings.json`.
+
+5. **The pipeline is the same** — `PLAN → BUILD → TEST → VERIFY → SHIP` works identically whether you're using a terminal agent or an IDE agent. Gate approvals appear as responses in the chat panel.
+
+### Autonomous mode — setting up the backlog
+
+To run the orchestrator fully headlessly (no human in the loop):
+
+**1. Create a GitHub Project**
+
+Go to your GitHub repo → Projects → New project. Use the "Board" template with columns: `Backlog`, `In Progress`, `Done`. Link the project to your repository.
+
+**2. Add issues to Backlog**
+
+Write issues as tasks for the orchestrator. Good format:
+```
+Title: Implement user authentication with JWT
+Body: 
+- Users can sign up with email/password
+- JWT tokens expire in 7 days
+- Refresh token flow included
+- Acceptance: all auth endpoints have integration tests
+```
+
+**3. Trigger autonomously**
+
+```bash
+# One-shot: pick one task from backlog and implement it
+claude -p "/orchestrator Pick the highest-priority task from the GitHub Project backlog and implement it."
+
+# Or use the GitHub Actions CI workflow (label an issue with 'orchestrator')
+# The scaffolded .github/workflows/orchestrator.yml triggers automatically
+```
+
+The `orchestrator.yml` CI workflow triggers when you add the `orchestrator` label to any issue. It runs headlessly, implements the task, and opens a PR. You review and merge.
+
+**4. Loop mode** (drain the whole backlog unattended)
+
+```bash
+claude -p "/orchestrator Pick tasks from the GitHub Project backlog. Implement each one. Create a PR per task. Stop when the backlog is empty."
+```
+
+> The `CLAUDE.md` template variables `{{GITHUB_ORG}}` and `{{GITHUB_REPO}}` are substituted at workspace creation time with your actual org/repo names — no manual editing needed.
 
 ---
 
