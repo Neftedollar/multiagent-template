@@ -158,6 +158,7 @@ You are running inside **Claude Code** — use the `Agent` tool to spawn real su
 2. Read role file: .claude/commands/<role-name>.md
 3. Agent(
      subagent_type: "general-purpose",
+     model: "<haiku|sonnet|opus>",     ← always set per table below
      description: "<role> — <step>: <task summary>",
      prompt: """
        <full role file content>
@@ -175,35 +176,69 @@ You are running inside **Claude Code** — use the `Agent` tool to spawn real su
 
 **Critical:** Each agent starts with zero context from your session. Construct everything it needs in the prompt — don't assume it knows anything.
 
-**Subagent type selection:**
+**Subagent type + model selection:**
 
-| Step | Subagent type | When |
-|------|--------------|------|
-| PLAN | `general-purpose` | Strategy, architecture, research |
-| BUILD (research/config) | `Explore` | Read-only, fast, no side effects |
-| BUILD (code changes) | `general-purpose` + `isolation: "worktree"` | Any file writes — always use worktree |
-| TEST | `general-purpose` | Run tests, report results |
-| VERIFY (code review) | `superpowers:code-reviewer` | Built-in reviewer subagent |
-| VERIFY (reality check) | `general-purpose` | Pass testing-reality-checker role |
-| SHIP | `general-purpose` | git branch, commit, PR |
+| Step | Subagent type | Model | Rationale |
+|------|--------------|-------|-----------|
+| PLAN (strategy/architecture) | `general-purpose` | `opus` | Complex reasoning, API design |
+| PLAN (research/data gathering) | `Explore` | `haiku` | File reads, lookups — no reasoning needed |
+| BUILD (research/config) | `Explore` | `haiku` | Read-only exploration |
+| BUILD (implementation) | `general-purpose` + `isolation: "worktree"` | `sonnet` | Code writing |
+| TEST (run + collect results) | `general-purpose` | `haiku` | Execute commands, capture output |
+| TEST (analyze failures) | `general-purpose` | `sonnet` | Interpret failures, diagnose |
+| VERIFY (code review) | `superpowers:code-reviewer` | `opus` | Security + correctness — never compromise |
+| VERIFY (reality check) | `general-purpose` | `opus` | Final gate before SHIP |
+| SHIP (git + PR) | `general-purpose` | `haiku` | Mechanical git operations |
 
 **Worktree isolation — mandatory for all code changes:**
 ```
 Agent(
   subagent_type: "general-purpose",
+  model: "sonnet",
   isolation: "worktree",       ← creates isolated branch automatically
   prompt: "..."
 )
 ```
-The agent returns the worktree path and branch. You collect the branch name for SHIP.
+The agent returns the worktree path and branch name. Collect the branch for SHIP.
 
 **Parallelism — use `run_in_background: true` where outputs are independent:**
-- PLAN: multiple research agents in parallel (PM + architect, or multiple domain researchers)
+- PLAN: multiple research agents in parallel (PM + architect, or domain researchers)
 - VERIFY: `superpowers:code-reviewer` + reality-checker run in parallel
 - Never parallelize BUILD (one worktree at a time)
 
+**Parallel consolidation — mandatory after any parallel step:**
+
+When N agents ran in parallel, their outputs may conflict (contradictory decisions, overlapping file edits, gaps in coverage). Before advancing to the next step, run a consolidation agent:
+```
+Agent(
+  subagent_type: "general-purpose",
+  model: "opus",
+  description: "Consolidator — merge parallel <step> outputs",
+  prompt: """
+    You are reviewing outputs from N parallel agents before integration.
+    Each agent worked independently with no knowledge of the others.
+
+    Agent outputs:
+    [Agent 1 — <role>]: <paste output>
+    [Agent 2 — <role>]: <paste output>
+    ...
+
+    Check for:
+    - Conflicting decisions (Agent A says X, Agent B says Y about the same thing)
+    - Duplicate work (both modified the same file or addressed the same problem)
+    - Contradictory recommendations
+    - Coverage gaps (something none of them addressed)
+
+    Return:
+    - APPROVED: unified summary of decisions, list of files changed, any minor conflicts resolved
+    - NEEDS CONSOLIDATION: list each conflict with both positions; do not resolve — escalate
+  """
+)
+```
+The consolidator's result is the gate output for the step. Only APPROVED advances the pipeline.
+
 **Gate evaluation:**
-- Each agent returns a result. You evaluate it — APPROVED or NEEDS WORK (reason).
+- Each step (or consolidation) produces APPROVED or NEEDS WORK (reason).
 - **A step does not start until the previous gate is APPROVED**
 - On failure: re-spawn the same agent with the failure reason in context (3 retries → helper role agent → 2 more → CEO escalation)
 - Write checkpoints after each successful gate
