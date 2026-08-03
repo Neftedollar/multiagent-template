@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: nuget
     directory: /tools/setup-cli
     schedule:
-      interval: weekly
+      interval: monthly
       day: monday
     open-pull-requests-limit: 5
     groups:
@@ -15,7 +15,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
       day: monday
     open-pull-requests-limit: 5
     groups:
